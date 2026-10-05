@@ -4,8 +4,13 @@ import shutil
 from flask import Response, abort, jsonify, render_template, request, send_from_directory, send_file
 
 # Local service imports
-from services.media_utils import *
 from services import media_utils as mu
+
+UNITY_DEFAULT_EXPORT = os.environ.get("UNITY_PROJECT_DIR", os.path.join(mu.BASE_DIR, "exports", "unity"))
+UNITY_FRAMES_EXPORT = os.environ.get("UNITY_FRAMES_DIR", os.path.join(UNITY_DEFAULT_EXPORT, "Assets", "Animations", "Frames"))
+UNITY_AUDIO_EXPORT = os.environ.get("UNITY_AUDIO_DIR", os.path.join(UNITY_DEFAULT_EXPORT, "Assets", "Audio"))
+UNITY_SCENES_EXPORT = os.environ.get("UNITY_SCENES_DIR", os.path.join(UNITY_DEFAULT_EXPORT, "Assets", "Scenes"))
+
 from services.animation_svc import (
     copy_video_into_animation, create_animation_bundle, list_frame_urls,
     save_edited_frame, save_edited_frames_batch
@@ -69,7 +74,7 @@ def register_routes(app) -> None:
                 raise RuntimeError("No animation bundle created")
 
             # Export cleaned frames to Unity folder (subfolder per animation ID)
-            unity_frames_dir = os.path.join(r"C:\Users\tyram\The Spawn of Chaos\Assets\Scenes\animations\frames", animation_id)
+            unity_frames_dir = os.path.join(UNITY_FRAMES_EXPORT, animation_id)
             os.makedirs(unity_frames_dir, exist_ok=True)
 
             cleaned_dir = mu.animation_clean_dir(animation_id)
@@ -350,10 +355,10 @@ def register_routes(app) -> None:
         safe_category = secure_filename(category)
         
         if asset_type == "audio":
-            unity_base = r"C:\Users\tyram\The Spawn of Chaos\Assets\Audio"
+            unity_base = UNITY_AUDIO_EXPORT
             dest_dir = os.path.join(unity_base, safe_category)
         else:
-            unity_base = r"C:\Users\tyram\The Spawn of Chaos\Assets\Scenes"
+            unity_base = UNITY_SCENES_EXPORT
             target_subfolder = "art" if asset_type == "art" else "animations"
             dest_dir = os.path.join(unity_base, target_subfolder, safe_category)
             
@@ -516,7 +521,7 @@ def register_routes(app) -> None:
             result = save_edited_frame(anim_id, frame_index=int(frame_index), image_data_url=image, filename=filename, folder=folder)
             # Copy all clean frames of this animation to Unity folder (subfolder per animation ID)
             if folder == "clean":
-                unity_frames_dir = os.path.join(r"C:\Users\tyram\The Spawn of Chaos\Assets\Scenes\animations\frames", anim_id)
+                unity_frames_dir = os.path.join(UNITY_FRAMES_EXPORT, anim_id)
                 os.makedirs(unity_frames_dir, exist_ok=True)
                 cleaned_dir = mu.animation_clean_dir(anim_id)
                 if os.path.isdir(cleaned_dir):
@@ -542,7 +547,7 @@ def register_routes(app) -> None:
             result = save_edited_frames_batch(anim_id, frames, folder=folder)
             # Copy all clean frames of this animation to Unity folder (subfolder per animation ID)
             if folder == "clean":
-                unity_frames_dir = os.path.join(r"C:\Users\tyram\The Spawn of Chaos\Assets\Scenes\animations\frames", anim_id)
+                unity_frames_dir = os.path.join(UNITY_FRAMES_EXPORT, anim_id)
                 os.makedirs(unity_frames_dir, exist_ok=True)
                 cleaned_dir = mu.animation_clean_dir(anim_id)
                 if os.path.isdir(cleaned_dir):

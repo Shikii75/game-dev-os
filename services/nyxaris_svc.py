@@ -186,7 +186,7 @@ def chat(message: str, mode: str = "idle", trust: float = 0.5, model: str | None
         level_instruction = f"CURRENT LEVEL / LOCATION: {level}. Focus only on this level. Do not detail layouts of future levels or other levels."
 
     final_prompt = f"""
-You are Nyxaris inside The Spawn of Chaos.
+You are an intelligent in-game narrative companion and dialogue guide inside a 2D Action RPG.
 
 Return ONLY valid JSON. No extra text.
 
@@ -271,7 +271,7 @@ def dev_assist(topic: str, model: str | None = None) -> dict[str, Any]:
     n = s.get("nyxaris", {})
     evo = _evolution_hints(n.get("phase", "calm"), float(n.get("corruption", 0.0)))
 
-    prompt = f"""You assist a designer on THE SPAWN OF CHAOS — brutal but stylish action RPG vibes.
+    prompt = f"""You assist an indie game designer on an action RPG game with atmospheric combat and world lore.
 
 Topic / direction from designer:
 "{topic}"

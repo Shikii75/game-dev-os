@@ -14,7 +14,7 @@
   "source_image": null,
   "sprite_sheet": "/outputs/ai_attack_390943_spritesheet.png",
   "pack_details": {
-    "sprite_sheet_path": "c:\\Users\\tyram\\Desktop\\game\\outputs\\ai_attack_390943_spritesheet.png",
+    "sprite_sheet_path": "outputs/ai_attack_390943_spritesheet.png",
     "total_frames": 4,
     "columns": 2,
     "rows": 2,

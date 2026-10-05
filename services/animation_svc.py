@@ -406,7 +406,11 @@ def pack_sprite_sheet(animation_id: str, folder: str = "clean") -> dict:
     output_path = os.path.join(output_dir, sheet_name)
     sheet.save(output_path, "PNG")
 
-    unity_frames_dir = os.path.join(r"C:\Users\tyram\The Spawn of Chaos\Assets\Scenes\animations\frames", animation_id)
+    unity_base_frames = os.environ.get(
+        "UNITY_FRAMES_DIR",
+        os.path.join(mu.BASE_DIR, "exports", "unity", "Assets", "Animations", "Frames")
+    )
+    unity_frames_dir = os.path.join(unity_base_frames, animation_id)
     os.makedirs(unity_frames_dir, exist_ok=True)
     unity_sheet_path = os.path.join(unity_frames_dir, sheet_name)
     shutil.copy2(output_path, unity_sheet_path)

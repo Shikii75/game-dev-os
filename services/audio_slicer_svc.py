@@ -17,14 +17,16 @@ from typing import List, Dict, Any, Optional
 from . import media_utils as mu
 
 # Default paths
-UNITY_PROJECT_AUDIO_DIR = os.path.normpath(r"C:\Users\tyram\The Spawn of Chaos\Assets\Audio\Voice")
+UNITY_PROJECT_AUDIO_DIR = os.environ.get(
+    "UNITY_PROJECT_AUDIO_DIR",
+    os.path.normpath(os.path.join(mu.BASE_DIR, "exports", "unity", "Assets", "Audio", "Voice"))
+)
 STORAGE_AUDIO_VOICE_DIR = os.path.normpath(os.path.join(mu.audio_store_root_dir(), "voice"))
 CACHE_TEMP_DIR = os.path.normpath(os.path.join(mu.DATA_DIR, "audio_slicer_cache"))
 
 os.makedirs(CACHE_TEMP_DIR, exist_ok=True)
 os.makedirs(STORAGE_AUDIO_VOICE_DIR, exist_ok=True)
-if os.path.exists(os.path.dirname(UNITY_PROJECT_AUDIO_DIR)):
-    os.makedirs(UNITY_PROJECT_AUDIO_DIR, exist_ok=True)
+os.makedirs(UNITY_PROJECT_AUDIO_DIR, exist_ok=True)
 
 
 def get_cached_file_path(file_id: str) -> str:

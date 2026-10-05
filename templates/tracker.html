@@ -49,7 +49,7 @@
     <img src="{{ url_for('static', filename='brand/logo-mark.svg') }}" alt="">
     <div>
       <h1>TRACKER</h1>
-      <span class="sub">Spawn of Chaos development progress</span>
+      <span class="sub">Indie Game Production Progress</span>
     </div>
   </div>
   <div class="gdos-header-actions">
@@ -111,49 +111,49 @@ const trackerApi = '/api/tracker/progress';
 const defaultState = {
   categories: [
     { id: 'character', title: '🎭 Character & Animation', tasks: [
-      { id: 'character-1', label: 'Polish mage girl idle animation', completed: false },
-      { id: 'character-2', label: 'Polish mage attack animation set', completed: false },
-      { id: 'character-3', label: 'Add dodge / dash animation', completed: false }
+      { id: 'character-1', label: 'Polish protagonist idle animation', completed: false },
+      { id: 'character-2', label: 'Polish attack combo animation set', completed: false },
+      { id: 'character-3', label: 'Add dodge / dash animation with i-frames', completed: false }
     ]},
     { id: 'npc', title: '🧠 NPC & Dialogue System', tasks: [
-      { id: 'npc-1', label: 'Create NPCs for direction + lore drops', completed: false },
-      { id: 'npc-2', label: 'Implement dialogue interaction system', completed: false },
-      { id: 'npc-3', label: 'Add story hints for Nyxaris system', completed: false }
+      { id: 'npc-1', label: 'Create world NPCs for quests and guidance', completed: false },
+      { id: 'npc-2', label: 'Implement interactive dialogue branching system', completed: false },
+      { id: 'npc-3', label: 'Add story hints and narrative trigger cues', completed: false }
     ]},
     { id: 'ui', title: '🖥️ UI SYSTEMS', tasks: [
-      { id: 'ui-1', label: 'Pause menu UI', completed: false },
-      { id: 'ui-2', label: 'Health bar UI (player + enemies)', completed: false },
-      { id: 'ui-3', label: 'Shop UI system', completed: false }
+      { id: 'ui-1', label: 'Pause menu & settings UI', completed: false },
+      { id: 'ui-2', label: 'Health bar & stamina gauges (player + enemies)', completed: false },
+      { id: 'ui-3', label: 'Merchant shop and inventory UI', completed: false }
     ]},
     { id: 'world', title: '🏯 WORLD BUILDING', tasks: [
-      { id: 'world-1', label: 'Ancient Japanese village (Level 1 town)', completed: false },
-      { id: 'world-2', label: 'Path to first clan dojo', completed: false },
-      { id: 'world-3', label: 'First clan dojo interior', completed: false },
-      { id: 'world-4', label: 'Path to second clan dojo', completed: false },
-      { id: 'world-5', label: 'Second dojo interior', completed: false },
-      { id: 'world-6', label: 'Tsuchigumo cave entrance + structure', completed: false }
+      { id: 'world-1', label: 'Starter village / safe hub environment', completed: false },
+      { id: 'world-2', label: 'Pathway and exploration routes to Dungeon 1', completed: false },
+      { id: 'world-3', label: 'Primary dungeon interior & room layouts', completed: false },
+      { id: 'world-4', label: 'Secondary challenge zone & gauntlets', completed: false },
+      { id: 'world-5', label: 'Vertical platforming & hazard zone section', completed: false },
+      { id: 'world-6', label: 'Final boss chamber arena architecture', completed: false }
     ]},
     { id: 'combat', title: '⚔️ COMBAT SYSTEM', tasks: [
-      { id: 'combat-1', label: 'Mage combat moveset (basic + advanced attacks)', completed: false },
-      { id: 'combat-2', label: 'Enemy wave system implementation', completed: false },
-      { id: 'combat-3', label: 'Spider enemy variants (at least 3 types)', completed: false },
-      { id: 'combat-4', label: 'Boss fight: Tsuchigumo', completed: false }
+      { id: 'combat-1', label: 'Core combat moveset (basic + heavy attacks)', completed: false },
+      { id: 'combat-2', label: 'Dynamic enemy wave spawner implementation', completed: false },
+      { id: 'combat-3', label: 'Enemy mob variants (melee, ranged, heavy)', completed: false },
+      { id: 'combat-4', label: 'Multi-phase boss fight encounter logic', completed: false }
     ]},
     { id: 'shop', title: '🛒 SHOP SYSTEM', tasks: [
-      { id: 'shop-1', label: 'In-game shop in village', completed: false },
-      { id: 'shop-2', label: 'Currency system', completed: false },
-      { id: 'shop-3', label: 'Buyable items: Healing potions', completed: false },
-      { id: 'shop-4', label: 'Buyable items: Small power-ups (damage boost, speed boost)', completed: false }
+      { id: 'shop-1', label: 'In-game merchant NPC shop system', completed: false },
+      { id: 'shop-2', label: 'Currency and transaction exchange logic', completed: false },
+      { id: 'shop-3', label: 'Consumables: Health potions & stamina draughts', completed: false },
+      { id: 'shop-4', label: 'Gear upgrades: Weapon tiers and stat modifiers', completed: false }
     ]},
     { id: 'audio', title: '🔊 AUDIO & POLISH', tasks: [
-      { id: 'audio-1', label: 'Background music for village', completed: false },
-      { id: 'audio-2', label: 'Combat music for boss fight', completed: false },
-      { id: 'audio-3', label: 'Sound effects system (attacks, UI, hits)', completed: false }
+      { id: 'audio-1', label: 'Exploration soundtrack & ambient loops', completed: false },
+      { id: 'audio-2', label: 'Dynamic combat music system', completed: false },
+      { id: 'audio-3', label: 'Sound effects suite (swings, impacts, UI)', completed: false }
     ]},
-    { id: 'movement', title: '🌍 MOVEMENT SYSTEM (ADVANCED - OPTIONAL)', tasks: [
-      { id: 'movement-1', label: 'Dynamic climbing', completed: false },
-      { id: 'movement-2', label: 'Smoother walking animation blending', completed: false },
-      { id: 'movement-3', label: 'Improved jump physics', completed: false }
+    { id: 'movement', title: '🌍 MOVEMENT SYSTEM', tasks: [
+      { id: 'movement-1', label: 'Ledge grab and dynamic climbing', completed: false },
+      { id: 'movement-2', label: 'Locomotion blend trees & smooth turning', completed: false },
+      { id: 'movement-3', label: 'Jump physics, gravity curves, and coyote time', completed: false }
     ]}
   ]
 };
