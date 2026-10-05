@@ -1,0 +1,50 @@
+{
+  "counts": {
+    "asset_uploads": 21,
+    "animations_processed": 264,
+    "audio_uploads": 0,
+    "bg_removal_runs": 7042,
+    "pipeline_runs": 263,
+    "nyxaris_chats": 31,
+    "nyxaris_dev_calls": 0,
+    "ai_animations_generated": 4
+  },
+  "nyxaris": {
+    "corruption": 1.0,
+    "interaction_count": 31,
+    "phase": "corrupted"
+  },
+  "styles": [],
+  "interaction_log_sample": [
+    "hello",
+    "hello",
+    "hello",
+    "hello",
+    "hello",
+    "Hey",
+    "hey",
+    "what?",
+    "who are you",
+    "who are you?",
+    "who are you?",
+    "hey",
+    "hello",
+    "where are we?",
+    "Hello Nyxaris, what is this place?",
+    "Hello Nyxaris, what is this place?",
+    "Hello Nyxaris, what is this place?",
+    "Hello Nyxaris, what is this place?",
+    "Hello Nyxaris, what is this place?",
+    "Hello Nyxaris, what is this place?",
+    "heyy",
+    "sorry",
+    "i love you",
+    "lord have mercy",
+    "hey",
+    "hey",
+    "hey",
+    "hey",
+    "hewvinnif",
+    "hewvinnif"
+  ]
+}

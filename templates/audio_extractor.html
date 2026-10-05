@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="cosmic">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Game Dev OS — Audio Extractor</title>
+  {% include 'partials/head_assets.html' %}
+  <style>
+    .extractor-container {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 1.25rem;
+    }
+    
+    @media (max-width: 1024px) {
+      .extractor-container {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .panel {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .video-area {
+      position: relative;
+      background: #000;
+      border-radius: 10px;
+      overflow: hidden;
+      aspect-ratio: 16/9;
+      border: 1px solid var(--border);
+    }
+    
+    .video-area video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    
+    .control-row {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    
+    .control-group {
+      flex: 1;
+      min-width: 120px;
+    }
+    
+    .control-group label {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 0.25rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .control-group input, 
+    .control-group select {
+      width: 100%;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.5rem;
+      border-radius: 6px;
+      font-family: inherit;
+    }
+    
+    .control-group input:focus,
+    .control-group select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    
+    .timeline-widget {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.85rem;
+    }
+    
+    .timeline-scrubber {
+      position: relative;
+      height: 24px;
+      background: var(--surface);
+      border-radius: 4px;
+      margin-bottom: 0.75rem;
+      cursor: pointer;
+      overflow: hidden;
+    }
+    
+    .timeline-progress {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      background: var(--border);
+      width: 0%;
+      pointer-events: none;
+    }
+    
+    .timeline-range {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      background: var(--accent-dim);
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    
+    .timeline-marker {
+      position: absolute;
+      top: 0;
+      width: 2px;
+      height: 100%;
+      pointer-events: none;
+    }
+    
+    .timeline-marker.start {
+      background: #ff5555;
+      box-shadow: 0 0 8px #ff5555;
+    }
+    
+    .timeline-marker.end {
+      background: #55ff55;
+      box-shadow: 0 0 8px #55ff55;
+    }
+    
+    .timeline-marker.current {
+      background: var(--accent);
+      width: 2px;
+    }
+    
+    .btn-icon {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    
+    .upload-box {
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    
+    .upload-box:hover {
+      border-color: var(--accent);
+    }
+    
+    .upload-box input {
+      display: none;
+    }
+    
+    .audio-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.65rem 0.85rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    
+    .audio-card:hover {
+      border-color: var(--accent-dim);
+      transform: translateX(2px);
+    }
+    
+    .audio-info {
+      flex: 1;
+    }
+    
+    .audio-info h4 {
+      margin: 0 0 0.15rem 0;
+      font-size: 0.88rem;
+    }
+    
+    .audio-info .meta {
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+    
+    .audio-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    
+    .mini-play-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent-dim);
+      color: var(--accent);
+      cursor: pointer;
+      border: none;
+      font-size: 0.75rem;
+    }
+    
+    .mini-play-btn:hover {
+      background: var(--accent);
+      color: var(--accent-text);
+    }
+    
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      padding: 0.75rem 1.25rem;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 0.85rem;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      transition: opacity 0.3s;
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    .toast.success { background: #1b8543; border-left: 4px solid #55ff55; }
+    .toast.error { background: #962525; border-left: 4px solid #ff5555; }
+    .toast.info { background: #1a5ca8; border-left: 4px solid #55ccff; }
+  </style>
+</head>
+<body class="gdos-shell">
+
+<header class="gdos-header">
+  <div class="gdos-brand">
+    <img src="{{ url_for('static', filename='brand/logo-mark.png') }}" alt="" style="width: 42px; height: 42px; border-radius: 8px;">
+    <div>
+      <h1>GAME DEV <span class="os">OS</span></h1>
+      <span class="sub">The Spawn of Chaos — local pipeline hub</span>
+    </div>
+  </div>
+  <div class="gdos-header-actions">
+    {% include 'partials/theme_select.html' %}
+    <a class="gdos-btn ghost" href="{{ url_for('api_status') }}">API status</a>
+    <span class="badge" id="desktopBadge" style="display:none;">Desktop</span>
+  </div>
+</header>
+
+  <nav class="gdos-nav">
+  <div class="nav-label">Workspaces</div>
+  <a href="/dashboard">Overview</a>
+  <a href="/tracker">Tracker</a>
+  <a href="/assets">Asset brain</a>
+  <a href="/animations">Animation pipeline</a>
+  <a href="/skeletal-animator">Skeletal Animator</a>
+  <a href="/audio-hub">Audio hub</a>
+  <a href="/images">Image hub</a>
+  <a href="/styles">Style presets</a>
+  <a href="/status-board">Status &amp; progress</a>
+  <a href="/script-setup">Script Setup</a>
+  <a href="/prompt-planner">Prompt Planner</a>
+  <a href="/character-builder">Character Builder</a>
+  <div class="nav-label">Tools</div>
+  <a href="{{ url_for('tool') }}">Sprite / BG remover</a>
+  <a class="active" href="/audio-extractor">Audio Extractor</a>
+  <a href="/nyxaris-chat">Nyxaris</a>
+  <div class="nav-label">Export</div>
+  <a href="/export/unity">Unity .zip</a>
+  <a href="/export/full">Full snapshot .zip</a>
+</nav>
+
+<main class="gdos-main">
+  <div style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <h2 style="margin: 0; font-size: 1.4rem;">Video Audio Extractor</h2>
+      <p style="margin: 0.2rem 0 0 0; font-size: 0.85rem; color: var(--muted);">
+        Extract sword swings, click sound effects, and level up sounds from reference clips and import directly to Unity.
+      </p>
+    </div>
+    <a href="/audio-hub" class="gdos-btn ghost">← Audio Hub</a>
+  </div>
+
+  <div class="extractor-container">
+    <!-- LEFT: Video Source & Extractor panel -->
+    <div class="panel">
+      <!-- Video Selection Card -->
+      <div class="gdos-card">
+        <div class="control-row">
+          <div class="control-group" style="flex: 2;">
+            <label for="videoSelect">Select Video Source</label>
+            <select id="videoSelect">
+              <option value="">-- Choose a video --</option>
+            </select>
+          </div>
+          <div style="display:flex; align-items:flex-end; height: 100%;">
+            <label class="gdos-btn ghost btn-icon" style="margin-top: 1.3rem;">
+              📁 Upload Video
+              <input type="file" id="videoUploadInput" accept="video/*" style="display:none;">
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Video Player Card -->
+      <div class="gdos-card" id="playerCard" style="display: none;">
+        <div class="video-area">
+          <video id="videoPlayer" controls></video>
+        </div>
+
+        <!-- Timeline / Cutting markers visual widget -->
+        <div class="timeline-widget" style="margin-top: 1rem;">
+          <div class="timeline-scrubber" id="timelineScrubber">
+            <div class="timeline-progress" id="timelineProgress"></div>
+            <div class="timeline-range" id="timelineRange"></div>
+            <div class="timeline-marker start" id="markerStart" style="display: none;"></div>
+            <div class="timeline-marker end" id="markerEnd" style="display: none;"></div>
+            <div class="timeline-marker current" id="markerCurrent"></div>
+          </div>
+          
+          <div class="control-row" style="justify-content: space-between;">
+            <div style="display: flex; gap: 0.5rem;">
+              <button type="button" class="gdos-btn ghost" id="btnMarkIn" style="border-color: #ff5555; color: #ff8888;">
+                [ Mark In (Start)
+              </button>
+              <button type="button" class="gdos-btn ghost" id="btnMarkOut" style="border-color: #55ff55; color: #88ff88;">
+                ] Mark Out (End)
+              </button>
+            </div>
+            <div>
+              <button type="button" class="gdos-btn ghost" id="btnPlaySegment" style="border-color: var(--accent); color: var(--accent);">
+                ▶ Play Selected Segment
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings & Extraction Parameters Card -->
+      <div class="gdos-card" id="settingsCard" style="display: none;">
+        <h3 style="margin-top: 0; font-size: 0.95rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem;">
+          Extraction settings
+        </h3>
+        
+        <form id="extractForm">
+          <div class="control-row" style="margin-bottom: 0.85rem;">
+            <div class="control-group">
+              <label for="startTime">Start Time (s)</label>
+              <input type="number" id="startTime" step="0.001" min="0" value="0.000">
+            </div>
+            <div class="control-group">
+              <label for="endTime">End Time (s)</label>
+              <input type="number" id="endTime" step="0.001" min="0" value="0.000">
+            </div>
+          </div>
+
+          <div class="control-row" style="margin-bottom: 0.85rem;">
+            <div class="control-group">
+              <label for="clipSlug">Filename / Slug</label>
+              <input type="text" id="clipSlug" placeholder="e.g. sword-slash-heavy" required>
+            </div>
+            <div class="control-group">
+              <label for="clipCategory">Audio Category</label>
+              <select id="clipCategory">
+                <option value="combat">Combat (effects, swings, hits)</option>
+                <option value="ui">UI (clicks, hover, beeps)</option>
+                <option value="ambient">Ambient (loops, tones)</option>
+                <option value="misc">Misc / General</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="control-row" style="margin-bottom: 1rem; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <input type="checkbox" id="clipMono" style="width: auto;">
+              <label for="clipMono" style="font-size: 0.82rem; cursor: pointer; color: var(--muted); user-select: none;">
+                Convert to Mono (recommended for 3D spatial sounds)
+              </label>
+            </div>
+            <div style="font-size: 0.8rem; color: var(--muted);" id="durationText">
+              Duration: 0.00s
+            </div>
+          </div>
+
+          <button type="submit" class="gdos-btn primary" id="btnExtract" style="width: 100%; padding: 0.65rem;">
+            ⚡ Extract and Save Audio Clip
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- RIGHT: Extracted Library & Direct Import panel -->
+    <div class="panel">
+      <div class="gdos-card" style="flex: 1; min-height: 400px; display: flex; flex-direction: column;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem;">
+          <h3 style="margin: 0; font-size: 0.95rem;">Extracted Audio Clips</h3>
+          <button type="button" class="gdos-btn ghost" id="btnReloadClips" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">
+            🔄 Refresh
+          </button>
+        </div>
+        
+        <div style="flex: 1; overflow-y: auto; max-height: 600px;" id="clipsList">
+          <p style="color: var(--muted); text-align: center; font-size: 0.85rem; margin-top: 2rem;" id="noClipsMsg">
+            No extracted audio clips found. Run an extraction to generate assets!
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<!-- Audio player helper element -->
+<audio id="globalAudioPlayer" style="display: none;"></audio>
+
+<script>
+(function() {
+  // Elements
+  const videoSelect = document.getElementById("videoSelect");
+  const videoUploadInput = document.getElementById("videoUploadInput");
+  const playerCard = document.getElementById("playerCard");
+  const videoPlayer = document.getElementById("videoPlayer");
+  const settingsCard = document.getElementById("settingsCard");
+  
+  const startTimeInput = document.getElementById("startTime");
+  const endTimeInput = document.getElementById("endTime");
+  const clipSlug = document.getElementById("clipSlug");
+  const clipCategory = document.getElementById("clipCategory");
+  const clipMono = document.getElementById("clipMono");
+  const durationText = document.getElementById("durationText");
+  
+  const btnMarkIn = document.getElementById("btnMarkIn");
+  const btnMarkOut = document.getElementById("btnMarkOut");
+  const btnPlaySegment = document.getElementById("btnPlaySegment");
+  const extractForm = document.getElementById("extractForm");
+  
+  const clipsList = document.getElementById("clipsList");
+  const btnReloadClips = document.getElementById("btnReloadClips");
+  const noClipsMsg = document.getElementById("noClipsMsg");
+  const globalAudioPlayer = document.getElementById("globalAudioPlayer");
+
+  // Scrubber Elements
+  const timelineScrubber = document.getElementById("timelineScrubber");
+  const timelineProgress = document.getElementById("timelineProgress");
+  const timelineRange = document.getElementById("timelineRange");
+  const markerStart = document.getElementById("markerStart");
+  const markerEnd = document.getElementById("markerEnd");
+  const markerCurrent = document.getElementById("markerCurrent");
+  
+  // Toast Helper
+  const toast = document.getElementById("toast");
+  function showToast(message, type = "info") {
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+    toast.style.opacity = 1;
+    setTimeout(() => {
+      toast.style.opacity = 0;
+    }, 4000);
+  }
+
+  // Load Video list
+  async function loadVideosList(selectedPath = "") {
+    try {
+      const res = await fetch("/api/media/list/videos");
+      const list = await res.json();
+      
+      // Preserve choice or select option
+      const currentChoice = selectedPath || videoSelect.value;
+      
+      videoSelect.innerHTML = '<option value="">-- Choose a video --</option>';
+      list.forEach(v => {
+        const opt = document.createElement("option");
+        opt.value = v.path;
+        opt.textContent = `${v.name} (${(v.size / (1024*1024)).toFixed(1)} MB)`;
+        videoSelect.appendChild(opt);
+      });
+      
+      if (currentChoice) {
+        videoSelect.value = currentChoice;
+        triggerVideoLoad();
+      }
+    } catch (err) {
+      showToast("Failed to load video list", "error");
+    }
+  }
+
+  // Handle video selection change
+  videoSelect.onchange = triggerVideoLoad;
+
+  function triggerVideoLoad() {
+    const relativePath = videoSelect.value;
+    if (!relativePath) {
+      playerCard.style.display = "none";
+      settingsCard.style.display = "none";
+      videoPlayer.src = "";
+      return;
+    }
+    
+    // Video URL on Flask is /media/videos/filename (relative paths are served securely)
+    videoPlayer.src = "/media/videos/" + relativePath;
+    playerCard.style.display = "block";
+    settingsCard.style.display = "block";
+    
+    // Reset inputs
+    startTimeInput.value = "0.000";
+    endTimeInput.value = "5.000";
+    
+    // Auto-populate slug suggestion from video name
+    const cleanName = relativePath.split('/').pop().split('.').shift();
+    clipSlug.value = cleanName.toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-clip";
+    
+    // Set marker defaults when video metadata loads
+    videoPlayer.onloadedmetadata = () => {
+      const dur = videoPlayer.duration;
+      endTimeInput.value = Math.min(5.0, dur).toFixed(3);
+      startTimeInput.max = dur;
+      endTimeInput.max = dur;
+      updateMarkersVisual();
+    };
+  }
+
+  // Upload Video directly
+  videoUploadInput.onchange = async () => {
+    const file = videoUploadInput.files[0];
+    if (!file) return;
+    
+    const fd = new FormData();
+    fd.append("kind", "video");
+    fd.append("slug", file.name.split('.').shift().slice(0, 20));
+    fd.append("file", file);
+    
+    showToast("Uploading video...", "info");
+    
+    try {
+      const res = await fetch("/api/assets/upload", {
+        method: "POST",
+        body: fd
+      });
+      const data = await res.json();
+      
+      if (res.ok) {
+        showToast("Video uploaded successfully!", "success");
+        // Reload list and select the newly uploaded file
+        // The service returns the logical relative file path as 'filename' under storage/videos
+        await loadVideosList(data.filename);
+      } else {
+        showToast("Upload failed: " + (data.error || "Unknown error"), "error");
+      }
+    } catch (err) {
+      showToast("Network error during upload", "error");
+    }
+    videoUploadInput.value = ""; // reset
+  };
+
+  // Video Marker Handling
+  btnMarkIn.onclick = () => {
+    startTimeInput.value = videoPlayer.currentTime.toFixed(3);
+    validateTimes();
+    updateMarkersVisual();
+  };
+
+  btnMarkOut.onclick = () => {
+    endTimeInput.value = videoPlayer.currentTime.toFixed(3);
+    validateTimes();
+    updateMarkersVisual();
+  };
+
+  startTimeInput.oninput = () => {
+    validateTimes();
+    updateMarkersVisual();
+  };
+
+  endTimeInput.oninput = () => {
+    validateTimes();
+    updateMarkersVisual();
+  };
+
+  function validateTimes() {
+    let start = parseFloat(startTimeInput.value) || 0;
+    let end = parseFloat(endTimeInput.value) || 0;
+    const dur = videoPlayer.duration || 9999;
+    
+    if (start < 0) start = 0;
+    if (start > dur) start = dur;
+    if (end < start) end = start + 0.1;
+    if (end > dur) end = dur;
+    
+    startTimeInput.value = start.toFixed(3);
+    endTimeInput.value = end.toFixed(3);
+    
+    const diff = end - start;
+    durationText.textContent = `Duration: ${diff.toFixed(2)}s`;
+  }
+
+  // Play segment code
+  let playbackTimer = null;
+  btnPlaySegment.onclick = () => {
+    const start = parseFloat(startTimeInput.value);
+    const end = parseFloat(endTimeInput.value);
+    
+    videoPlayer.currentTime = start;
+    videoPlayer.play();
+    
+    if (playbackTimer) clearInterval(playbackTimer);
+    
+    playbackTimer = setInterval(() => {
+      if (videoPlayer.currentTime >= end || videoPlayer.paused) {
+        videoPlayer.pause();
+        clearInterval(playbackTimer);
+      }
+    }, 30);
+  };
+
+  // Scrubber & Range visual feedback
+  function updateMarkersVisual() {
+    const dur = videoPlayer.duration;
+    if (!dur) return;
+    
+    const start = parseFloat(startTimeInput.value) || 0;
+    const end = parseFloat(endTimeInput.value) || 0;
+    const current = videoPlayer.currentTime;
+    
+    const startPct = (start / dur) * 100;
+    const endPct = (end / dur) * 100;
+    const currentPct = (current / dur) * 100;
+    
+    markerStart.style.left = `${startPct}%`;
+    markerStart.style.display = "block";
+    
+    markerEnd.style.left = `${endPct}%`;
+    markerEnd.style.display = "block";
+    
+    timelineRange.style.left = `${startPct}%`;
+    timelineRange.style.width = `${endPct - startPct}%`;
+    
+    markerCurrent.style.left = `${currentPct}%`;
+    timelineProgress.style.width = `${currentPct}%`;
+  }
+
+  videoPlayer.ontimeupdate = updateMarkersVisual;
+
+  // Timeline scrubber clicking to seek
+  timelineScrubber.onclick = (e) => {
+    const dur = videoPlayer.duration;
+    if (!dur) return;
+    const rect = timelineScrubber.getBoundingClientRect();
+    const pct = (e.clientX - rect.left) / rect.width;
+    videoPlayer.currentTime = pct * dur;
+  };
+
+  // Submit Extraction form
+  extractForm.onsubmit = async (e) => {
+    e.preventDefault();
+    
+    const start = parseFloat(startTimeInput.value);
+    const end = parseFloat(endTimeInput.value);
+    const slug = clipSlug.value.trim();
+    const category = clipCategory.value;
+    const mono = clipMono.checked;
+    const video_path = videoSelect.value;
+    
+    if (end <= start) {
+      showToast("End time must be greater than Start time", "error");
+      return;
+    }
+    
+    showToast("Extracting sound clip...", "info");
+    
+    try {
+      const res = await fetch("/api/audio/extract-from-video", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          video_path,
+          start_time: start,
+          end_time: end,
+          slug,
+          category,
+          mono
+        })
+      });
+      const data = await res.json();
+      
+      if (res.ok) {
+        showToast(`Successfully extracted ${data.filename}!`, "success");
+        // Reload clips gallery
+        loadAudioClips();
+      } else {
+        showToast("Extraction failed: " + (data.error || "Unknown error"), "error");
+      }
+    } catch (err) {
+      showToast("Network error during extraction", "error");
+    }
+  };
+
+  // Load and populate extracted Audio Clips
+  let clipsCache = {};
+  async function loadAudioClips() {
+    try {
+      const res = await fetch("/api/media/list/audio");
+      const groups = await res.json();
+      
+      clipsList.innerHTML = "";
+      let hasClips = false;
+      clipsCache = {};
+      
+      // groups is a dictionary grouped by category
+      Object.keys(groups).forEach(cat => {
+        const files = groups[cat];
+        if (files && files.length > 0) {
+          hasClips = true;
+          
+          // Add Category Header
+          const header = document.createElement("div");
+          header.className = "nav-label";
+          header.style.margin = "0.75rem 0 0.35rem 0";
+          header.style.borderBottom = "1px solid var(--border)";
+          header.style.paddingBottom = "0.2rem";
+          header.textContent = cat.toUpperCase();
+          clipsList.appendChild(header);
+          
+          files.forEach(f => {
+            clipsCache[f.url] = f;
+            
+            const card = document.createElement("div");
+            card.className = "audio-card";
+            
+            const info = document.createElement("div");
+            info.className = "audio-info";
+            
+            // Human readable size
+            const sizeStr = (f.size / 1024).toFixed(1) + " KB";
+            
+            info.innerHTML = `
+              <h4>${f.name}</h4>
+              <span class="meta">Size: ${sizeStr} · category: ${cat}</span>
+            `;
+            
+            const actions = document.createElement("div");
+            actions.className = "audio-actions";
+            
+            // Mini Play Button
+            const playBtn = document.createElement("button");
+            playBtn.className = "mini-play-btn";
+            playBtn.innerHTML = "▶";
+            playBtn.onclick = () => {
+              if (globalAudioPlayer.src.endsWith(f.url) && !globalAudioPlayer.paused) {
+                globalAudioPlayer.pause();
+                playBtn.innerHTML = "▶";
+              } else {
+                // Pause all play buttons in list
+                document.querySelectorAll(".mini-play-btn").forEach(b => b.innerHTML = "▶");
+                globalAudioPlayer.src = f.url;
+                globalAudioPlayer.play();
+                playBtn.innerHTML = "⏸";
+                
+                globalAudioPlayer.onended = () => {
+                  playBtn.innerHTML = "▶";
+                };
+              }
+            };
+            
+            // Unity Import Button
+            const importBtn = document.createElement("button");
+            importBtn.className = "gdos-btn primary";
+            importBtn.style.padding = "0.25rem 0.5rem";
+            importBtn.style.fontSize = "0.7rem";
+            importBtn.textContent = "Unity Import";
+            importBtn.onclick = async () => {
+              importBtn.disabled = true;
+              importBtn.textContent = "Copying...";
+              
+              // Prepare payload
+              const fd = new FormData();
+              fd.append("category", cat);
+              fd.append("asset_type", "audio");
+              // relative_path in storage e.g. audio/combat/sword.wav
+              fd.append("relative_path", `audio/${cat}/${f.name}`);
+              
+              try {
+                const iRes = await fetch("/api/assets/import-unity", {
+                  method: "POST",
+                  body: fd
+                });
+                const iData = await iRes.json();
+                
+                if (iRes.ok) {
+                  showToast(iData.message || "Imported successfully!", "success");
+                } else {
+                  showToast("Unity import failed: " + (iData.error || "Unknown error"), "error");
+                }
+              } catch (err) {
+                showToast("Network error copying to Unity", "error");
+              } finally {
+                importBtn.disabled = false;
+                importBtn.textContent = "Unity Import";
+              }
+            };
+            
+            actions.appendChild(playBtn);
+            actions.appendChild(importBtn);
+            card.appendChild(info);
+            card.appendChild(actions);
+            clipsList.appendChild(card);
+          });
+        }
+      });
+      
+      noClipsMsg.style.display = hasClips ? "none" : "block";
+    } catch (err) {
+      showToast("Failed to load audio clips list", "error");
+    }
+  }
+
+  btnReloadClips.onclick = loadAudioClips;
+
+  // Initialize page
+  loadVideosList();
+  loadAudioClips();
+
+  // Desktop check
+  if (window.gameDevOS && window.gameDevOS.desktop) {
+    const b = document.getElementById("desktopBadge");
+    if (b) b.style.display = "inline-block";
+  }
+
+  // Active nav checking
+  document.querySelectorAll(".gdos-nav a[href]").forEach((a) => {
+    try {
+      const p = new URL(a.href).pathname.replace(/\/$/, "") || "/";
+      const here = location.pathname.replace(/\/$/, "") || "/";
+      a.classList.toggle("active", p === here);
+    } catch (_) {}
+  });
+
+})();
+</script>
+</body>
+</html>

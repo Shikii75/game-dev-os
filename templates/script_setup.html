@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="cosmic">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Game Dev OS — Script Setup</title>
+  {% include 'partials/head_assets.html' %}
+  <style>
+    .setup-shell { padding: 1.5rem; }
+    .setup-header { margin-bottom: 1.5rem; }
+    .setup-header h2 { margin: 0; font-size: 1.5rem; letter-spacing: 0.02em; }
+    .setup-header p { margin: 0.25rem 0 0; color: var(--muted); }
+    
+    .table-container {
+      background: var(--surface-2);
+      border: 1px solid rgba(146, 104, 255, 0.12);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 16px 45px rgba(0,0,0,0.18);
+      margin-bottom: 2rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    th {
+      background: rgba(146, 104, 255, 0.06);
+      color: var(--accent);
+      padding: 1rem 1.25rem;
+      font-weight: 600;
+      border-bottom: 1px solid rgba(146, 104, 255, 0.15);
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+    }
+
+    .category-row {
+      background: rgba(146, 104, 255, 0.03);
+      border-bottom: 1px solid rgba(146, 104, 255, 0.08);
+    }
+
+    .category-row td {
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+      padding: 0.75rem 1.25rem;
+    }
+
+    td {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      vertical-align: top;
+      line-height: 1.5;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: rgba(146, 104, 255, 0.01);
+    }
+
+    .script-name {
+      font-family: 'Consolas', 'Courier New', Courier, monospace;
+      color: #38bdf8;
+      font-weight: 600;
+    }
+
+    .target-object {
+      font-weight: 500;
+      color: #e2e8f0;
+    }
+
+    .setup-instructions {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    code {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 0.15rem 0.35rem;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.8rem;
+      color: #f472b6;
+    }
+  </style>
+</head>
+<body class="gdos-shell">
+
+<header class="gdos-header">
+  <div class="gdos-brand">
+    <img src="{{ url_for('static', filename='brand/logo-mark.png') }}" alt="" style="width: 42px; height: 42px; border-radius: 8px;" onerror="this.src='{{ url_for('static', filename='brand/logo-mark.svg') }}'">
+    <div>
+      <h1>SCRIPT SETUP</h1>
+      <span class="sub">Unity components assignment registry</span>
+    </div>
+  </div>
+  <div class="gdos-header-actions">
+    {% include 'partials/theme_select.html' %}
+    <a class="gdos-btn ghost" href="{{ url_for('dashboard') }}">Back to dashboard</a>
+  </div>
+</header>
+
+<nav class="gdos-nav">
+  <div class="nav-label">Workspaces</div>
+  <a href="/dashboard">Overview</a>
+  <a href="/tracker">Tracker</a>
+  <a href="/assets">Asset brain</a>
+  <a href="/animations">Animation pipeline</a>
+  <a href="/skeletal-animator">Skeletal Animator</a>
+  <a href="/audio-hub">Audio hub</a>
+  <a href="/images">Image hub</a>
+  <a href="/styles">Style presets</a>
+  <a href="/status-board">Status &amp; progress</a>
+  <a class="active" href="/script-setup">Script Setup</a>
+  <a href="/prompt-planner">Prompt Planner</a>
+  <a href="/character-builder">Character Builder</a>
+  <div class="nav-label">Tools</div>
+  <a href="{{ url_for('tool') }}">Sprite / BG remover</a>
+  <a href="/audio-extractor">Audio Extractor</a>
+  <a href="/nyxaris-chat">Nyxaris</a>
+  <div class="nav-label">Export</div>
+  <a href="/export/unity">Unity .zip</a>
+  <a href="/export/full">Full snapshot .zip</a>
+</nav>
+
+<main class="gdos-main setup-shell">
+  <div class="setup-header">
+    <h2>Unity Component Assignment Registry</h2>
+    <p>Complete directory of all C# scripts in the project, organized by feature area.</p>
+  </div>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 25%">Script Name</th>
+          <th style="width: 25%">Target GameObject</th>
+          <th style="width: 50%">Inspector Assignments &amp; Usage Instructions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- PLAYER & COMBAT -->
+        <tr class="category-row">
+          <td colspan="3">⚔️ Player &amp; Combat</td>
+        </tr>
+        <tr>
+          <td><span class="script-name">move.cs</span></td>
+          <td><span class="target-object">Player</span></td>
+          <td class="setup-instructions">
+            Manages standard left/right movement, jumps, fast blob form (triggered by <code>M</code>), and rapid horizontal dashes (triggered by <code>L-Shift</code>). Receives slow debuffs.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="script-name">health.cs</span></td>
+          <td><span class="target-object">Player / Enemies</span></td>
+          <td class="setup-instructions">
+            Tracks current/max health, processes taking damage (ignores damage if player is currently in a dash invulnerability state), handles healing, and triggers death events.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="script-name">PlayerCurrency.cs</span></td>
+          <td><span class="target-object">Player</span></td>
+          <td class="setup-instructions">
+            Tracks coin balances and potion counts. Pressing <code>H</code> consumes a potion to heal. Spawns events for HUD refresh.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="script-name">MageCombat.cs</span></td>
+          <td><span class="target-object">Player</span></td>
+          <td class="setup-instructions">
+            • <strong>Melee Attack Collider</strong>: Drag Player weapon swing trigger collider.<br>
+            • <strong>Projectile Prefab</strong>: Assign the <code>MagicProjectile</code> prefab here.<br>
+            • <strong>Projectile Spawn Point</strong>: Assign a child transform situated at the front of the Player.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="script-name">MagicProjectile.cs</span></td>
+          <td><span class="target-object">Magic Projectile Prefab</span></td>
+          <td class="setup-instructions">
+            Requires a Rigidbody2D (Gravity: 0) and a BoxCollider2D (check <strong>Is Trigger</strong>). Propels spell bolts forward.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="script-name">CoinItem.cs</span></td>
+          <td><span class="target-object">Coin Drop Prefab</span></td>
+          <td class="setup-instructions">
+            Requires CircleCollider2D (check <strong>Is Trigger</strong>) and Rigidbody2D. Magnetizes smoothly towards the Player when in range.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="script-name">attack.cs</span></td>
+          <td><span class="target-object">Player (Original Melee)</span></td>
+          <td class="setup-instructions">
+            Original basic melee attack script mapping key <code>J</code> to trigger standard weapon swings. (Can be replaced by <code>MageCombat.cs</code>).
+          </td>
+        </tr>
+
+        <!-- ENEMIES & BOSSES -->
+        <tr class="category-row">
+          <td colspan="3">🕷️ Enemies &amp; Bosses</td>
+        </tr>
+        <tr>
+          <td><span class="script-name">EnemyPatrol2D.cs</span></td>
+          <td><span class="target-object">Advanced Patrol Enemies</span></td>
+          <td class="setup-instructions">
+            • <strong>Target A &amp; B</strong>: Assign Player transforms.<br>
+            • <strong>Patrol Point 1 &amp; 2</strong>: Link waypoint transforms. Walks between points; chases, dashes, and slashes the player when they are in range. Supports knockback states.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="script-name">BaseMob.cs</span></td>
+          <td><span class="target-object">Basic Patrol Enemies</span></td>
+          <td class="setup-instructions">
+            • <strong>Left Point &amp; Right Point</strong>: Link patrol boundary transforms.<br>
+            Basic horizontal patroller script. Flashes red on damage hit and destroys itself on death.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="script-name">SpiderBoss.cs</span></td>
+          <td><span class="target-object">Tsuchigumo Boss</span></td>
+          <td class="setup-instructions">
+            • <strong>Roam Points</strong>: Transforms of roam paths.<br>
+            • <strong>Web Projectile Prefab</strong> &amp; <strong>Spiderling Prefab</strong>: Assign web and spiderling prefabs.<br>
+            Manages phase transitions (3 phases based on health thresholds) and boss attacks (ClawSwipe, WebSpray, Spawnlings, Stomp).
+          </td>
+        </tr>
+        <tr>
+          <td><span class="script-name">spiderpatrol.cs</span></td>
+          <td><span class="target-object">Spider Patrollers</span></td>
+          <td class="setup-instructions">
+            Basic cave spider patroller script. Moves back and forth between left/right margins.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="script-name">EnemyPatrolAI.cs</span></td>
+          <td><span class="target-object">Patrol Enemy AI</span></td>
+          <td class="setup-instructions">
+            Legacy patroller AI script. Used for basic waypoint routing and player detection.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="script-name">WebProjectile.cs</span></td>
+          <td><span class="target-object">Web Projectile Prefab</span></td>
+          <td class="setup-instructions">
+            Requires Rigidbody2D and Collider2D (check <strong>Is Trigger</strong>). Shot by Tsuchigumo; flies towards the player, deals damage, and applies a temporary movement speed slow.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="script-name">Spiderling.cs</span></td>
+          <td><span class="target-object">Spiderling Prefab</span></td>
+          <td class="setup-instructions">
+            Requires Rigidbody2D and Collider2D. Mini spider spawned by boss; chases player aggressively, bites and explodes on contact. Implements <code>IDamageable</code>.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="script-name">DojoWaveManager.cs</span></td>
+          <td><span class="target-object">Dojo Wave Trigger GameObject</span></td>
+          <td class="setup-instructions">
+            Requires BoxCollider2D (check <strong>Is Trigger</strong>). Link the <strong>Coin Prefab</strong> &amp; <strong>Dojo Gates</strong> (doors). Set up spawn points and wave spawn settings to lock and trigger dojo fights.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="script-name">DojoDoorTransition.cs</span></td>
+          <td><span class="target-object">Dojo Door GameObjects</span></td>
+          <td class="setup-instructions">
+            <strong>Dojo Entrance Setup:</strong><br>
+            • Attach <code>DojoDoorTransition</code> to the trigger collider in front of each dojo door.<br>
+            • <strong>For an entrance door:</strong> Set <code>Destination Point</code> to an empty GameObject inside the dojo interior. Set <code>Available Prompt Text</code> to <code>Press E to enter</code>. Optional: add the exterior objects to <code>Disable On Arrival</code> and the interior objects to <code>Enable On Arrival</code>.<br>
+            • <strong>For an exit door:</strong> Set <code>Destination Point</code> to an empty GameObject outside the dojo door. Set <code>Available Prompt Text</code> to <code>Press E to leave</code>. Enable <code>Requires Dojo Cleared</code> and assign the room's <code>DojoWaveManager</code> if the player should not leave before finishing the fight. Optional: add the exterior objects to <code>Enable On Arrival</code> and the interior objects to <code>Disable On Arrival</code>.<br>
+            • When the turnaround animation is ready, add a trigger parameter named <code>TurnIn</code> to the player Animator, or change <code>Turn In Trigger</code> on the door to match your trigger name.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="script-name">DojoTransitionFader.cs</span></td>
+          <td><span class="target-object">UI Transition Canvas</span></td>
+          <td class="setup-instructions">
+            Automatically instantiated screen fader utility. Renders full-screen black canvas overlay and interpolates alpha channel transparency to transition smoothly between exterior and interior dojo segments.
+          </td>
+        </tr>
+
+
+        <!-- SYSTEMS & UI -->
+        <tr class="category-row">
+          <td colspan="3">🖥️ Systems &amp; UI</td>
+        </tr>
+        <tr>
+          <td><span class="script-name">UIFactory.cs</span></td>
+          <td><span class="target-object">N/A (Static Utility)</span></td>
+          <td class="setup-instructions">
+            <strong>⚙️ CODE-GENERATED</strong> — Static helper class. Not attached to any GameObject.<br>
+            Provides factory methods (<code>CreateCanvas</code>, <code>CreatePanel</code>, <code>CreateText</code>, <code>CreateButton</code>, <code>CreateSlider</code>) used by all UI scripts below to build consistent dark gothic-fantasy styled panels at runtime.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="script-name">HUDManager.cs</span></td>
+          <td><span class="target-object">Empty GameObject (e.g. "HUD Manager")</span></td>
+          <td class="setup-instructions">
+            <strong>⚙️ CODE-GENERATED</strong> — Builds its own Canvas and full HUD from code. No manual UI setup required.<br>
+            • <strong>Player Game Object</strong>: (Optional) Drag Player here, or it auto-finds by tag.<br>
+            • <strong>UI Scale Settings</strong>: Adjust size via <code>hudScale</code> float in the Inspector (defaults to 10 for 10x scaling).<br>
+            • Creates health bar (red fill, top-left) and mana bar (blue-purple, below health) featuring custom gothic border frames, diamond-rotated prefix icons (H / M), dynamic under-fill damage sliders (lag/catch-up effect), dynamic notch markers (spaced every 25/20 points), and a flashing red low-health danger pulse. Coin and potion counters update on the top-right.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="script-name">NPCDialogueUI.cs</span></td>
+          <td><span class="target-object">Dialogue Canvas (e.g. "Dialogue Manager")</span></td>
+          <td class="setup-instructions">
+            • <strong>UI References (Drag &amp; Drop)</strong>: Link the Dialogue Panel GameObject (designed in Pokémon or Hollow Knight bubble style) along with the TextMeshPro elements for NPC Name, Body Text, and Advance Indicator.<br>
+            • <strong>Type Speed</strong>: Adjustable typewriter speed (default 0.02s).<br>
+            • Handles resolution-adaptive canvas scaling automatically. Advances on click/E/Enter, closes on Escape.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="script-name">ShopUI.cs</span></td>
+          <td><span class="target-object">Empty GameObject (e.g. "Shop UI Manager")</span></td>
+          <td class="setup-instructions">
+            <strong>⚙️ CODE-GENERATED</strong> — Builds its own Canvas and shop panel from code. No manual UI setup required.<br>
+            • <strong>Shop System</strong>: (Optional) Drag Shop Manager here, or it auto-finds.<br>
+            • Creates a centered panel with "SHADOW MERCHANT" title, currency display, dynamically generated item rows with Buy buttons, and a close button. Items show 'SOLD' after purchase.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="script-name">BossHealthBar.cs</span></td>
+          <td><span class="target-object">Empty GameObject (e.g. "Boss Health Bar")</span></td>
+          <td class="setup-instructions">
+            <strong>⚙️ CODE-GENERATED</strong> — Builds its own Canvas and boss bar from code. No manual UI setup required.<br>
+            • Creates a wide cinematic health bar at the top of the screen with boss name and crimson red fill. Shown/hidden via <code>ShowBossBar(Health, string)</code> and <code>HideBossBar()</code>.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="script-name">EnemyHealthBar.cs</span></td>
+          <td><span class="target-object">Enemy World-Space Canvas</span></td>
+          <td class="setup-instructions">
+            Placed on a child World Space Canvas situated above enemies. Link the child slider. Fades out automatically when uninjured.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="script-name">NPCInteractable.cs</span></td>
+          <td><span class="target-object">NPC village GameObjects</span></td>
+          <td class="setup-instructions">
+            Requires Collider2D (check <strong>Is Trigger</strong>). Set <strong>NPC Name</strong> and write dialogue string array.<br>
+            • <strong>Is Nyxaris</strong>: Check for AI chatbot trigger.<br>
+            • <strong>Is Shop Keeper</strong>: Check to launch the Shop UI after dialogue.<br>
+            • <strong>Interact Prompt</strong>: (Optional) Drag visual prompt bubble (e.g. 'Press E').
+          </td>
+        </tr>
+        <tr>
+          <td><span class="script-name">NPCFacePlayer.cs</span></td>
+          <td><span class="target-object">NPC village GameObjects</span></td>
+          <td class="setup-instructions">
+            Flips NPC sprite to face the player when within range.<br>
+            • <strong>Face Range</strong>: Detection distance (default 5).<br>
+            • <strong>Use Sprite Renderer Flip</strong>: Check to flip sprite only (prevents mirroring child text). Uncheck to flip via Transform scale.<br>
+            • <strong>Sprite Faces Right By Default</strong>: Set based on original sprite orientation.<br>
+            • <strong>Invert Flipping</strong>: Check if NPC faces the wrong way.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="script-name">PauseMenu.cs</span></td>
+          <td><span class="target-object">Empty GameObject (e.g. "Pause Manager")</span></td>
+          <td class="setup-instructions">
+            <strong>⚙️ CODE-GENERATED</strong> — Builds its own Canvas and pause overlay from code. No manual UI setup required.<br>
+            • <strong>Menu Scene Name</strong>: Scene to load on "Quit to Menu" (default "MainMenu").<br>
+            • Creates full-screen dark overlay with Resume, Restart Level, and Quit to Menu buttons. Esc/P toggles. Respects active Dialogue/Shop/Nyxaris panels.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="script-name">ShopSystem.cs</span></td>
+          <td><span class="target-object">Shop Manager GameObject</span></td>
+          <td class="setup-instructions">
+            • <strong>Shop Items</strong>: Add items and set Name, Type (<code>HealthBoost</code>, <code>DashUpgrade</code>, <code>ProjectileUnlock</code>, <code>HealingPotion</code>), and Cost.<br>
+            Manages item purchase validation and currency subtraction. Applies upgrades to player stats.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="script-name">NyxarisManager.cs</span></td>
+          <td><span class="target-object">Nyxaris Chat Panel</span></td>
+          <td class="setup-instructions">
+            Link chat panel, dialogue text, message input, portrait image, and neutral/annoyed/explaining expression sprites. Coordinates with Flask chatbot server on port 5001.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="script-name">NyxarisTest.cs</span></td>
+          <td><span class="target-object">Test Object</span></td>
+          <td class="setup-instructions">
+            Debug utility script to test API connectivity to the local Ollama LLM endpoint.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="script-name">AudioManager.cs</span></td>
+          <td><span class="target-object">Audio Manager GameObject</span></td>
+          <td class="setup-instructions">
+            • Persistent global Singleton (<code>DontDestroyOnLoad</code>).<br>
+            • <strong>Music Source / SFX Source</strong>: AudioSource components for BGM and SFX.<br>
+            • <strong>PlayBGM(AudioClip clip, bool fade)</strong>: Plays music with smooth cross-fade volume interpolation.<br>
+            • <strong>PlaySFX(AudioClip clip)</strong>: Plays one-shot sound effects (combat, UI, hit reactions).
+          </td>
+        </tr>
+        <tr>
+          <td><span class="script-name">MainMenuController.cs</span></td>
+          <td><span class="target-object">Empty GameObject (e.g. "Main Menu")</span></td>
+          <td class="setup-instructions">
+            <strong>⚙️ CODE-GENERATED</strong> — Builds its own Canvas and title screen from code. No manual UI setup required.<br>
+            • <strong>Game Scene Name</strong>: Scene to load on "Play" (default "SampleScene").<br>
+            • <strong>Click Sound / Title Music</strong>: Assign sound effects and the background music track to play when the menu is active.<br>
+            • <strong>Visual &amp; Text Customization</strong>: Exposes <code>logoSprite</code>, <code>backgroundSprite</code> (smoky background art asset), <code>backgroundColor</code>, <code>buttonSize</code>, font sizes, and bold settings directly in the Inspector.<br>
+            • Creates a title screen with the smoky background, centered logo image, subtitle, divider lines, bottom ornament, and custom rounded bordered buttons (uses built-in 9-slice rounded sprite) that scale and glow on hover without horizontal stretching. Auto-deactivates upon gameplay start.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="script-name">LevelMusicPlayer.cs</span></td>
+          <td><span class="target-object">Empty GameObject (e.g. "Level Music Player")</span></td>
+          <td class="setup-instructions">
+            • <strong>Level Music</strong>: Assign the gameplay music track to play when active gameplay starts.<br>
+            • Checks <code>MainMenuController.isPlaying</code> to automatically suppress level music on the title screen and play it only when active gameplay starts.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="script-name">IDamageable.cs</span></td>
+          <td><span class="target-object">N/A (Interface)</span></td>
+          <td class="setup-instructions">
+            Interface defining <code>TakeDamage(int)</code>. Implemented by <code>Health.cs</code> and enemy scripts to standardize damage handling.
+          </td>
+        </tr>
+
+        <!-- ENVIRONMENT & VISUALS -->
+        <tr class="category-row">
+          <td colspan="3">☁️ Environment &amp; Visuals</td>
+        </tr>
+        <tr>
+          <td><span class="script-name">CameraFollow.cs</span></td>
+          <td><span class="target-object">Main Camera</span></td>
+          <td class="setup-instructions">
+            • <strong>Target</strong>: Drag the Player transform. Handles smooth linear interpolation tracking of the character's movement.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="script-name">ParallaxBackground.cs</span></td>
+          <td><span class="target-object">Background/Foreground Layers</span></td>
+          <td class="setup-instructions">
+            • <strong>Cam</strong>: Main Camera transform (auto-detects if empty).<br>
+            • <strong>Parallax Effect X/Y</strong>: Scroll rates relative to camera (e.g., 0 = sky; 0.2-0.5 = distant; 1.0 = player level; 1.2+ = blurry foreground silhouette).<br>
+            • <strong>Smoothing</strong>: Blend rate to eliminate camera-stutter (recommend 1.5 - 3.0).<br>
+            • <strong>Auto Scroll Speed X/Y</strong>: Optional self-scrolling for moving clouds or fog.<br>
+            • <strong>Infinite Horizontal Scroll</strong>: Automatically loops SpriteRenderer boundaries.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="script-name">Cloud.cs</span></td>
+          <td><span class="target-object">Cloud Spawner / Clouds</span></td>
+          <td class="setup-instructions">
+            Moves background cloud graphics horizontally across the sky, fading and recycling them on borders.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="script-name">fog.cs</span></td>
+          <td><span class="target-object">Fog Particle Overlay</span></td>
+          <td class="setup-instructions">
+            Slowly floats dark, ambient village fog visual overlays across the screen coordinates.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="script-name">MoveAndFade.cs</span></td>
+          <td><span class="target-object">Popup Text Prefabs</span></td>
+          <td class="setup-instructions">
+            Moves floating numbers (like damage counts) upwards while fading out alpha transparency.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="script-name">PlatformBase.cs</span></td>
+          <td><span class="target-object">Solid Level Platforms</span></td>
+          <td class="setup-instructions">
+            Base script for solid platforms. Exposes customizable dimensions and collision filters.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="script-name">LevelGoalTrigger.cs</span></td>
+          <td><span class="target-object">Level End Trigger Volume</span></td>
+          <td class="setup-instructions">
+            <strong>⚙️ CODE-GENERATED</strong> — Victory screen is built from code when the goal is triggered. No manual UI setup required.<br>
+            • Requires BoxCollider2D (check <strong>Is Trigger</strong>).<br>
+            • <strong>Victory SFX</strong>: (Optional) AudioClip victory jingle played on goal entry.<br>
+            • <strong>Next Level Scene Name</strong>: Scene to load on "Next Level" (default "SampleScene").<br>
+            • <strong>Main Menu Scene Name</strong>: Scene to load on "Main Menu" (default "MainMenu").
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<script>
+(function () {
+  document.querySelectorAll(".gdos-nav a[href]").forEach((a) => {
+    try {
+      const p = new URL(a.href).pathname.replace(/\/$/, "") || "/";
+      const here = location.pathname.replace(/\/$/, "") || "/";
+      a.classList.toggle("active", p === here);
+    } catch (_) {}
+  });
+})();
+</script>
+</body>
+</html>

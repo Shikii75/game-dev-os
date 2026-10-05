@@ -1,0 +1,22 @@
+{
+  "id": "nyxarisexplaining0-c6c6f20e",
+  "slug": "nyxarisexplaining0",
+  "label": "nyxarisexplaining0",
+  "video_source": "source.MP4",
+  "frame_interval_sec": 0.05,
+  "extract_stats": {
+    "frame_count": 25,
+    "source_frames_read": 25,
+    "effective_fps_estimate": 24.916943521594686,
+    "stride": 1,
+    "interval_requested_sec": 0.05,
+    "duration_approx_sec": 1.0033333333333332,
+    "pattern": "frame_%03d.png"
+  },
+  "raw_frame_count": 25,
+  "clean_frame_count": 25,
+  "frame_pattern": "frame_%03d.png",
+  "updated_at": "2026-08-18T12:03:22.665662+00:00",
+  "video_relpath": "source.MP4",
+  "bg_removal_method": "rembg"
+}

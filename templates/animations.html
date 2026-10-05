@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="cosmic">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Animation Pipeline</title>
+  {% include 'partials/head_assets.html' %}
+  <style>
+    body { margin:0; font-family:system-ui,sans-serif; background:var(--bg); color:var(--text);}
+    header { padding:1rem 1.25rem; border-bottom:1px solid var(--border); background:var(--header-bg); display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px;}
+    main { padding:1.25rem; max-width:1050px; margin:0 auto;}
+    fieldset { border:1px solid var(--border); border-radius:12px; background:var(--surface); padding:12px;}
+    label { display:block; font-size:.8rem; color:var(--muted); margin-bottom:8px;}
+    input { width:100%; box-sizing:border-box; padding:8px 10px; border-radius:8px; border:1px solid var(--border); background:var(--code-bg); color:var(--text);}
+    button { background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:var(--accent-text); border:none; padding:8px 14px; border-radius:10px; font-weight:700; cursor:pointer; margin-right:8px; margin-top:8px;}
+    pre { white-space:pre-wrap; word-break:break-all; background:var(--code-bg); border-radius:10px; padding:10px; font-size:.75rem;}
+    table { border-collapse:collapse; width:100%; font-size:.85rem;}
+    th, td { padding:8px 6px; border-bottom:1px solid var(--border); text-align:left;}
+    code {font-size:.75rem;background:var(--code-bg);padding:2px 6px;border-radius:6px;border:1px solid var(--border);}
+    .ghost{background:transparent;border:1px solid var(--border);color:var(--text);}
+    a{color:var(--link);}
+  </style>
+</head>
+<body>
+<header>
+  <strong>Animation pipeline</strong> • <a href="/">Dashboard</a> • <a href="/skeletal-animator">Skeletal Animator</a> • <a href="/character-builder">Character Builder</a> • <a href="/assets">Assets</a>
+  {% include 'partials/theme_select.html' %}
+</header>
+<main>
+
+<p id="toast" style="opacity:.76;"></p>
+
+<section style="margin-top:10px;display:grid;gap:14px;">
+
+<fieldset><legend>One-click processor</legend>
+<form id="one">
+  <label>Slug / label<input type="text" name="slug" value="enemy-idle"/></label>
+  <label>Frame interval sec <input type="number" step="0.05" min="0.05" value="0.2" name="interval"/></label>
+  <label>Video<input type="file" name="video" accept="video/*" required></label>
+  <label>Background removal method:
+    <select name="method" id="pipeline_method" style="width:100%; padding:8px 10px; border-radius:8px; border:1px solid var(--border); background:var(--code-bg); color:var(--text); margin-bottom:8px;">
+      <option value="rembg">ML Model (rembg)</option>
+      <option value="remove_white">Color key: Remove White Background</option>
+      <option value="remove_black">Color key: Remove Black Background</option>
+    </select>
+  </label>
+  <label style="margin-top:.4rem;"><input type="checkbox" name="skip_bg" id="skip_bg"/> Skip background stripping (extract only)</label>
+  <button type="submit">Run full pipeline</button>
+</form>
+<pre id="resp"></pre>
+</fieldset>
+
+<fieldset><legend>Incremental tools</legend>
+<form id="inc">
+<label>Existing animation ID<input id="animId" placeholder="anim-name-xxxxxxxx"/></label>
+<label>Interval<input type="number" step="0.05" value="0.2" id="intr"/></label>
+<label>Background removal method:
+  <select id="inc_method" style="width:100%; padding:8px 10px; border-radius:8px; border:1px solid var(--border); background:var(--code-bg); color:var(--text); margin-bottom:8px;">
+    <option value="rembg">ML Model (rembg)</option>
+    <option value="remove_white">Color key: Remove White Background</option>
+    <option value="remove_black">Color key: Remove Black Background</option>
+  </select>
+</label>
+<button type="button" class="ghost" id="b-extract">Re-extract frames</button>
+<button type="button" class="ghost" id="b-bg">BG batch only</button>
+<button type="button" class="ghost" id="b-chain">Extract + BG</button>
+<button type="button" class="ghost" id="b-attachpick">Attach new video clip…</button>
+<input type="file" id="clip" accept="video/*" style="display:none;">
+</form>
+<pre id="inc-log"></pre>
+</fieldset>
+
+<fieldset><legend>Bundles</legend>
+<table id="tb"><thead><tr><th>ID</th><th>Slug</th><th>Frames</th><th>Player</th></tr></thead><tbody></tbody></table>
+</fieldset>
+
+</section>
+
+</main>
+
+<script>
+const toast = (t) => document.getElementById("toast").textContent = t || "";
+
+document.getElementById("one").onsubmit = async (e) => {
+  e.preventDefault();
+  toast("Processing — rembg passes can take awhile…");
+  const fd = new FormData(document.getElementById("one"));
+  if(document.getElementById("skip_bg").checked) fd.append("skip_bg","true");
+  
+  try {
+    const res = await fetch("/api/pipeline/full", { method:"POST", body: fd});
+    const text = await res.text();
+    document.getElementById("resp").textContent = text;
+    
+    // Auto populate newly created animation ID
+    const data = JSON.parse(text);
+    if (data.animation_id) {
+      document.getElementById("animId").value = data.animation_id;
+      toast(`Successfully created animation: ${data.animation_id}`);
+    } else {
+      toast("");
+    }
+  } catch (err) {
+    toast("Pipeline run complete, but failed to parse response.");
+  }
+  
+  reloadTable();
+};
+
+async function reloadTable() {
+  const rows = await fetch("/api/animations").then(r=>r.json());
+  const tb = document.querySelector("#tb tbody");
+  tb.innerHTML = "";
+  rows.forEach(r=>{
+    const tr = document.createElement("tr");
+    tr.style.cursor = "pointer";
+    tr.title = "Click to select this animation ID";
+    tr.innerHTML = `
+      <td style="font-weight: 700; color: var(--accent);">${r.id}</td>
+      <td>${r.slug||""}</td>
+      <td>raw:${r.raw_frames||"?"} • clean:${r.clean_frames||"?"}</td>
+      <td>
+        <button class="ghost" onclick="selectAnim('${r.id}'); event.stopPropagation();" style="margin: 0 6px 0 0; padding: 4px 8px; font-size: 0.75rem;">Select</button>
+        <a href="/animations/${encodeURIComponent(r.id)}/play" onclick="event.stopPropagation();" style="font-size: 0.85rem; text-decoration: underline;">Open</a>
+      </td>
+    `;
+    tr.addEventListener("click", () => {
+      selectAnim(r.id);
+    });
+    tb.append(tr);
+  });
+}
+
+function selectAnim(id) {
+  document.getElementById("animId").value = id;
+  toast(`Selected Animation ID: ${id}`);
+}
+
+document.getElementById("b-extract").onclick = async () => {
+  const id = document.getElementById("animId").value.trim();
+  if (!id) {
+    toast("Please select or enter an animation ID first.");
+    return;
+  }
+  toast("Extracting frames...");
+  document.getElementById("inc-log").textContent = await fetch(`/api/animations/${id}/extract`,{
+    method:"POST",headers:{'Content-Type':'application/json'}, body: JSON.stringify({interval_sec: parseFloat(document.getElementById("intr").value)||0.2})
+  }).then(r=>r.text());
+  toast("");
+  reloadTable();
+};
+
+document.getElementById("b-bg").onclick = async ()=>{
+  const id = document.getElementById("animId").value.trim();
+  if (!id) {
+    toast("Please select or enter an animation ID first.");
+    return;
+  }
+  toast("Running BG batch stripping...");
+  const method = document.getElementById("inc_method").value;
+  document.getElementById("inc-log").textContent = await fetch(`/api/animations/${id}/bg-batch`, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({method: method})
+  }).then(r=>r.text());
+  toast("");
+  reloadTable();
+};
+
+document.getElementById("b-chain").onclick = async ()=>{
+  const id = document.getElementById("animId").value.trim();
+  if (!id) {
+    toast("Please select or enter an animation ID first.");
+    return;
+  }
+  toast("Extracting and stripping background...");
+  const method = document.getElementById("inc_method").value;
+  document.getElementById("inc-log").textContent = await fetch(`/api/pipeline/frame-bg`, {
+    method:"POST",
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({animation_id: id, interval_sec: parseFloat(document.getElementById("intr").value)||0.2, method: method})
+  }).then(r=>r.text());
+  toast("");
+  reloadTable();
+};
+
+document.getElementById("b-attachpick").onclick = ()=>{
+  const id = document.getElementById("animId").value.trim();
+  if (!id) {
+    toast("Please select or enter an animation ID first.");
+    return;
+  }
+  document.getElementById("clip").click();
+};
+
+document.getElementById("clip").onchange = async (ev)=>{
+  const id = document.getElementById("animId").value.trim();
+  if (!id) {
+    toast("Please select or enter an animation ID first.");
+    return;
+  }
+  if(!ev.target.files||!ev.target.files[0]) return;
+  const fd = new FormData();
+  fd.append("video", ev.target.files[0]);
+  toast("Attaching video clip…");
+  document.getElementById("inc-log").textContent = await fetch(`/api/animations/${encodeURIComponent(id)}/attach-video`, {method:'POST', body: fd}).then(r=>r.text());
+  toast("Attached successfully.");
+  ev.target.value = ""; // Clear file selector
+  reloadTable();
+};
+
+reloadTable();
+
+</script>
+</body>
+</html>

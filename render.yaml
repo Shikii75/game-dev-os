@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: game-dev-os
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.8
+      - key: GAME_DEV_OS_HOST
+        value: 0.0.0.0
+      - key: GAME_DEV_OS_DEBUG
+        value: "0"

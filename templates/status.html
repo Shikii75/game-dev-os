@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/><title>Progress & Status</title>
+<style>
+:root{--bg:#0c0f14;--c:#171c26;--m:#aeb9cc;}
+body{margin:0;background:var(--bg);font-family:system-ui;color:#e8ecf8;}
+header{padding:1rem;background:var(--c);border-bottom:1px solid #2a3444;}
+.grid{display:grid;gap:.9rem;margin:14px;padding:0 .8rem;}
+pre{background:#07080c;border-radius:10px;padding:.7rem;font-size:.72rem;overflow:auto;max-height:420px;color:#cdd7ee;}
+.metric{display:flex;justify-content:space-between;border-bottom:1px solid #2a3444;padding:.55rem;}
+button{background:#50ffc3;border:none;color:#04130d;font-weight:800;padding:.42rem .7rem;border-radius:9px;}
+a{color:#8ddcff;}
+small{color:var(--m);}
+.prog{height:.45rem;background:#090b10;border-radius:999px;margin-top:.3rem;border:1px solid #293242;}
+.bar{height:100%;background:linear-gradient(90deg,#32ffd4,#5c7dff);border-radius:999px;transition:.4s;width:calc(var(--pct) * 1%);}
+</style>
+</head>
+<body>
+<header>
+<strong>Mission control</strong> · <small>live summary</small>
+<span style="float:right;"><button type="button" id="pulse">Reload</button> <a href="/">dash</a></span>
+<div style="clear:both;"></div>
+</header>
+<div class="grid">
+<section style="border:1px solid #293242;border-radius:14px;background:var(--c);padding:12px;">
+  <div class="prog"><div class="bar" id="overall" style="--pct:0;width:calc(var(--pct)*1%);"></div></div>
+  <small>Overall heuristic</small>
+
+  <div id="metrics"></div>
+</section>
+<section style="border:1px solid #293242;border-radius:14px;background:var(--c);padding:12px;">
+<strong>Recent activity</strong>
+<pre id="act"></pre>
+</section>
+<section style="border:1px solid #293242;border-radius:14px;background:var(--c);padding:12px;">
+<strong>Active jobs snapshot</strong>
+<pre id="job"></pre>
+</section>
+<section style="border:1px solid #293242;border-radius:14px;background:var(--c);padding:12px;">
+<strong>Raw JSON</strong><pre id="raw"></pre>
+</section>
+</div>
+
+<script id="BOOT" type="application/json">{{ snapshot | tojson | safe }}</script>
+<script>
+const bootEl = document.getElementById("BOOT");
+function render(data){
+ document.getElementById("overall").style.width = `${Math.min(100, Math.round(data.overall_percent_estimate||0))}%`;
+ const m=document.getElementById("metrics");
+ const P=data.present||{};const C=data.counts||{};
+ m.innerHTML = "";
+ [
+   ["indexed images",P.images_indexed||0],
+   ["audio clips", P.audio_indexed||0],
+   ["videos", P.videos_indexed||0],
+   ["animation bundles",P.animations_indexed||0],
+   ["nyxaris chats",C.nyxaris_chats||0],
+   ["pipeline runs",C.pipeline_runs||0],
+ ].forEach(([k,v])=>{ const div=document.createElement("div");div.className="metric"; div.innerHTML=`<span>${k}</span><strong>${v}</strong>`;m.append(div);});
+
+ document.getElementById("act").textContent = JSON.stringify(data.recent_activity||[], null, 2);
+ document.getElementById("job").textContent = JSON.stringify(data.active_jobs||[], null, 2);
+ document.getElementById("raw").textContent = JSON.stringify(data, null, 2);
+}
+async function pulse(){
+ try{
+ const res = await fetch("/api/system/summary");
+ render(await res.json());
+ }catch(e){ console.warn(e);}
+}
+if(bootEl && bootEl.textContent.trim()){
+ try{render(JSON.parse(bootEl.textContent)); }catch(_) {}
+}else pulse();
+document.getElementById("pulse").onclick = pulse;
+pulse();
+setInterval(pulse, 28000);
+
+</script>
+</body></html>

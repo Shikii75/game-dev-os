@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="cosmic">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Game Dev OS — Voice & Audio Slicer</title>
+  {% include 'partials/head_assets.html' %}
+  <style>
+    :root {
+      --slicer-bg: #0b0714;
+      --slicer-surface: #140d24;
+      --slicer-surface-light: #1e1336;
+      --slicer-border: #2d1b4e;
+      --slicer-accent: #c084fc;
+      --slicer-neon-pink: #f43f5e;
+      --slicer-neon-cyan: #06b6d4;
+      --slicer-neon-green: #10b981;
+      --slicer-text: #f3e8ff;
+      --slicer-muted: #a894c2;
+    }
+
+    .slicer-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      max-width: 1500px;
+      margin: 0 auto;
+      padding-bottom: 3rem;
+    }
+
+    .header-card {
+      background: linear-gradient(135deg, rgba(30, 19, 54, 0.85) 0%, rgba(18, 10, 35, 0.95) 100%);
+      border: 1px solid var(--slicer-border);
+      border-radius: 14px;
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(8px);
+    }
+
+    .header-title h2 {
+      margin: 0;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .header-title p {
+      margin: 0.25rem 0 0;
+      font-size: 0.85rem;
+      color: var(--slicer-muted);
+    }
+
+    .file-meta-badge {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: rgba(14, 8, 26, 0.7);
+      border: 1px solid var(--slicer-border);
+      padding: 0.5rem 1rem;
+      border-radius: 10px;
+      font-size: 0.8rem;
+    }
+
+    .file-meta-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .file-meta-item span.label {
+      color: var(--slicer-muted);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .file-meta-item span.val {
+      font-weight: 600;
+      color: var(--slicer-accent);
+    }
+
+    /* Dropzone area */
+    .dropzone-container {
+      border: 2px dashed var(--slicer-border);
+      background: rgba(20, 13, 36, 0.6);
+      border-radius: 14px;
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .dropzone-container:hover, .dropzone-container.drag-over {
+      border-color: var(--slicer-accent);
+      background: rgba(30, 19, 54, 0.8);
+      box-shadow: 0 0 20px rgba(192, 132, 252, 0.2);
+    }
+
+    .dropzone-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      color: var(--slicer-accent);
+    }
+
+    /* Waveform Container */
+    .waveform-panel {
+      background: var(--slicer-surface);
+      border: 1px solid var(--slicer-border);
+      border-radius: 14px;
+      padding: 1.25rem;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+      position: relative;
+    }
+
+    .waveform-topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .playback-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .tool-btn {
+      background: var(--slicer-surface-light);
+      border: 1px solid var(--slicer-border);
+      color: #fff;
+      padding: 0.45rem 0.9rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s ease;
+    }
+
+    .tool-btn:hover {
+      background: var(--slicer-accent);
+      color: #0b0714;
+      border-color: var(--slicer-accent);
+      box-shadow: 0 0 12px rgba(192, 132, 252, 0.4);
+    }
+
+    .tool-btn.primary {
+      background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+      border: none;
+      color: #fff;
+    }
+
+    .tool-btn.primary:hover {
+      background: linear-gradient(135deg, #c084fc 0%, #f43f5e 100%);
+      box-shadow: 0 0 16px rgba(236, 72, 153, 0.5);
+    }
+
+    .tool-btn.active {
+      background: var(--slicer-accent);
+      color: #0b0714;
+      border-color: var(--slicer-accent);
+    }
+
+    .time-display {
+      font-family: monospace;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--slicer-neon-cyan);
+      background: rgba(6, 182, 212, 0.1);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      padding: 0.3rem 0.75rem;
+      border-radius: 6px;
+      letter-spacing: 0.05em;
+    }
+
+    /* Waveform Scroll & Canvas viewport */
+    .waveform-scroll-wrapper {
+      position: relative;
+      width: 100%;
+      height: 180px;
+      background: #07040d;
+      border: 1px solid #20123a;
+      border-radius: 10px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      cursor: crosshair;
+      user-select: none;
+    }
+
+    .waveform-canvas-container {
+      position: relative;
+      height: 100%;
+      min-width: 100%;
+    }
+
+    #waveformCanvas {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      display: block;
+    }
+
+    /* Playhead Cursor line */
+    #playheadLine {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: #f43f5e;
+      box-shadow: 0 0 8px #f43f5e;
+      pointer-events: none;
+      z-index: 15;
+      display: none;
+    }
+
+    /* Slices layer */
+    .slice-region-overlay {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      background: rgba(192, 132, 252, 0.18);
+      border-left: 2px solid var(--slicer-accent);
+      border-right: 2px solid var(--slicer-accent);
+      z-index: 10;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .slice-region-overlay.selected {
+      background: rgba(6, 182, 212, 0.3);
+      border-color: var(--slicer-neon-cyan);
+      box-shadow: 0 0 14px rgba(6, 182, 212, 0.3);
+    }
+
+    .slice-region-overlay .slice-tag {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      font-size: 0.68rem;
+      background: rgba(11, 7, 20, 0.85);
+      color: #fff;
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--slicer-border);
+      pointer-events: none;
+      white-space: nowrap;
+      overflow: hidden;
+      max-width: 140px;
+      text-overflow: ellipsis;
+    }
+
+    /* Drag handles */
+    .drag-handle {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 8px;
+      cursor: ew-resize;
+      z-index: 12;
+    }
+    .drag-handle.left { left: -4px; }
+    .drag-handle.right { right: -4px; }
+
+    /* Slices Inspector List */
+    .slices-panel {
+      background: var(--slicer-surface);
+      border: 1px solid var(--slicer-border);
+      border-radius: 14px;
+      padding: 1.25rem;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .slices-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .slices-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    .slices-table th {
+      text-align: left;
+      color: var(--slicer-muted);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.6rem 0.8rem;
+      border-bottom: 1px solid var(--slicer-border);
+    }
+
+    .slices-table td {
+      padding: 0.6rem 0.8rem;
+      border-bottom: 1px solid rgba(45, 27, 78, 0.5);
+      vertical-align: middle;
+    }
+
+    .slices-table tr:hover {
+      background: rgba(30, 19, 54, 0.4);
+    }
+
+    .slices-table tr.active-row {
+      background: rgba(192, 132, 252, 0.12);
+      border-left: 3px solid var(--slicer-accent);
+    }
+
+    .slice-input {
+      background: #090512;
+      border: 1px solid var(--slicer-border);
+      color: #fff;
+      padding: 0.35rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .slice-input:focus {
+      outline: none;
+      border-color: var(--slicer-accent);
+    }
+
+    .time-num-input {
+      width: 75px;
+      font-family: monospace;
+    }
+
+    .category-badge {
+      display: inline-block;
+      padding: 0.2rem 0.5rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .cat-mage { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); }
+    .cat-opening { background: rgba(244, 63, 94, 0.2); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.4); }
+    .cat-nyxaris { background: rgba(147, 51, 234, 0.2); color: #d8b4fe; border: 1px solid rgba(147, 51, 234, 0.4); }
+    .cat-sfx { background: rgba(6, 182, 212, 0.2); color: #67e8f9; border: 1px solid rgba(6, 182, 212, 0.4); }
+    .cat-custom { background: rgba(234, 179, 8, 0.2); color: #fde047; border: 1px solid rgba(234, 179, 8, 0.4); }
+
+    /* Export Bar */
+    .export-footer-bar {
+      position: sticky;
+      bottom: 1rem;
+      background: rgba(18, 10, 35, 0.95);
+      border: 1px solid var(--slicer-accent);
+      border-radius: 14px;
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 15px rgba(192, 132, 252, 0.25);
+      backdrop-filter: blur(12px);
+      z-index: 50;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .export-options {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      font-size: 0.85rem;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      cursor: pointer;
+      color: #fff;
+      user-select: none;
+    }
+
+    .checkbox-label input[type="checkbox"] {
+      accent-color: var(--slicer-accent);
+      width: 16px;
+      height: 16px;
+    }
+
+    /* Modal Feedback */
+    .modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      backdrop-filter: blur(6px);
+    }
+
+    .modal-box {
+      background: var(--slicer-surface);
+      border: 1px solid var(--slicer-accent);
+      border-radius: 16px;
+      padding: 1.75rem;
+      max-width: 650px;
+      width: 90%;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9);
+    }
+  </style>
+</head>
+<body class="gdos-shell">
+
+<header class="gdos-header">
+  <div class="gdos-brand">
+    <img src="{{ url_for('static', filename='brand/logo-mark.png') }}" alt="" style="width: 42px; height: 42px; border-radius: 8px;">
+    <div>
+      <h1>GAME DEV <span class="os">OS</span></h1>
+      <span class="sub">The Spawn of Chaos — local pipeline hub</span>
+    </div>
+  </div>
+  <div class="gdos-header-actions">
+    {% include 'partials/theme_select.html' %}
+    <a class="gdos-btn ghost" href="/dashboard">Dashboard</a>
+  </div>
+</header>
+
+<nav class="gdos-nav">
+  <div class="nav-label">Workspaces</div>
+  <a href="/dashboard">Overview</a>
+  <a href="/tracker">Tracker</a>
+  <a href="/assets">Asset brain</a>
+  <a href="/animations">Animation pipeline</a>
+  <a href="/ai-animator">⚡ AI Animator Studio</a>
+  <a href="/skeletal-animator">Skeletal Animator</a>
+  <a href="/audio-hub">Audio hub</a>
+  <div class="nav-label">Tools</div>
+  <a class="active" href="/audio-slicer">🎙️ Voice &amp; Audio Slicer</a>
+  <a href="/audio-extractor">Audio Extractor</a>
+  <a href="/tool">Sprite / BG remover</a>
+  <a href="/nyxaris-chat">Nyxaris</a>
+  <div class="nav-label">Export</div>
+  <a href="/export/unity">Unity .zip</a>
+  <a href="/export/full">Full snapshot .zip</a>
+</nav>
+
+<main class="gdos-main">
+  <div class="slicer-layout">
+
+    <!-- Top Header -->
+    <div class="header-card">
+      <div class="header-title">
+        <h2>🎙️ Voice &amp; Audio Slicer Studio</h2>
+        <p>Divide full voice actor WAV recordings into categorized clips for the Mage &amp; Opening Sequence with direct Unity export.</p>
+      </div>
+
+      <div class="file-meta-badge" id="fileMetaBadge" style="display: none;">
+        <div class="file-meta-item">
+          <span class="label">File</span>
+          <span class="val" id="metaFilename">-</span>
+        </div>
+        <div class="file-meta-item">
+          <span class="label">Duration</span>
+          <span class="val" id="metaDuration">0.00s</span>
+        </div>
+        <div class="file-meta-item">
+          <span class="label">Sample Rate</span>
+          <span class="val" id="metaSampleRate">-</span>
+        </div>
+        <div class="file-meta-item">
+          <span class="label">Channels</span>
+          <span class="val" id="metaChannels">-</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dropzone (Shown when no file loaded) -->
+    <div class="dropzone-container" id="dropzone">
+      <div class="dropzone-icon">📥</div>
+      <h3 style="margin: 0 0 0.5rem; color: #fff;">Drag &amp; Drop Voice Actor WAV File</h3>
+      <p style="margin: 0 0 1rem; color: var(--slicer-muted); font-size: 0.9rem;">Supports full WAV takes from voice actors (16-bit, 24-bit, 32-bit float).</p>
+      <button class="tool-btn primary" onclick="document.getElementById('fileInput').click()">Browse WAV File</button>
+      <input type="file" id="fileInput" accept=".wav,audio/wav" style="display: none;">
+    </div>
+
+    <!-- Main Audio Workspace (Shown after file upload) -->
+    <div id="workspaceArea" style="display: none; display: flex; flex-direction: column; gap: 1.25rem;">
+
+      <!-- Waveform Card -->
+      <div class="waveform-panel">
+        <div class="waveform-topbar">
+          <div class="playback-controls">
+            <button class="tool-btn primary" id="btnPlayPause" title="Play / Pause [Space]">▶ Play</button>
+            <button class="tool-btn" id="btnStop" title="Stop &amp; Return to Start">⏹ Stop</button>
+            <button class="tool-btn" id="btnPlaySelection" title="Play Active Slice [Shift+Space]">▶ Play Slice</button>
+            <div class="time-display" id="timeDisplay">00:00.00 / 00:00.00</div>
+          </div>
+
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <button class="tool-btn" id="btnAutoSilence" style="border-color: var(--slicer-neon-cyan); color: var(--slicer-neon-cyan);">
+              ⚡ Auto-Detect Silence
+            </button>
+            <button class="tool-btn" id="btnAddSliceAtPlayhead" title="Mark Slice at Cursor [M]">
+              + Add Marker [M]
+            </button>
+            <button class="tool-btn" id="btnZoomOut" title="Zoom Out [-]">-</button>
+            <span style="font-size: 0.8rem; color: var(--slicer-muted);" id="zoomLevelText">1.0x</span>
+            <button class="tool-btn" id="btnZoomIn" title="Zoom In [+]">+</button>
+            <button class="tool-btn" id="btnResetZoom">Fit</button>
+            <button class="tool-btn" onclick="document.getElementById('fileInput').click()" title="Load another WAV">📂 Change File</button>
+          </div>
+        </div>
+
+        <!-- Waveform canvas viewport -->
+        <div class="waveform-scroll-wrapper" id="waveformWrapper">
+          <div class="waveform-canvas-container" id="canvasContainer">
+            <canvas id="waveformCanvas"></canvas>
+            <div id="playheadLine"></div>
+            <div id="sliceRegionsLayer"></div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; font-size: 0.75rem; color: var(--slicer-muted);">
+          <span>💡 Tip: Click and drag directly on the waveform to select a sound segment. Press <b>[Space]</b> to play/pause.</span>
+          <span id="sliceStatsText">0 slices marked</span>
+        </div>
+      </div>
+
+      <!-- Slices Management Table -->
+      <div class="slices-panel">
+        <div class="slices-header">
+          <div>
+            <h3 style="margin: 0; color: #fff;">Divided Sound Clips &amp; Character Presets</h3>
+            <p style="margin: 0.2rem 0 0; font-size: 0.8rem; color: var(--slicer-muted);">Categorize each audio slice into Mage combat sounds, Opening Sequence voiceovers, or custom tags.</p>
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="tool-btn" id="btnClearAllSlices" style="color: var(--slicer-neon-pink); border-color: rgba(244, 63, 94, 0.4);">
+              🗑️ Clear Slices
+            </button>
+          </div>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table class="slices-table">
+            <thead>
+              <tr>
+                <th style="width: 45px;">#</th>
+                <th style="width: 140px;">Character / Context</th>
+                <th style="width: 190px;">Sound Type Preset</th>
+                <th>Export Filename</th>
+                <th style="width: 90px;">Start (s)</th>
+                <th style="width: 90px;">End (s)</th>
+                <th style="width: 70px;">Dur</th>
+                <th style="width: 80px;">Audition</th>
+                <th style="width: 45px;"></th>
+              </tr>
+            </thead>
+            <tbody id="slicesTableBody">
+              <!-- Slices rows populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Sticky Export Bar -->
+    <div class="export-footer-bar" id="exportBar" style="display: none;">
+      <div class="export-options">
+        <label class="checkbox-label" title="Applies 5ms smooth volume ramps to eliminate pops at cut seams">
+          <input type="checkbox" id="chkMicroFades" checked>
+          <span>5ms Anti-Click Micro Fades</span>
+        </label>
+        <label class="checkbox-label" title="Normalizes volume to -0.5 dBFS for consistent voice actor level">
+          <input type="checkbox" id="chkNormalize" checked>
+          <span>Normalize Volume (-0.5 dBFS)</span>
+        </label>
+        <label class="checkbox-label" title="Exports directly to C:\Users\tyram\The Spawn of Chaos\Assets\Audio\Voice">
+          <input type="checkbox" id="chkUnityExport" checked>
+          <span>Direct Unity Export (Assets/Audio/Voice)</span>
+        </label>
+      </div>
+
+      <div style="display: flex; gap: 0.75rem; align-items: center;">
+        <button class="tool-btn primary" id="btnExportAll" style="padding: 0.65rem 1.4rem; font-size: 0.95rem;">
+          🚀 Export All Clips to Game &amp; Unity
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Audio element for playback -->
+  <audio id="audioPlayer" preload="auto"></audio>
+
+  <!-- Export Results Modal -->
+  <div class="modal-backdrop" id="resultsModal">
+    <div class="modal-box">
+      <h3 style="margin-top: 0; color: #fff; display: flex; align-items: center; gap: 0.5rem;">
+        <span style="color: var(--slicer-neon-green);">✓</span> Export Completed Successfully!
+      </h3>
+      <p style="color: var(--slicer-muted); font-size: 0.85rem;" id="modalSummaryText"></p>
+      
+      <div style="background: #080410; border: 1px solid var(--slicer-border); border-radius: 10px; padding: 0.75rem; max-height: 220px; overflow-y: auto; margin-bottom: 1.25rem;">
+        <ul id="modalFilesList" style="margin: 0; padding-left: 1.2rem; font-size: 0.8rem; color: var(--slicer-text); font-family: monospace;">
+        </ul>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <a class="tool-btn" id="modalZipDownloadLink" href="#" target="_blank" style="text-decoration: none;">
+          📦 Download Slices (.ZIP)
+        </a>
+        <button class="tool-btn primary" onclick="document.getElementById('resultsModal').style.display='none'">
+          Done
+        </button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+(() => {
+  // State
+  let currentFileId = null;
+  let audioMeta = null;
+  let rawPeaks = [];
+  let slices = [];
+  let selectedSliceIndex = -1;
+  let zoom = 1.0;
+  let isPlaying = false;
+  let isDraggingNew = false;
+  let newDragStart = 0;
+  let newDragEnd = 0;
+
+  // DOM
+  const dropzone = document.getElementById('dropzone');
+  const fileInput = document.getElementById('fileInput');
+  const workspaceArea = document.getElementById('workspaceArea');
+  const exportBar = document.getElementById('exportBar');
+  const audioPlayer = document.getElementById('audioPlayer');
+  const waveformCanvas = document.getElementById('waveformCanvas');
+  const canvasContainer = document.getElementById('canvasContainer');
+  const waveformWrapper = document.getElementById('waveformWrapper');
+  const playheadLine = document.getElementById('playheadLine');
+  const sliceRegionsLayer = document.getElementById('sliceRegionsLayer');
+  const timeDisplay = document.getElementById('timeDisplay');
+  const slicesTableBody = document.getElementById('slicesTableBody');
+  const btnPlayPause = document.getElementById('btnPlayPause');
+
+  // Character & Sound Presets
+  const PRESETS = {
+    Mage: [
+      { label: "Attack Grunt 1", name: "mage_attack_01" },
+      { label: "Attack Grunt 2", name: "mage_attack_02" },
+      { label: "Attack Grunt 3", name: "mage_attack_03" },
+      { label: "Heavy Spell Cast", name: "mage_spell_heavy_01" },
+      { label: "Shadow Beam Chant", name: "mage_spell_beam_01" },
+      { label: "Hurt / Damage Gasp", name: "mage_hurt_01" },
+      { label: "Death Cry", name: "mage_death_01" },
+      { label: "Jump Effort", name: "mage_jump_01" },
+      { label: "Dash Woosh", name: "mage_dash_01" },
+      { label: "Taunt / Laugh", name: "mage_taunt_01" }
+    ],
+    OpeningSequence: [
+      { label: "Prologue Slide 1 (Rift Arrival)", name: "prologue_slide_01" },
+      { label: "Prologue Slide 2 (Drifting Petals)", name: "prologue_slide_02" },
+      { label: "Prologue Slide 3 (Slaughtered Followers)", name: "prologue_slide_03" },
+      { label: "Prologue Slide 4 (No Witness Remains)", name: "prologue_slide_04" },
+      { label: "Prologue Slide 5 (Father Chaos Suspicion)", name: "prologue_slide_05" },
+      { label: "Prologue Slide 6 (Mission Begins)", name: "prologue_slide_06" },
+      { label: "Prologue Slide 7 (Chapter Title Card)", name: "prologue_slide_07" },
+      { label: "Void Whispers", name: "prologue_void_whisper_01" },
+      { label: "Cinematic Title Reveal", name: "prologue_title_reveal" }
+    ],
+    Nyxaris: [
+      { label: "Nyxaris Awakening", name: "nyxaris_awakening_01" },
+      { label: "Nyxaris Seal Shattered", name: "nyxaris_seal_shatter" },
+      { label: "Nyxaris Chat Greeting", name: "nyxaris_chat_greeting" },
+      { label: "Nyxaris Advice Line", name: "nyxaris_advice_01" },
+      { label: "Nyxaris Warning", name: "nyxaris_warning_01" }
+    ],
+    CombatSFX: [
+      { label: "Spear Thrust Slash", name: "sfx_spear_slash_01" },
+      { label: "Magic Impact Burst", name: "sfx_magic_impact_01" },
+      { label: "Web Tear Crunch", name: "sfx_web_tear_01" }
+    ],
+    Custom: [
+      { label: "Custom Clip", name: "custom_sound_01" }
+    ]
+  };
+
+  // Upload Handling
+  dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('drag-over'); });
+  dropzone.addEventListener('dragleave', () => { dropzone.classList.remove('drag-over'); });
+  dropzone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropzone.classList.remove('drag-over');
+    if (e.dataTransfer.files.length > 0) uploadFile(e.dataTransfer.files[0]);
+  });
+  fileInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) uploadFile(e.target.files[0]);
+  });
+
+  async function uploadFile(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    dropzone.innerHTML = `<div class="dropzone-icon" style="animation: spin 1s infinite linear;">⏳</div><h3>Uploading &amp; Analyzing Waveform...</h3><p>${file.name}</p>`;
+
+    try {
+      const res = await fetch('/api/audio-slicer/upload', { method: 'POST', body: formData });
+      const json = await res.json();
+      if (json.status !== 'success') throw new Error(json.error || 'Failed to upload audio');
+
+      audioMeta = json.data;
+      currentFileId = audioMeta.file_id;
+      rawPeaks = audioMeta.peaks || [];
+
+      // Update UI
+      document.getElementById('metaFilename').textContent = audioMeta.filename;
+      document.getElementById('metaDuration').textContent = `${audioMeta.duration}s`;
+      document.getElementById('metaSampleRate').textContent = `${audioMeta.sample_rate} Hz`;
+      document.getElementById('metaChannels').textContent = audioMeta.channels === 1 ? 'Mono' : 'Stereo';
+      document.getElementById('fileMetaBadge').style.display = 'flex';
+
+      dropzone.style.display = 'none';
+      workspaceArea.style.display = 'flex';
+      exportBar.style.display = 'flex';
+
+      audioPlayer.src = audioMeta.stream_url;
+      slices = [];
+      renderWaveform();
+      renderSlicesTable();
+      renderSliceOverlays();
+    } catch (err) {
+      alert('Error: ' + err.message);
+      location.reload();
+    }
+  }
+
+  // Waveform Rendering
+  function renderWaveform() {
+    if (!audioMeta) return;
+    const baseWidth = waveformWrapper.clientWidth;
+    const totalWidth = Math.max(baseWidth, Math.round(baseWidth * zoom));
+
+    canvasContainer.style.width = `${totalWidth}px`;
+    waveformCanvas.width = totalWidth;
+    waveformCanvas.height = 180;
+
+    const ctx = waveformCanvas.getContext('2d');
+    ctx.clearRect(0, 0, totalWidth, 180);
+
+    const midY = 90;
+    const count = rawPeaks.length;
+    if (count === 0) return;
+
+    // Background grid & second ruler
+    ctx.strokeStyle = '#180f2d';
+    ctx.lineWidth = 1;
+    const totalDur = audioMeta.duration;
+    const secInterval = zoom > 3 ? 1 : (zoom > 1.5 ? 2 : 5);
+
+    ctx.font = '10px monospace';
+    ctx.fillStyle = '#6b548d';
+    for (let s = 0; s <= totalDur; s += secInterval) {
+      const x = (s / totalDur) * totalWidth;
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, 180);
+      ctx.stroke();
+      ctx.fillText(`${s}s`, x + 3, 14);
+    }
+
+    // Centerline
+    ctx.strokeStyle = 'rgba(192, 132, 252, 0.2)';
+    ctx.beginPath();
+    ctx.moveTo(0, midY);
+    ctx.lineTo(totalWidth, midY);
+    ctx.stroke();
+
+    // Waveform gradient
+    const grad = ctx.createLinearGradient(0, 10, 0, 170);
+    grad.addColorStop(0, '#f43f5e');
+    grad.addColorStop(0.5, '#c084fc');
+    grad.addColorStop(1, '#06b6d4');
+    ctx.fillStyle = grad;
+
+    for (let i = 0; i < count; i++) {
+      const x = (i / count) * totalWidth;
+      const w = Math.max(1, totalWidth / count);
+      const minPeak = rawPeaks[i].min;
+      const maxPeak = rawPeaks[i].max;
+
+      const topY = midY - (maxPeak * 75);
+      const botY = midY - (minPeak * 75);
+      ctx.fillRect(x, topY, w, Math.max(1.5, botY - topY));
+    }
+  }
+
+  window.addEventListener('resize', () => { renderWaveform(); renderSliceOverlays(); });
+
+  // Playback Loop
+  audioPlayer.addEventListener('timeupdate', () => {
+    const cur = audioPlayer.currentTime;
+    const dur = audioMeta ? audioMeta.duration : 0;
+    timeDisplay.textContent = `${formatTime(cur)} / ${formatTime(dur)}`;
+
+    if (dur > 0) {
+      const totalWidth = canvasContainer.clientWidth;
+      const x = (cur / dur) * totalWidth;
+      playheadLine.style.display = 'block';
+      playheadLine.style.left = `${x}px`;
+    }
+  });
+
+  audioPlayer.addEventListener('ended', () => {
+    isPlaying = false;
+    btnPlayPause.textContent = '▶ Play';
+  });
+
+  btnPlayPause.addEventListener('click', togglePlay);
+  document.getElementById('btnStop').addEventListener('click', () => {
+    audioPlayer.pause();
+    audioPlayer.currentTime = 0;
+    isPlaying = false;
+    btnPlayPause.textContent = '▶ Play';
+  });
+
+  function togglePlay() {
+    if (!audioPlayer.src) return;
+    if (isPlaying) {
+      audioPlayer.pause();
+      isPlaying = false;
+      btnPlayPause.textContent = '▶ Play';
+    } else {
+      audioPlayer.play();
+      isPlaying = true;
+      btnPlayPause.textContent = '⏸ Pause';
+    }
+  }
+
+  // Keyboard Shortcuts
+  window.addEventListener('keydown', (e) => {
+    if (['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)) return;
+    if (e.code === 'Space') {
+      e.preventDefault();
+      if (e.shiftKey && selectedSliceIndex >= 0) playSlice(selectedSliceIndex);
+      else togglePlay();
+    } else if (e.key === '+' || e.key === '=') {
+      zoom = Math.min(10, zoom + 0.5); updateZoom();
+    } else if (e.key === '-' || e.key === '_') {
+      zoom = Math.max(1, zoom - 0.5); updateZoom();
+    } else if (e.key.toLowerCase() === 'm') {
+      addSliceAtCurrentTime();
+    }
+  });
+
+  // Zoom Controls
+  document.getElementById('btnZoomIn').addEventListener('click', () => { zoom = Math.min(10, zoom + 0.5); updateZoom(); });
+  document.getElementById('btnZoomOut').addEventListener('click', () => { zoom = Math.max(1, zoom - 0.5); updateZoom(); });
+  document.getElementById('btnResetZoom').addEventListener('click', () => { zoom = 1.0; updateZoom(); });
+
+  function updateZoom() {
+    document.getElementById('zoomLevelText').textContent = `${zoom.toFixed(1)}x`;
+    renderWaveform();
+    renderSliceOverlays();
+  }
+
+  // Waveform Click & Drag to Select Regions
+  waveformWrapper.addEventListener('mousedown', (e) => {
+    if (!audioMeta) return;
+    const rect = canvasContainer.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const dur = audioMeta.duration;
+    const totalW = canvasContainer.clientWidth;
+    const clickSec = Math.max(0, Math.min(dur, (x / totalW) * dur));
+
+    // If shift is held or clicking empty space, start region drag
+    isDraggingNew = true;
+    newDragStart = clickSec;
+    newDragEnd = clickSec;
+    audioPlayer.currentTime = clickSec;
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (!isDraggingNew || !audioMeta) return;
+    const rect = canvasContainer.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const dur = audioMeta.duration;
+    const totalW = canvasContainer.clientWidth;
+    newDragEnd = Math.max(0, Math.min(dur, (x / totalW) * dur));
+  });
+
+  window.addEventListener('mouseup', () => {
+    if (isDraggingNew && audioMeta) {
+      isDraggingNew = false;
+      const s = Math.min(newDragStart, newDragEnd);
+      const e = Math.max(newDragStart, newDragEnd);
+      if (e - s > 0.15) {
+        addSlice(s, e);
+      }
+    }
+  });
+
+  // Add Slice Helper
+  function addSlice(start, end, category = "Mage", customName = "") {
+    const defaultList = PRESETS[category] || PRESETS.Mage;
+    const nextIdx = slices.filter(sl => sl.category === category).length;
+    const presetItem = defaultList[nextIdx % defaultList.length];
+
+    const sliceObj = {
+      start: roundTo(start, 3),
+      end: roundTo(end, 3),
+      category: category,
+      presetLabel: presetItem.label,
+      name: customName || presetItem.name
+    };
+
+    slices.push(sliceObj);
+    slices.sort((a, b) => a.start - b.start);
+    selectedSliceIndex = slices.indexOf(sliceObj);
+
+    renderSlicesTable();
+    renderSliceOverlays();
+  }
+
+  function addSliceAtCurrentTime() {
+    if (!audioMeta) return;
+    const cur = audioPlayer.currentTime;
+    const end = Math.min(audioMeta.duration, cur + 1.5);
+    addSlice(cur, end);
+  }
+
+  document.getElementById('btnAddSliceAtPlayhead').addEventListener('click', addSliceAtCurrentTime);
+
+  // Auto-Detect Silence API Call
+  document.getElementById('btnAutoSilence').addEventListener('click', async () => {
+    if (!currentFileId) return;
+    const btn = document.getElementById('btnAutoSilence');
+    const oldText = btn.innerHTML;
+    btn.innerHTML = '⏳ Scanning Energy...';
+    btn.disabled = true;
+
+    try {
+      const res = await fetch('/api/audio-slicer/detect-silence', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          file_id: currentFileId,
+          silence_thresh_db: -36.0,
+          min_silence_sec: 0.28
+        })
+      });
+      const json = await res.json();
+      if (json.status !== 'success') throw new Error(json.error || 'Failed to detect speech bursts');
+
+      const detected = json.regions || [];
+      if (detected.length === 0) {
+        alert('No distinct speech regions detected. Try manual selection on the waveform.');
+        return;
+      }
+
+      slices = [];
+      detected.forEach((reg, i) => {
+        addSlice(reg.start, reg.end, "Mage");
+      });
+
+      renderSlicesTable();
+      renderSliceOverlays();
+      alert(`Auto-detected ${detected.length} sound clips separated by silences!`);
+    } catch (err) {
+      alert('Detection error: ' + err.message);
+    } finally {
+      btn.innerHTML = oldText;
+      btn.disabled = false;
+    }
+  });
+
+  // Render Slices Overlay on Waveform
+  function renderSliceOverlays() {
+    sliceRegionsLayer.innerHTML = '';
+    if (!audioMeta || slices.length === 0) {
+      document.getElementById('sliceStatsText').textContent = '0 slices marked';
+      return;
+    }
+
+    const totalWidth = canvasContainer.clientWidth;
+    const dur = audioMeta.duration;
+
+    slices.forEach((s, idx) => {
+      const leftPx = (s.start / dur) * totalWidth;
+      const widthPx = Math.max(8, ((s.end - s.start) / dur) * totalWidth);
+
+      const div = document.createElement('div');
+      div.className = `slice-region-overlay ${idx === selectedSliceIndex ? 'selected' : ''}`;
+      div.style.left = `${leftPx}px`;
+      div.style.width = `${widthPx}px`;
+
+      div.innerHTML = `
+        <div class="drag-handle left" data-index="${idx}" data-side="left"></div>
+        <div class="slice-tag">#${idx+1} ${s.name}</div>
+        <div class="drag-handle right" data-index="${idx}" data-side="right"></div>
+      `;
+
+      div.addEventListener('click', (e) => {
+        e.stopPropagation();
+        selectedSliceIndex = idx;
+        renderSlicesTable();
+        renderSliceOverlays();
+      });
+
+      sliceRegionsLayer.appendChild(div);
+    });
+
+    document.getElementById('sliceStatsText').textContent = `${slices.length} slice${slices.length === 1 ? '' : 's'} marked`;
+  }
+
+  // Render Slices Table
+  function renderSlicesTable() {
+    slicesTableBody.innerHTML = '';
+    if (slices.length === 0) {
+      slicesTableBody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: var(--slicer-muted); padding: 2rem;">No sound cuts defined yet. Click &amp; drag on the waveform or click <b>Auto-Detect Silence</b>.</td></tr>`;
+      return;
+    }
+
+    slices.forEach((s, idx) => {
+      const tr = document.createElement('tr');
+      if (idx === selectedSliceIndex) tr.className = 'active-row';
+
+      const dur = (s.end - s.start).toFixed(2);
+
+      tr.innerHTML = `
+        <td><b>${idx + 1}</b></td>
+        <td>
+          <select class="slice-input cat-select" data-index="${idx}">
+            <option value="Mage" ${s.category === 'Mage' ? 'selected' : ''}>Mage</option>
+            <option value="OpeningSequence" ${s.category === 'OpeningSequence' ? 'selected' : ''}>Opening Sequence</option>
+            <option value="Nyxaris" ${s.category === 'Nyxaris' ? 'selected' : ''}>Nyxaris</option>
+            <option value="CombatSFX" ${s.category === 'CombatSFX' ? 'selected' : ''}>Combat SFX</option>
+            <option value="Custom" ${s.category === 'Custom' ? 'selected' : ''}>Custom</option>
+          </select>
+        </td>
+        <td>
+          <select class="slice-input preset-select" data-index="${idx}">
+            ${renderPresetOptions(s.category, s.name)}
+          </select>
+        </td>
+        <td>
+          <input type="text" class="slice-input name-input" data-index="${idx}" value="${s.name}.wav">
+        </td>
+        <td><input type="number" step="0.01" class="slice-input time-num-input start-input" data-index="${idx}" value="${s.start}"></td>
+        <td><input type="number" step="0.01" class="slice-input time-num-input end-input" data-index="${idx}" value="${s.end}"></td>
+        <td><span style="font-family: monospace; color: var(--slicer-neon-cyan);">${dur}s</span></td>
+        <td><button class="tool-btn" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;" onclick="playSlice(${idx})">▶ Play</button></td>
+        <td><button style="background: none; border: none; color: #f43f5e; cursor: pointer; font-size: 1rem;" onclick="removeSlice(${idx})">✕</button></td>
+      `;
+
+      slicesTableBody.appendChild(tr);
+    });
+
+    // Attach listeners
+    document.querySelectorAll('.cat-select').forEach(sel => {
+      sel.addEventListener('change', (e) => {
+        const i = parseInt(e.target.dataset.index);
+        slices[i].category = e.target.value;
+        const defaultPreset = (PRESETS[e.target.value] || PRESETS.Mage)[0];
+        slices[i].name = defaultPreset.name;
+        renderSlicesTable();
+        renderSliceOverlays();
+      });
+    });
+
+    document.querySelectorAll('.preset-select').forEach(sel => {
+      sel.addEventListener('change', (e) => {
+        const i = parseInt(e.target.dataset.index);
+        slices[i].name = e.target.value;
+        renderSlicesTable();
+        renderSliceOverlays();
+      });
+    });
+
+    document.querySelectorAll('.name-input').forEach(inp => {
+      inp.addEventListener('change', (e) => {
+        const i = parseInt(e.target.dataset.index);
+        let val = e.target.value.trim();
+        if (val.toLowerCase().endsWith('.wav')) val = val.slice(0, -4);
+        slices[i].name = val;
+        renderSliceOverlays();
+      });
+    });
+
+    document.querySelectorAll('.start-input').forEach(inp => {
+      inp.addEventListener('change', (e) => {
+        const i = parseInt(e.target.dataset.index);
+        slices[i].start = Math.max(0, parseFloat(e.target.value) || 0);
+        renderSlicesTable();
+        renderSliceOverlays();
+      });
+    });
+
+    document.querySelectorAll('.end-input').forEach(inp => {
+      inp.addEventListener('change', (e) => {
+        const i = parseInt(e.target.dataset.index);
+        slices[i].end = Math.min(audioMeta.duration, parseFloat(e.target.value) || 0);
+        renderSlicesTable();
+        renderSliceOverlays();
+      });
+    });
+  }
+
+  function renderPresetOptions(category, currentName) {
+    const list = PRESETS[category] || PRESETS.Custom;
+    return list.map(item => `<option value="${item.name}" ${item.name === currentName ? 'selected' : ''}>${item.label}</option>`).join('');
+  }
+
+  window.playSlice = function(idx) {
+    if (idx < 0 || idx >= slices.length || !audioPlayer) return;
+    const s = slices[idx];
+    selectedSliceIndex = idx;
+    renderSliceOverlays();
+    renderSlicesTable();
+
+    audioPlayer.currentTime = s.start;
+    audioPlayer.play();
+    isPlaying = true;
+    btnPlayPause.textContent = '⏸ Pause';
+
+    const checkStop = () => {
+      if (audioPlayer.currentTime >= s.end) {
+        audioPlayer.pause();
+        isPlaying = false;
+        btnPlayPause.textContent = '▶ Play';
+        audioPlayer.removeEventListener('timeupdate', checkStop);
+      }
+    };
+    audioPlayer.addEventListener('timeupdate', checkStop);
+  };
+
+  document.getElementById('btnPlaySelection').addEventListener('click', () => {
+    if (selectedSliceIndex >= 0) playSlice(selectedSliceIndex);
+  });
+
+  window.removeSlice = function(idx) {
+    slices.splice(idx, 1);
+    if (selectedSliceIndex >= slices.length) selectedSliceIndex = slices.length - 1;
+    renderSlicesTable();
+    renderSliceOverlays();
+  };
+
+  document.getElementById('btnClearAllSlices').addEventListener('click', () => {
+    if (confirm('Clear all sliced regions?')) {
+      slices = [];
+      selectedSliceIndex = -1;
+      renderSlicesTable();
+      renderSliceOverlays();
+    }
+  });
+
+  // Export All Slices API Call
+  document.getElementById('btnExportAll').addEventListener('click', async () => {
+    if (!currentFileId || slices.length === 0) {
+      alert('Please define at least one sound clip before exporting.');
+      return;
+    }
+
+    const btn = document.getElementById('btnExportAll');
+    const oldText = btn.innerHTML;
+    btn.innerHTML = '⏳ Slicing &amp; Exporting to Unity...';
+    btn.disabled = true;
+
+    try {
+      const payload = {
+        file_id: currentFileId,
+        slices: slices.map(s => ({
+          start: s.start,
+          end: s.end,
+          category: s.category,
+          name: s.name
+        })),
+        apply_micro_fades: document.getElementById('chkMicroFades').checked,
+        normalize_volume: document.getElementById('chkNormalize').checked,
+        export_to_unity: document.getElementById('chkUnityExport').checked,
+        export_to_storage: true
+      };
+
+      const res = await fetch('/api/audio-slicer/export', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error || 'Export failed');
+
+      // Populate results modal
+      const modal = document.getElementById('resultsModal');
+      const list = document.getElementById('modalFilesList');
+      list.innerHTML = '';
+      json.slices.forEach(s => {
+        const li = document.createElement('li');
+        li.textContent = `[${s.category}] ${s.name} (${s.duration}s) -> ${s.unity_path ? 'Unity: ' + s.unity_path : 'Storage'}`;
+        list.appendChild(li);
+      });
+
+      document.getElementById('modalSummaryText').textContent =
+        `Exported ${json.exported_count} voice clips with 5ms micro-fades into Unity Assets/Audio/Voice and Game Dev OS storage.`;
+      document.getElementById('modalZipDownloadLink').href = json.zip_url;
+      modal.style.display = 'flex';
+
+    } catch (err) {
+      alert('Export failed: ' + err.message);
+    } finally {
+      btn.innerHTML = oldText;
+      btn.disabled = false;
+    }
+  });
+
+  // Utilities
+  function roundTo(num, decimals) {
+    const f = Math.pow(10, decimals);
+    return Math.round(num * f) / f;
+  }
+
+  function formatTime(sec) {
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    const ms = Math.floor((sec % 1) * 100);
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`;
+  }
+
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1655 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="cosmic">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>2D Character Builder — Frame-by-Frame</title>
+  {% include 'partials/head_assets.html' %}
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+    header {
+      padding: 0.65rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--header-bg);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    header a { color: var(--accent); text-decoration: none; font-size: 0.85rem; }
+    header a:hover { text-decoration: underline; }
+    .container {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    /* ─── Panels ─── */
+    .panel {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .panel-left { width: 280px; }
+    .panel-right {
+      width: 295px;
+      border-right: none;
+      border-left: 1px solid var(--border);
+    }
+    .panel-header {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 700;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.02);
+      flex-shrink: 0;
+    }
+    .panel-content {
+      padding: 10px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    /* ─── Editor ─── */
+    .editor-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--code-bg);
+      position: relative;
+    }
+    .canvas-container {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-image: radial-gradient(var(--border) 1px, transparent 0);
+      background-size: 24px 24px;
+    }
+    canvas {
+      background: rgba(10, 8, 20, 0.4);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    /* ─── Buttons ─── */
+    .btn {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: var(--accent-text);
+      border: none;
+      padding: 6px 10px;
+      border-radius: 7px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.75rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.05); border-color: var(--text); }
+    .btn-active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--accent-text);
+    }
+    .btn-sm { padding: 4px 7px; font-size: 0.7rem; }
+    .btn-danger { border-color: var(--danger); color: var(--danger); }
+
+    /* ─── Form Controls ─── */
+    .form-group { margin-bottom: 10px; }
+    .form-group label {
+      display: block;
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-bottom: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 5px 7px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 0.8rem;
+    }
+    .form-group input[type="range"] { padding: 0; background: transparent; }
+    .form-group input[type="color"] { padding: 1px; cursor: pointer; height: 28px; }
+
+    /* ─── Shape Library ─── */
+    .tab-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+      padding: 6px 0;
+    }
+    .tab-btn {
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.65rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.15s ease;
+    }
+    .tab-btn:hover { border-color: var(--text); color: var(--text); }
+    .tab-btn.active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+    .shape-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      padding: 6px 0;
+    }
+    .shape-item {
+      aspect-ratio: 1;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.2);
+      cursor: grab;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
+      transition: all 0.15s ease;
+      position: relative;
+    }
+    .shape-item:hover {
+      border-color: var(--accent);
+      background: rgba(146, 104, 255, 0.08);
+      transform: scale(1.04);
+    }
+    .shape-item canvas { pointer-events: none; }
+    .shape-item .shape-label {
+      font-size: 0.55rem;
+      color: var(--muted);
+      margin-top: 2px;
+      text-align: center;
+      line-height: 1.1;
+    }
+
+    /* ─── Layer List ─── */
+    .layer-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 5px 7px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      margin-bottom: 3px;
+      transition: background 0.15s ease;
+      gap: 4px;
+    }
+    .layer-item:hover { background: rgba(255, 255, 255, 0.04); }
+    .layer-item.selected { background: var(--accent); color: var(--accent-text); }
+    .layer-item .layer-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .layer-actions { display: flex; gap: 2px; }
+    .layer-actions button {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.7rem;
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+    .layer-actions button:hover { color: var(--text); background: rgba(255,255,255,0.08); }
+
+    /* ─── Timeline ─── */
+    .timeline-panel {
+      height: 120px;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+    .timeline-controls {
+      display: flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-bottom: 1px solid var(--border);
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.01);
+      flex-wrap: wrap;
+    }
+    .timeline-frames {
+      flex: 1;
+      overflow-x: auto;
+      display: flex;
+      padding: 6px 14px;
+      position: relative;
+    }
+    .frame-track {
+      position: relative;
+      height: 44px;
+      display: flex;
+      align-items: center;
+    }
+    .frame-cell {
+      width: 40px;
+      height: 40px;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      margin-right: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      color: var(--muted);
+      background: rgba(0,0,0,0.15);
+      flex-shrink: 0;
+      transition: all 0.12s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .frame-cell:hover { border-color: var(--text); }
+    .frame-cell.active {
+      border-color: var(--accent);
+      background: rgba(146, 104, 255, 0.12);
+      color: var(--text);
+      font-weight: 700;
+    }
+    .frame-cell canvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+    }
+
+    /* ─── View Angle Bar ─── */
+    .view-bar {
+      display: flex;
+      background: rgba(0, 0, 0, 0.15);
+      border-bottom: 1px solid var(--border);
+      padding: 5px 10px;
+      gap: 6px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .view-bar span { font-size: 0.7rem; color: var(--muted); margin-right: 4px; }
+
+    /* ─── Onion Skin Toggle ─── */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .toggle-row label {
+      font-size: 0.72rem;
+      color: var(--muted);
+      cursor: pointer;
+      margin: 0;
+      display: inline;
+    }
+    .toggle-row input[type="checkbox"] {
+      width: 14px; height: 14px; cursor: pointer;
+    }
+
+    /* ─── Upload zone ─── */
+    .upload-zone {
+      border: 2px dashed rgba(146, 104, 255, 0.2);
+      border-radius: 10px;
+      padding: 12px 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      margin-bottom: 10px;
+    }
+    .upload-zone:hover { border-color: var(--accent); background: rgba(146,104,255,0.03); }
+    .upload-zone p { margin: 4px 0 0; font-size: 0.72rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+<header>
+  <div>
+    <strong>Character Builder</strong> •
+    <a href="/">Dashboard</a> •
+    <a href="/skeletal-animator">Skeletal Animator</a> •
+    <a href="/prompt-planner">Prompt Planner</a>
+  </div>
+  {% include 'partials/theme_select.html' %}
+</header>
+
+<div class="container">
+  <!-- ═══════════════ LEFT PANEL: Shape Library ═══════════════ -->
+  <div class="panel panel-left">
+    <div class="panel-header">
+      <span>🎨 Shape Library</span>
+    </div>
+    <div class="panel-content">
+      <!-- View Angle Selector -->
+      <div class="form-group">
+        <label>View Angle Preset</label>
+        <select id="viewAngle" onchange="setViewAngle(this.value)">
+          <option value="side">Side View (Platformer)</option>
+          <option value="34">3/4 View</option>
+          <option value="front">Front View</option>
+          <option value="back">Back View</option>
+        </select>
+      </div>
+
+      <!-- Category Tabs -->
+      <div class="tab-bar" id="shapeTabs"></div>
+
+      <!-- Shape Grid (populated by JS) -->
+      <div class="shape-grid" id="shapeGrid"></div>
+
+      <!-- Upload Zone -->
+      <div class="panel-header" style="border-top: 1px solid var(--border); margin: 8px -10px 8px; padding-left: 10px;">
+        Upload Custom Part
+      </div>
+      <div class="upload-zone" id="uploadZone" onclick="document.getElementById('imgUpload').click()">
+        <strong style="font-size:0.8rem;">📁 Drop Image Here</strong>
+        <p>or click to browse (.png, .jpg)</p>
+        <input type="file" id="imgUpload" accept="image/*" style="display:none" onchange="handleImageUpload(this)"/>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ CENTER: Composition Canvas ═══════════════ -->
+  <div class="editor-area">
+    <div class="view-bar">
+      <span>Canvas:</span>
+      <button class="btn btn-sm btn-ghost" onclick="zoomCanvas(1.15)">🔍+</button>
+      <button class="btn btn-sm btn-ghost" onclick="zoomCanvas(1/1.15)">🔍−</button>
+      <button class="btn btn-sm btn-ghost" onclick="resetZoom()">Reset</button>
+      
+      <span style="color: var(--border); margin: 0 4px;">|</span>
+      <button class="btn btn-sm btn-ghost" id="btnPen" onclick="togglePenMode()">✒️ Custom Shape (Pen)</button>
+      <button class="btn btn-sm btn-ghost btn-danger" id="btnPenCancel" onclick="cancelPenDrawing()" style="display: none;">Cancel</button>
+      <button class="btn btn-sm btn-ghost" id="btnPenClose" onclick="closePenPath()" style="display: none; background: var(--success); color: #000;">Close Path (Enter)</button>
+
+      <div style="margin-left: auto; display: flex; gap: 6px; align-items: center;">
+        <div class="toggle-row" style="margin-bottom: 0;">
+          <input type="checkbox" id="onionSkinChk" checked/>
+          <label for="onionSkinChk">Onion Skin</label>
+        </div>
+        <div class="toggle-row" style="margin-bottom: 0;">
+          <input type="checkbox" id="showGridChk" checked/>
+          <label for="showGridChk">Grid</label>
+        </div>
+      </div>
+    </div>
+    <div class="canvas-container" id="canvasContainer">
+      <canvas id="mainCanvas" width="900" height="650"></canvas>
+    </div>
+
+    <!-- ═══════════════ TIMELINE ═══════════════ -->
+    <div class="timeline-panel">
+      <div class="timeline-controls">
+        <button class="btn btn-sm" id="btnPlay" onclick="togglePlay()">▶ Play</button>
+        <button class="btn btn-sm btn-ghost" onclick="stopAnim()">■ Stop</button>
+        <span style="font-size:0.65rem; color:var(--border);">|</span>
+        <button class="btn btn-sm btn-ghost" onclick="addFrame()">＋ Frame</button>
+        <button class="btn btn-sm btn-ghost" onclick="dupFrame()">⧉ Dup</button>
+        <button class="btn btn-sm btn-ghost btn-danger" onclick="delFrame()">✖ Del</button>
+        <div style="margin-left: auto; display: flex; align-items: center; gap: 6px;">
+          <label style="font-size:0.65rem; color:var(--muted);">FPS:</label>
+          <input type="number" id="fpsInput" value="8" min="1" max="60" style="width:42px; padding:3px 5px; border-radius:5px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.75rem; text-align:center;" onchange="updateFPS()"/>
+        </div>
+      </div>
+      <div class="timeline-frames" id="framesScroll">
+        <div class="frame-track" id="frameTrack">
+          <!-- populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ RIGHT PANEL: Inspector ═══════════════ -->
+  <div class="panel panel-right">
+    <div class="panel-header">Inspector</div>
+    <div class="panel-content">
+      <div id="inspectorNone" style="text-align:center; color:var(--muted); padding-top: 30px; font-size:0.82rem;">
+        Select a shape on canvas<br>or drag one from the library
+      </div>
+      <div id="inspectorActive" style="display:none;">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" id="insName" oninput="updateProp('name', this.value)"/>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+          <div class="form-group">
+            <label>X</label>
+            <input type="number" id="insX" oninput="updateProp('x', parseFloat(this.value))"/>
+          </div>
+          <div class="form-group">
+            <label>Y</label>
+            <input type="number" id="insY" oninput="updateProp('y', parseFloat(this.value))"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Rotation (°)</label>
+          <input type="range" id="insRot" min="-180" max="180" step="1" oninput="updateProp('rotation', parseFloat(this.value))"/>
+          <input type="number" id="insRotNum" oninput="updateProp('rotation', parseFloat(this.value))"/>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+          <div class="form-group">
+            <label>Scale X</label>
+            <input type="number" id="insSX" step="0.05" oninput="updateProp('scaleX', parseFloat(this.value))"/>
+          </div>
+          <div class="form-group">
+            <label>Scale Y</label>
+            <input type="number" id="insSY" step="0.05" oninput="updateProp('scaleY', parseFloat(this.value))"/>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+          <div class="form-group">
+            <label>Flip X</label>
+            <select id="insFlipX" onchange="updateProp('flipX', this.value === 'true')">
+              <option value="false">No</option>
+              <option value="true">Yes</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Flip Y</label>
+            <select id="insFlipY" onchange="updateProp('flipY', this.value === 'true')">
+              <option value="false">No</option>
+              <option value="true">Yes</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Opacity</label>
+          <input type="range" id="insOpacity" min="0" max="1" step="0.05" oninput="updateProp('opacity', parseFloat(this.value))"/>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+          <div class="form-group">
+            <label>Fill Color</label>
+            <input type="color" id="insFill" onchange="updateProp('fill', this.value)"/>
+          </div>
+          <div class="form-group">
+            <label>Stroke Color</label>
+            <input type="color" id="insStroke" onchange="updateProp('stroke', this.value)"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Stroke Width</label>
+          <input type="number" id="insStrokeW" min="0" max="10" step="0.5" oninput="updateProp('strokeWidth', parseFloat(this.value))"/>
+        </div>
+      </div>
+
+      <!-- Layer List -->
+      <div class="panel-header" style="border-top:1px solid var(--border); margin:8px -10px 8px; padding-left:10px;">
+        Layers (Z-Order)
+        <div style="display:flex; gap:3px;">
+          <button class="btn btn-sm btn-ghost" onclick="moveLayerUp()" title="Move Up">▲</button>
+          <button class="btn btn-sm btn-ghost" onclick="moveLayerDown()" title="Move Down">▼</button>
+        </div>
+      </div>
+      <div id="layerList"></div>
+
+      <!-- Export -->
+      <div class="panel-header" style="border-top:1px solid var(--border); margin:8px -10px 8px; padding-left:10px;">Export</div>
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        <button class="btn btn-ghost" onclick="exportCurrentFrame()">🖼️ Export Frame PNG</button>
+        <button class="btn btn-ghost" onclick="exportSpritesheet()">📋 Export Spritesheet</button>
+        <button class="btn btn-ghost" onclick="exportAllFrames()">📁 Export All Frames</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════
+const canvas = document.getElementById('mainCanvas');
+const ctx = canvas.getContext('2d');
+let viewAngle = 'side';   // side, 34, front, back
+let canvasZoom = 1;
+let fps = 8;
+let isPlaying = false;
+let playTimer = null;
+
+// Frame-based state: each frame is an array of shape objects
+let frames = [[]];
+let currentFrameIdx = 0;
+let selectedId = null;
+
+// Drag state
+let isDragging = false;
+let dragOffsetX = 0, dragOffsetY = 0;
+let isRotating = false;
+let rotStartAngle = 0;
+
+// Pen Tool State
+let penMode = false;
+let penPoints = [];
+let currentMousePos = null;
+
+// Unique ID counter
+let idCounter = 0;
+function nextId() { return 'shape_' + (idCounter++); }
+
+// Get current frame's shapes
+function currentShapes() { return frames[currentFrameIdx]; }
+function selectedShape() { return currentShapes().find(s => s.id === selectedId); }
+
+// Pen Tool Functions
+function togglePenMode() {
+  penMode = !penMode;
+  selectedId = null;
+  penPoints = [];
+  const btn = document.getElementById('btnPen');
+  const btnCancel = document.getElementById('btnPenCancel');
+  const btnClose = document.getElementById('btnPenClose');
+  
+  if (penMode) {
+    btn.className = 'btn btn-sm btn-active';
+    btn.textContent = '✒️ Click Canvas to Add Points';
+    btnCancel.style.display = 'inline-flex';
+    btnClose.style.display = 'inline-flex';
+  } else {
+    btn.className = 'btn btn-sm btn-ghost';
+    btn.textContent = '✒️ Custom Shape (Pen)';
+    btnCancel.style.display = 'none';
+    btnClose.style.display = 'none';
+  }
+  draw();
+}
+
+function cancelPenDrawing() {
+  penMode = false;
+  penPoints = [];
+  const btn = document.getElementById('btnPen');
+  const btnCancel = document.getElementById('btnPenCancel');
+  const btnClose = document.getElementById('btnPenClose');
+  btn.className = 'btn btn-sm btn-ghost';
+  btn.textContent = '✒️ Custom Shape (Pen)';
+  btnCancel.style.display = 'none';
+  btnClose.style.display = 'none';
+  draw();
+}
+
+function closePenPath() {
+  if (penPoints.length < 3) {
+    alert("Please place at least 3 points to create a custom shape.");
+    return;
+  }
+  
+  const xs = penPoints.map(p => p.x);
+  const ys = penPoints.map(p => p.y);
+  const minX = Math.min(...xs);
+  const maxX = Math.max(...xs);
+  const minY = Math.min(...ys);
+  const maxY = Math.max(...ys);
+  
+  const w = maxX - minX || 10;
+  const h = maxY - minY || 10;
+  const cx = minX + w / 2;
+  const cy = minY + h / 2;
+  
+  const normalizedPoints = penPoints.map(p => ({
+    x: p.x - cx,
+    y: p.y - cy
+  }));
+  
+  const obj = {
+    id: nextId(),
+    name: 'Custom Poly ' + idCounter,
+    type: 'custom',
+    points: normalizedPoints,
+    x: minX,
+    y: minY,
+    w: w,
+    h: h,
+    rotation: 0,
+    scaleX: 1,
+    scaleY: 1,
+    flipX: false,
+    flipY: false,
+    opacity: 1,
+    fill: '#c8b8ff',
+    stroke: '#5533aa',
+    strokeWidth: 2
+  };
+  
+  currentShapes().push(obj);
+  selectedId = obj.id;
+  updateInspector();
+  updateLayerList();
+  cancelPenDrawing();
+}
+
+// ═══════════════════════════════════════════════════
+//  SHAPE LIBRARY DEFINITIONS
+// ═══════════════════════════════════════════════════
+const shapeLibrary = {
+  heads: [
+    { name: 'Round', draw: (ctx,w,h) => { ctx.beginPath(); ctx.arc(w/2,h/2,Math.min(w,h)/2.2,0,Math.PI*2); ctx.fill(); ctx.stroke(); }},
+    { name: 'Oval', draw: (ctx,w,h) => { ctx.beginPath(); ctx.ellipse(w/2,h/2,w/2.5,h/2.1,0,0,Math.PI*2); ctx.fill(); ctx.stroke(); }},
+    { name: 'Chibi Big', draw: (ctx,w,h) => { ctx.beginPath(); ctx.arc(w/2,h*0.48,Math.min(w,h)/2,0,Math.PI*2); ctx.fill(); ctx.stroke(); }},
+    { name: 'Angular', draw: (ctx,w,h) => { ctx.beginPath(); ctx.moveTo(w/2,h*0.08); ctx.lineTo(w*0.88,h*0.35); ctx.lineTo(w*0.82,h*0.85); ctx.lineTo(w*0.18,h*0.85); ctx.lineTo(w*0.12,h*0.35); ctx.closePath(); ctx.fill(); ctx.stroke(); }},
+    { name: 'Skull', draw: (ctx,w,h) => { ctx.beginPath(); ctx.arc(w/2,h*0.4,w/2.4,Math.PI,0); ctx.quadraticCurveTo(w*0.85,h*0.75,w*0.6,h*0.9); ctx.lineTo(w*0.4,h*0.9); ctx.quadraticCurveTo(w*0.15,h*0.75,w*0.1,h*0.4); ctx.fill(); ctx.stroke(); ctx.fillStyle='#000'; ctx.beginPath(); ctx.arc(w*0.35,h*0.4,w/10,0,Math.PI*2); ctx.arc(w*0.65,h*0.4,w/10,0,Math.PI*2); ctx.fill(); }},
+    { name: 'Beast Head', draw: (ctx,w,h) => { ctx.beginPath(); ctx.moveTo(w*0.1,h*0.2); ctx.quadraticCurveTo(w*0.8,h*0.1,w*0.9,h*0.4); ctx.lineTo(w*0.8,h*0.85); ctx.lineTo(w*0.4,h*0.85); ctx.lineTo(w*0.1,h*0.5); ctx.closePath(); ctx.fill(); ctx.stroke(); }},
+  ],
+  eyes: [
+    { name: 'Dots', draw: (ctx,w,h) => { ctx.beginPath(); ctx.arc(w*0.3,h/2,3,0,Math.PI*2); ctx.arc(w*0.7,h/2,3,0,Math.PI*2); ctx.fill(); }},
+    { name: 'Slits', draw: (ctx,w,h) => { ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(w*0.2,h/2); ctx.lineTo(w*0.4,h/2); ctx.moveTo(w*0.6,h/2); ctx.lineTo(w*0.8,h/2); ctx.stroke(); }},
+    { name: 'Glowing Orbs', draw: (ctx,w,h) => { ctx.shadowColor='#9b4dff'; ctx.shadowBlur=8; ctx.beginPath(); ctx.arc(w*0.3,h/2,5,0,Math.PI*2); ctx.arc(w*0.7,h/2,5,0,Math.PI*2); ctx.fill(); ctx.shadowBlur=0; }},
+    { name: 'Angry', draw: (ctx,w,h) => { ctx.beginPath(); ctx.arc(w*0.3,h/2,4,0,Math.PI*2); ctx.arc(w*0.7,h/2,4,0,Math.PI*2); ctx.fill(); ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(w*0.15,h*0.3); ctx.lineTo(w*0.4,h*0.4); ctx.moveTo(w*0.85,h*0.3); ctx.lineTo(w*0.6,h*0.4); ctx.stroke(); }},
+    { name: 'Closed', draw: (ctx,w,h) => { ctx.lineWidth=2; ctx.beginPath(); ctx.arc(w*0.3,h/2,6,0,Math.PI); ctx.moveTo(w*0.76,h/2); ctx.arc(w*0.7,h/2,6,0,Math.PI); ctx.stroke(); }},
+    { name: 'Cyclops', draw: (ctx,w,h) => { ctx.shadowColor='#ff3333'; ctx.shadowBlur=10; ctx.beginPath(); ctx.arc(w/2,h/2,7,0,Math.PI*2); ctx.fill(); ctx.shadowBlur=0; }},
+    { name: 'Anime Cute', draw: (ctx,w,h) => {
+        ctx.beginPath(); ctx.ellipse(w*0.3, h/2, 6, 9, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(w*0.28, h/2-3, 2, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = ctx.strokeStyle;
+        ctx.beginPath(); ctx.ellipse(w*0.7, h/2, 6, 9, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(w*0.68, h/2-3, 2, 0, Math.PI*2); ctx.fill();
+      }},
+  ],
+  hair: [
+    { name: 'Ponytail', draw: (ctx,w,h) => { ctx.beginPath(); ctx.arc(w/2,h*0.25,w/3,Math.PI,0); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(w*0.2,h*0.3); ctx.quadraticCurveTo(w*0.05,h*0.6,w*0.15,h*0.95); ctx.lineTo(w*0.25,h*0.9); ctx.quadraticCurveTo(w*0.15,h*0.6,w*0.3,h*0.35); ctx.fill(); }},
+    { name: 'Topknot', draw: (ctx,w,h) => { ctx.beginPath(); ctx.arc(w/2,h*0.3,w/3,Math.PI*1.1,Math.PI*1.9); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.arc(w/2,h*0.1,8,0,Math.PI*2); ctx.fill(); }},
+    { name: 'Bob', draw: (ctx,w,h) => { ctx.beginPath(); ctx.arc(w/2,h*0.3,w/2.5,Math.PI*0.85,Math.PI*2.15); ctx.lineTo(w*0.8,h*0.7); ctx.lineTo(w*0.2,h*0.7); ctx.closePath(); ctx.fill(); ctx.stroke(); }},
+    { name: 'Spiky', draw: (ctx,w,h) => { ctx.beginPath(); ctx.moveTo(w*0.15,h*0.5); for(let i=0;i<7;i++){let a=Math.PI+i*Math.PI/7; ctx.lineTo(w/2+Math.cos(a)*w*0.55,h*0.35+Math.sin(a)*h*0.45);} ctx.closePath(); ctx.fill(); ctx.stroke(); }},
+    { name: 'Long Flow', draw: (ctx,w,h) => { ctx.beginPath(); ctx.arc(w/2,h*0.25,w/3,Math.PI,0); ctx.quadraticCurveTo(w*0.95,h*0.5,w*0.85,h*0.95); ctx.lineTo(w*0.15,h*0.95); ctx.quadraticCurveTo(w*0.05,h*0.5,w*0.15,h*0.25); ctx.fill(); ctx.stroke(); }},
+    { name: 'Twin Tails', draw: (ctx,w,h) => { ctx.beginPath(); ctx.arc(w/2,h*0.25,w/3.5,Math.PI,0); ctx.fill(); ctx.stroke(); [0.2,0.8].forEach(px=>{ctx.beginPath();ctx.moveTo(w*px,h*0.35);ctx.quadraticCurveTo(w*(px<0.5?0.05:0.95),h*0.6,w*px,h*0.95);ctx.quadraticCurveTo(w*(px<0.5?0.15:0.85),h*0.55,w*(px<0.5?0.3:0.7),h*0.38);ctx.fill();}); }},
+    { name: 'Buzz', draw: (ctx,w,h) => { ctx.beginPath(); ctx.arc(w/2,h*0.35,w/3,Math.PI*1.05,Math.PI*1.95); ctx.fill(); ctx.stroke(); }},
+    { name: 'Mohawk', draw: (ctx,w,h) => { ctx.beginPath(); ctx.moveTo(w*0.35,h*0.45); ctx.lineTo(w*0.4,h*0.05); ctx.lineTo(w*0.5,h*0.15); ctx.lineTo(w*0.6,h*0.05); ctx.lineTo(w*0.65,h*0.45); ctx.closePath(); ctx.fill(); ctx.stroke(); }},
+    { name: 'Braids', draw: (ctx,w,h) => { ctx.beginPath(); ctx.arc(w/2,h*0.28,w/3,Math.PI,0); ctx.fill(); ctx.stroke(); [0.25,0.75].forEach(px=>{for(let j=0;j<4;j++){ctx.beginPath();ctx.arc(w*px,h*(0.4+j*0.14),5,0,Math.PI*2);ctx.fill();}}); }},
+  ],
+  torsos: [
+    { name: 'Standard', draw: (ctx,w,h) => { ctx.beginPath(); ctx.moveTo(w*0.2,h*0.05); ctx.lineTo(w*0.8,h*0.05); ctx.lineTo(w*0.75,h*0.95); ctx.lineTo(w*0.25,h*0.95); ctx.closePath(); ctx.fill(); ctx.stroke(); }},
+    { name: 'Chibi Wide', draw: (ctx,w,h) => { ctx.beginPath(); ctx.moveTo(w*0.1,h*0.1); ctx.lineTo(w*0.9,h*0.1); ctx.quadraticCurveTo(w*0.95,h/2,w*0.85,h*0.9); ctx.lineTo(w*0.15,h*0.9); ctx.quadraticCurveTo(w*0.05,h/2,w*0.1,h*0.1); ctx.fill(); ctx.stroke(); }},
+    { name: 'Armored', draw: (ctx,w,h) => { ctx.beginPath(); ctx.moveTo(w*0.15,h*0.05); ctx.lineTo(w*0.85,h*0.05); ctx.lineTo(w*0.8,h*0.95); ctx.lineTo(w*0.2,h*0.95); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.strokeStyle='rgba(255,50,50,0.6)'; ctx.lineWidth=1.5; for(let y=h*0.2;y<h*0.9;y+=h*0.18){ctx.beginPath();ctx.moveTo(w*0.2,y);ctx.lineTo(w*0.8,y);ctx.stroke();} }},
+    { name: 'Slim', draw: (ctx,w,h) => { ctx.beginPath(); ctx.moveTo(w*0.3,h*0.05); ctx.lineTo(w*0.7,h*0.05); ctx.lineTo(w*0.65,h*0.95); ctx.lineTo(w*0.35,h*0.95); ctx.closePath(); ctx.fill(); ctx.stroke(); }},
+    { name: 'Muscular', draw: (ctx,w,h) => { ctx.beginPath(); ctx.moveTo(w*0.1,h*0.05); ctx.quadraticCurveTo(w*0.5,h*0.0,w*0.9,h*0.05); ctx.quadraticCurveTo(w*0.95,h*0.3,w*0.85,h*0.55); ctx.lineTo(w*0.75,h*0.95); ctx.lineTo(w*0.25,h*0.95); ctx.lineTo(w*0.15,h*0.55); ctx.quadraticCurveTo(w*0.05,h*0.3,w*0.1,h*0.05); ctx.fill(); ctx.stroke(); }},
+  ],
+  arms: [
+    { name: 'Upper Arm', draw: (ctx,w,h) => { ctx.beginPath(); ctx.arc(0,h/2,h/2.2,Math.PI/2,Math.PI*1.5); ctx.arc(w,h/2,h/2.2,Math.PI*1.5,Math.PI/2); ctx.closePath(); ctx.fill(); ctx.stroke(); }},
+    { name: 'Forearm', draw: (ctx,w,h) => { ctx.beginPath(); ctx.moveTo(0,h*0.2); ctx.lineTo(w,h*0.25); ctx.lineTo(w,h*0.75); ctx.lineTo(0,h*0.8); ctx.closePath(); ctx.fill(); ctx.stroke(); }},
+    { name: 'Chibi Stub', draw: (ctx,w,h) => { ctx.beginPath(); ctx.arc(w/2,h/2,Math.min(w,h)/2.3,0,Math.PI*2); ctx.fill(); ctx.stroke(); }},
+    { name: 'Armored Arm', draw: (ctx,w,h) => { ctx.beginPath(); ctx.arc(0,h/2,h/2.2,Math.PI/2,Math.PI*1.5); ctx.arc(w,h/2,h/2.2,Math.PI*1.5,Math.PI/2); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(w*0.3,h*0.15); ctx.lineTo(w*0.3,h*0.85); ctx.moveTo(w*0.6,h*0.15); ctx.lineTo(w*0.6,h*0.85); ctx.stroke(); }},
+    { name: 'Sleeve', draw: (ctx,w,h) => { ctx.beginPath(); ctx.moveTo(0,h*0.15); ctx.quadraticCurveTo(w*0.5,h*0.0,w,h*0.2); ctx.lineTo(w,h*0.8); ctx.quadraticCurveTo(w*0.5,h*1.0,0,h*0.85); ctx.closePath(); ctx.fill(); ctx.stroke(); }},
+    { name: 'Wing Part', draw: (ctx,w,h) => { ctx.beginPath(); ctx.moveTo(w*0.1,h*0.3); ctx.bezierCurveTo(w*0.4,h*0.1, w*0.8,h*0.1, w*0.95,h*0.4); ctx.quadraticCurveTo(w*0.6,h*0.7, w*0.2,h*0.8); ctx.closePath(); ctx.fill(); ctx.stroke(); }},
+  ],
+  hands: [
+    { name: 'Open Palm', draw: (ctx,w,h) => { ctx.beginPath(); ctx.arc(w/2,h*0.55,w/3,0,Math.PI*2); ctx.fill(); ctx.stroke(); for(let i=0;i<4;i++){ctx.beginPath();ctx.moveTo(w*(0.25+i*0.17),h*0.38);ctx.lineTo(w*(0.25+i*0.17),h*0.12);ctx.lineWidth=3;ctx.stroke();} }},
+    { name: 'Fist', draw: (ctx,w,h) => { ctx.beginPath(); ctx.arc(w/2,h/2,Math.min(w,h)/2.5,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.lineWidth=1; for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(w*0.3,h*(0.35+i*0.12));ctx.lineTo(w*0.7,h*(0.35+i*0.12));ctx.stroke();} }},
+    { name: 'Claw', draw: (ctx,w,h) => { ctx.beginPath(); ctx.arc(w/2,h*0.6,w/3,0,Math.PI*2); ctx.fill(); ctx.stroke(); for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(w*(0.25+i*0.25),h*0.4);ctx.lineTo(w*(0.2+i*0.25),h*0.08);ctx.lineTo(w*(0.3+i*0.25),h*0.08);ctx.closePath();ctx.fill();ctx.stroke();} }},
+    { name: 'Pointing', draw: (ctx,w,h) => { ctx.beginPath(); ctx.arc(w/2,h*0.6,w/3.5,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(w*0.45,h*0.4); ctx.lineTo(w*0.45,h*0.05); ctx.lineTo(w*0.55,h*0.05); ctx.lineTo(w*0.55,h*0.4); ctx.fill(); ctx.stroke(); }},
+    { name: 'Grip', draw: (ctx,w,h) => { ctx.beginPath(); ctx.arc(w/2,h/2,Math.min(w,h)/2.5,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.globalCompositeOperation='destination-out'; ctx.beginPath(); ctx.rect(w*0.4,h*0.15,w*0.2,h*0.7); ctx.fill(); ctx.globalCompositeOperation='source-over'; ctx.strokeRect(w*0.4,h*0.15,w*0.2,h*0.7); }},
+  ],
+  legs: [
+    { name: 'Thigh', draw: (ctx,w,h) => { ctx.beginPath(); ctx.moveTo(w*0.15,0); ctx.lineTo(w*0.85,0); ctx.lineTo(w*0.75,h); ctx.lineTo(w*0.25,h); ctx.closePath(); ctx.fill(); ctx.stroke(); }},
+    { name: 'Shin', draw: (ctx,w,h) => { ctx.beginPath(); ctx.moveTo(w*0.2,0); ctx.lineTo(w*0.8,0); ctx.lineTo(w*0.7,h); ctx.lineTo(w*0.3,h); ctx.closePath(); ctx.fill(); ctx.stroke(); }},
+    { name: 'Chibi Leg', draw: (ctx,w,h) => { ctx.beginPath(); ctx.arc(w/2,0,w/2.5,0,Math.PI); ctx.arc(w/2,h,w/3,Math.PI,0,true); ctx.closePath(); ctx.fill(); ctx.stroke(); }},
+    { name: 'Armored Greave', draw: (ctx,w,h) => { ctx.beginPath(); ctx.moveTo(w*0.15,0); ctx.lineTo(w*0.85,0); ctx.lineTo(w*0.75,h); ctx.lineTo(w*0.25,h); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(w*0.2,h*0.35); ctx.lineTo(w*0.8,h*0.35); ctx.moveTo(w*0.2,h*0.65); ctx.lineTo(w*0.8,h*0.65); ctx.stroke(); }},
+    { name: 'Hakama', draw: (ctx,w,h) => { ctx.beginPath(); ctx.moveTo(w*0.1,0); ctx.lineTo(w*0.9,0); ctx.lineTo(w*0.85,h); ctx.lineTo(w*0.15,h); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(w/2,0); ctx.lineTo(w/2,h); ctx.lineWidth=1; ctx.stroke(); }},
+  ],
+  feet: [
+    { name: 'Boots', draw: (ctx,w,h) => { ctx.beginPath(); ctx.moveTo(w*0.2,0); ctx.lineTo(w*0.7,0); ctx.lineTo(w*0.7,h*0.6); ctx.lineTo(w*0.95,h*0.7); ctx.lineTo(w*0.95,h); ctx.lineTo(w*0.05,h); ctx.lineTo(w*0.05,h*0.7); ctx.lineTo(w*0.2,h*0.6); ctx.closePath(); ctx.fill(); ctx.stroke(); }},
+    { name: 'Sandals', draw: (ctx,w,h) => { ctx.beginPath(); ctx.ellipse(w/2,h*0.7,w/2.3,h/3,0,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(w*0.3,h*0.5); ctx.lineTo(w/2,h*0.35); ctx.lineTo(w*0.7,h*0.5); ctx.stroke(); }},
+    { name: 'Bare Foot', draw: (ctx,w,h) => { ctx.beginPath(); ctx.ellipse(w/2,h*0.65,w/2.5,h/3,0,0,Math.PI*2); ctx.fill(); ctx.stroke(); for(let i=0;i<4;i++){ctx.beginPath();ctx.arc(w*(0.3+i*0.12),h*0.42,3,0,Math.PI*2);ctx.fill();} }},
+    { name: 'Sabatons', draw: (ctx,w,h) => { ctx.beginPath(); ctx.moveTo(w*0.15,0); ctx.lineTo(w*0.75,0); ctx.lineTo(w*0.8,h*0.5); ctx.lineTo(w*0.98,h*0.65); ctx.lineTo(w*0.98,h); ctx.lineTo(w*0.02,h); ctx.lineTo(w*0.02,h*0.7); ctx.lineTo(w*0.15,h*0.5); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(w*0.15,h*0.4); ctx.lineTo(w*0.8,h*0.4); ctx.stroke(); }},
+  ],
+  weapons: [
+    { name: 'Sword', draw: (ctx,w,h) => { ctx.beginPath(); ctx.moveTo(w/2,0); ctx.lineTo(w*0.6,h*0.08); ctx.lineTo(w*0.55,h*0.7); ctx.lineTo(w*0.65,h*0.72); ctx.lineTo(w*0.65,h*0.76); ctx.lineTo(w*0.35,h*0.76); ctx.lineTo(w*0.35,h*0.72); ctx.lineTo(w*0.45,h*0.7); ctx.lineTo(w*0.4,h*0.08); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.fillRect(w*0.45,h*0.76,w*0.1,h*0.22); ctx.strokeRect(w*0.45,h*0.76,w*0.1,h*0.22); }},
+    { name: 'Katana', draw: (ctx,w,h) => { ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(w*0.48,0); ctx.quadraticCurveTo(w*0.42,h*0.35,w*0.45,h*0.72); ctx.lineTo(w*0.55,h*0.72); ctx.quadraticCurveTo(w*0.58,h*0.35,w*0.52,0); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.fillStyle='#cca300'; ctx.fillRect(w*0.38,h*0.72,w*0.24,h*0.05); ctx.fillStyle=ctx.strokeStyle; ctx.fillRect(w*0.44,h*0.77,w*0.12,h*0.22); }},
+    { name: 'Daggers', draw: (ctx,w,h) => { [w*0.25,w*0.65].forEach(cx=>{ctx.beginPath();ctx.moveTo(cx,h*0.05);ctx.lineTo(cx+w*0.08,h*0.5);ctx.lineTo(cx-w*0.08,h*0.5);ctx.closePath();ctx.fill();ctx.stroke();ctx.fillRect(cx-w*0.06,h*0.5,w*0.12,h*0.06);ctx.fillRect(cx-w*0.03,h*0.56,w*0.06,h*0.2);}); }},
+    { name: 'Spear', draw: (ctx,w,h) => { ctx.fillRect(w*0.46,h*0.15,w*0.08,h*0.82); ctx.strokeRect(w*0.46,h*0.15,w*0.08,h*0.82); ctx.beginPath(); ctx.moveTo(w/2,0); ctx.lineTo(w*0.62,h*0.18); ctx.lineTo(w*0.38,h*0.18); ctx.closePath(); ctx.fill(); ctx.stroke(); }},
+    { name: 'Bow + Arrow', draw: (ctx,w,h) => { ctx.lineWidth=3; ctx.beginPath(); ctx.arc(w*0.3,h/2,h*0.4,Math.PI*1.3,Math.PI*0.7); ctx.stroke(); ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(w*0.22,h*0.15); ctx.lineTo(w*0.22,h*0.85); ctx.stroke(); ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(w*0.7,h*0.1); ctx.lineTo(w*0.7,h*0.9); ctx.stroke(); ctx.beginPath(); ctx.moveTo(w*0.65,h*0.1); ctx.lineTo(w*0.7,0); ctx.lineTo(w*0.75,h*0.1); ctx.closePath(); ctx.fill(); }},
+    { name: 'Gun', draw: (ctx,w,h) => { ctx.beginPath(); ctx.moveTo(w*0.1,h*0.3); ctx.lineTo(w*0.9,h*0.3); ctx.lineTo(w*0.9,h*0.5); ctx.lineTo(w*0.65,h*0.5); ctx.lineTo(w*0.55,h*0.85); ctx.lineTo(w*0.4,h*0.85); ctx.lineTo(w*0.45,h*0.5); ctx.lineTo(w*0.1,h*0.5); ctx.closePath(); ctx.fill(); ctx.stroke(); }},
+    { name: 'Scythe', draw: (ctx,w,h) => { ctx.fillRect(w*0.46,h*0.1,w*0.08,h*0.88); ctx.strokeRect(w*0.46,h*0.1,w*0.08,h*0.88); ctx.beginPath(); ctx.moveTo(w*0.5,h*0.1); ctx.quadraticCurveTo(w*0.95,h*0.05,w*0.9,h*0.35); ctx.quadraticCurveTo(w*0.85,h*0.45,w*0.5,h*0.3); ctx.closePath(); ctx.fill(); ctx.stroke(); }},
+    { name: 'Mace', draw: (ctx,w,h) => { ctx.fillRect(w*0.44,h*0.35,w*0.12,h*0.63); ctx.strokeRect(w*0.44,h*0.35,w*0.12,h*0.63); ctx.beginPath(); ctx.arc(w/2,h*0.22,w/3,0,Math.PI*2); ctx.fill(); ctx.stroke(); for(let a=0;a<6;a++){let ang=a*Math.PI/3; ctx.beginPath(); ctx.moveTo(w/2+Math.cos(ang)*w/3,h*0.22+Math.sin(ang)*w/3); ctx.lineTo(w/2+Math.cos(ang)*w/2.2,h*0.22+Math.sin(ang)*w/2.2); ctx.lineWidth=3; ctx.stroke();} }},
+    { name: 'Staff of Chaos', draw: (ctx,w,h) => {
+        ctx.fillStyle = "#402611"; ctx.fillRect(w*0.46, h*0.25, w*0.08, h*0.75);
+        ctx.fillStyle = "#8a664e"; ctx.beginPath(); ctx.arc(w/2-10, h*0.25, 6, 0, Math.PI*2); ctx.arc(w/2+10, h*0.25, 6, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "#fcf8eb"; ctx.strokeStyle = "#1a0f30"; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.arc(w/2, h*0.26, 12, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "#1a0f30"; ctx.beginPath(); ctx.arc(w/2-4, h*0.26, 2, 0, Math.PI*2); ctx.arc(w/2+4, h*0.26, 2, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = "#d946ef"; ctx.strokeStyle = "#ffffff";
+        ctx.beginPath(); ctx.moveTo(w/2, h*0.04); ctx.lineTo(w/2+5, h*0.13); ctx.lineTo(w/2, h*0.2); ctx.lineTo(w/2-5, h*0.13); ctx.closePath(); ctx.fill(); ctx.stroke();
+      }},
+    { name: 'Blue Orb Staff', draw: (ctx,w,h) => {
+        ctx.fillStyle = "#5a3a22"; ctx.fillRect(w*0.46, h*0.25, w*0.08, h*0.75);
+        ctx.fillStyle = "#7f8c8d"; ctx.fillRect(w*0.4, h*0.2, w*0.2, h*0.08); ctx.strokeRect(w*0.4, h*0.2, w*0.2, h*0.08);
+        ctx.fillStyle = "#38bdf8"; ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.arc(w/2, h*0.12, 13, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+      }},
+    { name: 'Shield', draw: (ctx,w,h) => { ctx.beginPath(); ctx.moveTo(w/2,h*0.02); ctx.lineTo(w*0.9,h*0.15); ctx.lineTo(w*0.85,h*0.6); ctx.lineTo(w/2,h*0.95); ctx.lineTo(w*0.15,h*0.6); ctx.lineTo(w*0.1,h*0.15); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(w/2,h*0.15); ctx.lineTo(w/2,h*0.8); ctx.moveTo(w*0.2,h*0.35); ctx.lineTo(w*0.8,h*0.35); ctx.lineWidth=1.5; ctx.stroke(); }},
+    { name: 'Shuriken', draw: (ctx,w,h) => { ctx.beginPath(); for(let i=0;i<4;i++){let a=i*Math.PI/2-Math.PI/4; ctx.lineTo(w/2+Math.cos(a)*w*0.45,h/2+Math.sin(a)*h*0.45); ctx.lineTo(w/2+Math.cos(a+Math.PI/8)*w*0.15,h/2+Math.sin(a+Math.PI/8)*h*0.15);} ctx.closePath(); ctx.fill(); ctx.stroke(); }},
+    { name: 'Necro Glaive Axe', draw: (ctx,w,h) => {
+        ctx.fillStyle = "#382e25"; ctx.fillRect(w*0.46, h*0.2, w*0.08, h*0.8);
+        ctx.fillStyle = "#2c2c35"; ctx.strokeStyle = "#bd84ff"; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(w*0.4, h*0.1); ctx.bezierCurveTo(w*0.1, h*0.2, w*0.2, h*0.5, w*0.5, h*0.4); ctx.lineTo(w*0.5, h*0.1); ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(w*0.6, h*0.1); ctx.bezierCurveTo(w*0.9, h*0.2, w*0.8, h*0.5, w*0.5, h*0.4); ctx.lineTo(w*0.5, h*0.1); ctx.closePath(); ctx.fill(); ctx.stroke();
+      }},
+  ],
+  accessories: [
+    { name: 'Strawhat', draw: (ctx,w,h) => { ctx.beginPath(); ctx.moveTo(w*0.02,h*0.6); ctx.quadraticCurveTo(w/2,h*0.1,w*0.98,h*0.6); ctx.quadraticCurveTo(w/2,h*0.45,w*0.02,h*0.6); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(w*0.15,h*0.58); ctx.quadraticCurveTo(w/2,h*0.4,w*0.85,h*0.58); ctx.quadraticCurveTo(w/2,h*0.75,w*0.15,h*0.58); ctx.fill(); ctx.stroke(); }},
+    { name: 'Necro Horned Hood', draw: (ctx,w,h) => {
+        ctx.fillStyle = "#1e1333"; ctx.strokeStyle = "#100824"; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(w/2, h/2+5, w/2.5, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "#161616";
+        ctx.beginPath(); ctx.moveTo(w*0.35, h*0.3); ctx.quadraticCurveTo(w*0.15, h*0.05, w*0.3, h*0.25); ctx.fill(); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(w*0.65, h*0.3); ctx.quadraticCurveTo(w*0.85, h*0.05, w*0.7, h*0.25); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "#95a5a6"; ctx.beginPath(); ctx.moveTo(w*0.3, h*0.4); ctx.lineTo(w*0.7, h*0.4); ctx.lineTo(w*0.5, h*0.25); ctx.closePath(); ctx.fill(); ctx.stroke();
+      }},
+    { name: 'Curved White Horns', draw: (ctx,w,h) => {
+        ctx.fillStyle = "#f5f5f5"; ctx.strokeStyle = "#100824"; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(w*0.3, h*0.6); ctx.quadraticCurveTo(w*0.1, h*0.2, w*0.1, h*0.4); ctx.quadraticCurveTo(w*0.2, h*0.5, w*0.4, h*0.7); ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(w*0.7, h*0.6); ctx.quadraticCurveTo(w*0.9, h*0.2, w*0.9, h*0.4); ctx.quadraticCurveTo(w*0.8, h*0.5, w*0.6, h*0.7); ctx.closePath(); ctx.fill(); ctx.stroke();
+      }},
+    { name: 'Simple Mage Hood', draw: (ctx,w,h) => {
+        ctx.fillStyle = "#291d42"; ctx.strokeStyle = "#100824"; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(w/2, h/2+5, w/2.4, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "#0c0717"; ctx.beginPath(); ctx.arc(w/2, h/2+8, w/3.4, 0, Math.PI*2); ctx.fill();
+      }},
+    { name: 'Cloak', draw: (ctx,w,h) => { ctx.beginPath(); ctx.moveTo(w*0.3,h*0.05); ctx.lineTo(w*0.7,h*0.05); ctx.quadraticCurveTo(w*0.95,h*0.3,w*0.9,h*0.95); ctx.lineTo(w*0.1,h*0.95); ctx.quadraticCurveTo(w*0.05,h*0.3,w*0.3,h*0.05); ctx.closePath(); ctx.fill(); ctx.stroke(); }},
+    { name: 'Pauldron', draw: (ctx,w,h) => { ctx.beginPath(); ctx.arc(w/2,h*0.4,w/2.5,Math.PI,0); ctx.lineTo(w*0.75,h*0.8); ctx.lineTo(w*0.25,h*0.8); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(w*0.25,h*0.55); ctx.lineTo(w*0.75,h*0.55); ctx.stroke(); }},
+    { name: 'Belt', draw: (ctx,w,h) => { ctx.fillRect(w*0.05,h*0.3,w*0.9,h*0.35); ctx.strokeRect(w*0.05,h*0.3,w*0.9,h*0.35); ctx.fillStyle='#cca300'; ctx.fillRect(w*0.4,h*0.28,w*0.2,h*0.4); ctx.strokeRect(w*0.4,h*0.28,w*0.2,h*0.4); }},
+    { name: 'Crown', draw: (ctx,w,h) => {
+        ctx.beginPath(); ctx.moveTo(w*0.1, h*0.8); ctx.lineTo(w*0.9, h*0.8); ctx.lineTo(w*0.85, h*0.3); ctx.lineTo(w*0.65, h*0.6); ctx.lineTo(w*0.5, h*0.2); ctx.lineTo(w*0.35, h*0.6); ctx.lineTo(w*0.15, h*0.3); ctx.closePath(); ctx.fill(); ctx.stroke();
+        [w*0.15, w*0.5, w*0.85].forEach((cx, i) => {
+          ctx.beginPath(); ctx.arc(cx, i===1 ? h*0.2 : h*0.3, 3, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+        });
+      }},
+    { name: 'Glasses', draw: (ctx,w,h) => {
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(w*0.35, h/2, w/6, 0, Math.PI*2); ctx.stroke();
+        ctx.beginPath(); ctx.arc(w*0.65, h/2, w/6, 0, Math.PI*2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(w*0.45, h/2); ctx.quadraticCurveTo(w/2, h/2-3, w*0.55, h/2); ctx.stroke();
+      }},
+    { name: 'Wings', draw: (ctx,w,h) => {
+        ctx.beginPath(); ctx.moveTo(w*0.5, h*0.5);
+        ctx.bezierCurveTo(w*0.8, h*0.1, w*0.95, h*0.2, w*0.95, h*0.5);
+        ctx.bezierCurveTo(w*0.8, h*0.7, w*0.6, h*0.8, w*0.5, h*0.5);
+        ctx.moveTo(w*0.5, h*0.5);
+        ctx.bezierCurveTo(w*0.2, h*0.1, w*0.05, h*0.2, w*0.05, h*0.5);
+        ctx.bezierCurveTo(w*0.2, h*0.7, w*0.4, h*0.8, w*0.5, h*0.5);
+        ctx.fill(); ctx.stroke();
+      }},
+  ],
+  outfits: [
+    { name: 'Blue Mage Robe', draw: (ctx,w,h) => {
+        ctx.fillStyle = "#252d54"; ctx.strokeStyle = "#100824"; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(w*0.2, h*0.1); ctx.lineTo(w*0.8, h*0.1); ctx.lineTo(w*0.9, h*0.9); ctx.lineTo(w*0.1, h*0.9); ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "#c0392b"; ctx.fillRect(w*0.25, h*0.45, w*0.5, h*0.12); ctx.strokeRect(w*0.25, h*0.45, w*0.5, h*0.12);
+        ctx.fillStyle = "#f1c40f"; ctx.beginPath(); ctx.arc(w/2, h*0.3, 3, 0, Math.PI*2); ctx.fill();
+      }},
+    { name: 'Dark Necro Robe', draw: (ctx,w,h) => {
+        ctx.fillStyle = "#291d42"; ctx.strokeStyle = "#100824"; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(w*0.2, h*0.1); ctx.lineTo(w*0.8, h*0.1); ctx.lineTo(w*0.9, h*0.9); ctx.lineTo(w*0.1, h*0.9); ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "#1b1130"; ctx.fillRect(w*0.4, h*0.1, w*0.2, h*0.8); ctx.strokeRect(w*0.4, h*0.1, w*0.2, h*0.8);
+        ctx.strokeStyle = "#bdc3c7"; ctx.beginPath(); ctx.moveTo(w*0.4, h*0.1); ctx.lineTo(w*0.4, h*0.9); ctx.moveTo(w*0.6, h*0.1); ctx.lineTo(w*0.6, h*0.9); ctx.stroke();
+        ctx.fillStyle = "#b380ff"; ctx.beginPath(); ctx.arc(w/2, h*0.2, 4, 0, Math.PI*2); ctx.fill();
+      }},
+    { name: 'Ninja Suit', draw: (ctx,w,h) => {
+        ctx.beginPath(); ctx.moveTo(w*0.2, h*0.1); ctx.lineTo(w*0.8, h*0.1); ctx.lineTo(w*0.75, h*0.9); ctx.lineTo(w*0.25, h*0.9); ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#222'; ctx.fillRect(w*0.3, h*0.4, w*0.4, h*0.25); ctx.strokeRect(w*0.3, h*0.4, w*0.4, h*0.25);
+      }},
+  ],
+  environment: [
+    { name: 'Pine Tree', draw: (ctx,w,h) => {
+        ctx.fillStyle = '#654321'; ctx.fillRect(w*0.42, h*0.7, w*0.16, h*0.3);
+        ctx.fillStyle = ctx.strokeStyle;
+        ctx.beginPath(); ctx.moveTo(w/2, h*0.05); ctx.lineTo(w*0.85, h*0.4); ctx.lineTo(w*0.15, h*0.4); ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(w/2, h*0.25); ctx.lineTo(w*0.9, h*0.6); ctx.lineTo(w*0.1, h*0.6); ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(w/2, h*0.45); ctx.lineTo(w*0.95, h*0.8); ctx.lineTo(w*0.05, h*0.8); ctx.closePath(); ctx.fill(); ctx.stroke();
+      }},
+    { name: 'Oak Tree', draw: (ctx,w,h) => {
+        ctx.fillStyle = '#654321'; ctx.fillRect(w*0.44, h*0.65, w*0.12, h*0.35);
+        ctx.fillStyle = ctx.strokeStyle;
+        ctx.beginPath(); ctx.arc(w/2, h*0.35, w/3, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+        ctx.beginPath(); ctx.arc(w*0.35, h*0.45, w/4, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+        ctx.beginPath(); ctx.arc(w*0.65, h*0.45, w/4, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+      }},
+    { name: 'Cloud', draw: (ctx,w,h) => {
+        ctx.beginPath(); ctx.arc(w*0.3, h*0.6, w/5, 0, Math.PI*2);
+        ctx.arc(w*0.5, h*0.45, w/4, 0, Math.PI*2);
+        ctx.arc(w*0.7, h*0.6, w/5, 0, Math.PI*2);
+        ctx.rect(w*0.3, h*0.6, w*0.4, h*0.2);
+        ctx.closePath(); ctx.fill(); ctx.stroke();
+      }},
+    { name: 'Rock Block', draw: (ctx,w,h) => {
+        ctx.beginPath(); ctx.moveTo(w*0.1, h*0.8); ctx.lineTo(w*0.2, h*0.3); ctx.lineTo(w*0.5, h*0.15); ctx.lineTo(w*0.85, h*0.35); ctx.lineTo(w*0.9, h*0.85); ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(w*0.5, h*0.15); ctx.lineTo(w*0.55, h*0.5); ctx.lineTo(w*0.2, h*0.3); ctx.moveTo(w*0.55, h*0.5); ctx.lineTo(w*0.9, h*0.85); ctx.stroke();
+      }},
+    { name: 'Castle Brick', draw: (ctx,w,h) => {
+        ctx.fillRect(w*0.05, h*0.1, w*0.9, h*0.8); ctx.strokeRect(w*0.05, h*0.1, w*0.9, h*0.8);
+        ctx.beginPath(); ctx.moveTo(w*0.35, h*0.1); ctx.lineTo(w*0.35, h*0.5); ctx.moveTo(w*0.65, h*0.5); ctx.lineTo(w*0.65, h*0.9); ctx.moveTo(w*0.05, h*0.5); ctx.lineTo(w*0.95, h*0.5); ctx.stroke();
+      }},
+    { name: 'Grass Tuft', draw: (ctx,w,h) => {
+        ctx.lineWidth = 2.5;
+        ctx.beginPath(); ctx.moveTo(w/2, h*0.95); ctx.quadraticCurveTo(w/2, h*0.4, w*0.5, h*0.15);
+        ctx.moveTo(w/2, h*0.95); ctx.quadraticCurveTo(w*0.35, h*0.5, w*0.2, h*0.3);
+        ctx.moveTo(w/2, h*0.95); ctx.quadraticCurveTo(w*0.65, h*0.5, w*0.8, h*0.3);
+        ctx.stroke();
+      }},
+    { name: 'Radiant Sun', draw: (ctx,w,h) => {
+        ctx.beginPath(); ctx.arc(w/2, h/2, w/5, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+        for(let i=0; i<8; i++) {
+          let a = i*Math.PI/4;
+          ctx.beginPath(); ctx.moveTo(w/2 + Math.cos(a)*w/5, h/2 + Math.sin(a)*w/5);
+          ctx.lineTo(w/2 + Math.cos(a)*w/2.5, h/2 + Math.sin(a)*w/2.5); ctx.stroke();
+        }
+      }},
+    { name: 'Crescent Moon', draw: (ctx,w,h) => {
+        ctx.beginPath(); ctx.arc(w*0.45, h/2, w/3.5, -Math.PI*0.7, Math.PI*0.7);
+        ctx.quadraticCurveTo(w*0.65, h*0.3, w*0.45, h/2 - w/3.5);
+        ctx.closePath(); ctx.fill(); ctx.stroke();
+      }},
+  ],
+  geometric: [
+    { name: 'Circle', draw: (ctx,w,h) => { ctx.beginPath(); ctx.arc(w/2,h/2,Math.min(w,h)/2.2,0,Math.PI*2); ctx.fill(); ctx.stroke(); }},
+    { name: 'Rectangle', draw: (ctx,w,h) => { ctx.fillRect(w*0.05, h*0.05, w*0.9, h*0.9); ctx.strokeRect(w*0.05, h*0.05, w*0.9, h*0.9); }},
+    { name: 'Triangle', draw: (ctx,w,h) => { ctx.beginPath(); ctx.moveTo(w/2, h*0.05); ctx.lineTo(w*0.95, h*0.95); ctx.lineTo(w*0.05, h*0.95); ctx.closePath(); ctx.fill(); ctx.stroke(); }},
+    { name: 'Star Shape', draw: (ctx,w,h) => {
+        ctx.beginPath();
+        for(let i=0; i<5; i++) {
+          ctx.lineTo(w/2 + Math.cos((18+i*72)*Math.PI/180)*w/2.2, h/2 + Math.sin((18+i*72)*Math.PI/180)*h/2.2);
+          ctx.lineTo(w/2 + Math.cos((54+i*72)*Math.PI/180)*w/5, h/2 + Math.sin((54+i*72)*Math.PI/180)*h/5);
+        }
+        ctx.closePath(); ctx.fill(); ctx.stroke();
+      }},
+    { name: 'Arrow Right', draw: (ctx,w,h) => {
+        ctx.beginPath(); ctx.moveTo(w*0.05, h*0.35); ctx.lineTo(w*0.55, h*0.35); ctx.lineTo(w*0.55, h*0.1); ctx.lineTo(w*0.95, h/2); ctx.lineTo(w*0.55, h*0.9); ctx.lineTo(w*0.55, h*0.65); ctx.lineTo(w*0.05, h*0.65); ctx.closePath(); ctx.fill(); ctx.stroke();
+      }},
+    { name: 'Speech Bubble', draw: (ctx,w,h) => {
+        ctx.beginPath(); ctx.moveTo(w*0.1, h*0.1); ctx.lineTo(w*0.9, h*0.1); ctx.lineTo(w*0.9, h*0.7); ctx.lineTo(w*0.45, h*0.7); ctx.lineTo(w*0.3, h*0.95); ctx.lineTo(w*0.35, h*0.7); ctx.lineTo(w*0.1, h*0.7); ctx.closePath(); ctx.fill(); ctx.stroke();
+      }},
+    { name: 'Heart Shape', draw: (ctx,w,h) => {
+        ctx.beginPath(); ctx.moveTo(w/2, h*0.85);
+        ctx.bezierCurveTo(w*0.15, h*0.6, w*0.05, h*0.3, w/2, h*0.18);
+        ctx.bezierCurveTo(w*0.95, h*0.3, w*0.85, h*0.6, w/2, h*0.85);
+        ctx.closePath(); ctx.fill(); ctx.stroke();
+      }},
+    { name: 'Diamond', draw: (ctx,w,h) => {
+        ctx.beginPath(); ctx.moveTo(w/2, h*0.05); ctx.lineTo(w*0.95, h/2); ctx.lineTo(w/2, h*0.95); ctx.lineTo(w*0.05, h/2); ctx.closePath(); ctx.fill(); ctx.stroke();
+      }},
+  ]
+};
+
+// ═══════════════════════════════════════════════════
+//  SHAPE LIBRARY UI
+// ═══════════════════════════════════════════════════
+const categoryNames = Object.keys(shapeLibrary);
+let activeCategory = categoryNames[0];
+
+function buildTabs() {
+  const bar = document.getElementById('shapeTabs');
+  bar.innerHTML = '';
+  const icons = {heads:'👤',eyes:'👁️',hair:'💇',torsos:'👕',arms:'💪',hands:'✋',legs:'🦵',feet:'👢',weapons:'⚔️',accessories:'🎩',outfits:'👗',environment:'🌳',geometric:'📐'};
+  categoryNames.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn' + (cat === activeCategory ? ' active' : '');
+    btn.textContent = (icons[cat]||'') + ' ' + cat.charAt(0).toUpperCase() + cat.slice(1);
+    btn.onclick = () => { activeCategory = cat; buildTabs(); buildShapeGrid(); };
+    bar.appendChild(btn);
+  });
+}
+
+function buildShapeGrid() {
+  const grid = document.getElementById('shapeGrid');
+  grid.innerHTML = '';
+  const shapes = shapeLibrary[activeCategory] || [];
+  shapes.forEach((shape, idx) => {
+    const item = document.createElement('div');
+    item.className = 'shape-item';
+    item.draggable = true;
+    item.title = shape.name;
+
+    // Preview canvas
+    const pc = document.createElement('canvas');
+    pc.width = 48; pc.height = 48;
+    const pctx = pc.getContext('2d');
+    pctx.fillStyle = '#c8b8ff';
+    pctx.strokeStyle = '#8866dd';
+    pctx.lineWidth = 1.5;
+    shape.draw(pctx, 48, 48);
+    item.appendChild(pc);
+
+    const lbl = document.createElement('div');
+    lbl.className = 'shape-label';
+    lbl.textContent = shape.name;
+    item.appendChild(lbl);
+
+    // Drag start → encode category + index
+    item.ondragstart = (e) => {
+      e.dataTransfer.setData('text/plain', JSON.stringify({ cat: activeCategory, idx }));
+      e.dataTransfer.effectAllowed = 'copy';
+    };
+
+    // Click to add instantly
+    item.onclick = () => addShapeToCanvas(activeCategory, idx);
+    grid.appendChild(item);
+  });
+}
+
+// ═══════════════════════════════════════════════════
+//  SHAPE ON CANVAS (composition element)
+// ═══════════════════════════════════════════════════
+function createShapeObj(cat, idx) {
+  const lib = shapeLibrary[cat][idx];
+  // Default sizes per category
+  const sizes = {heads:[70,70],eyes:[50,25],hair:[75,65],torsos:[60,80],arms:[65,25],hands:[35,35],legs:[30,70],feet:[35,30],weapons:[30,100],accessories:[70,50],outfits:[65,85],environment:[100,100],geometric:[80,80]};
+  const [sw,sh] = sizes[cat] || [50,50];
+  return {
+    id: nextId(),
+    name: lib.name,
+    cat, idx,
+    type: 'vector',
+    x: canvas.width/2 - sw/2,
+    y: canvas.height/2 - sh/2,
+    w: sw, h: sh,
+    rotation: 0,
+    scaleX: 1, scaleY: 1,
+    flipX: false, flipY: false,
+    opacity: 1,
+    fill: '#c8b8ff',
+    stroke: '#5533aa',
+    strokeWidth: 2,
+  };
+}
+
+function addShapeToCanvas(cat, idx) {
+  const obj = createShapeObj(cat, idx);
+  currentShapes().push(obj);
+  selectedId = obj.id;
+  updateInspector();
+  updateLayerList();
+  draw();
+}
+
+// ═══════════════════════════════════════════════════
+//  IMAGE UPLOAD
+// ═══════════════════════════════════════════════════
+const uploadedImages = {}; // id -> HTMLImageElement
+
+function handleImageUpload(input) {
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      const id = nextId();
+      // Scale to fit canvas reasonably
+      let sw = img.width, sh = img.height;
+      const maxDim = 200;
+      if (Math.max(sw, sh) > maxDim) {
+        const ratio = maxDim / Math.max(sw, sh);
+        sw *= ratio; sh *= ratio;
+      }
+      uploadedImages[id] = img;
+      const obj = {
+        id,
+        name: file.name.replace(/\.[^.]+$/, ''),
+        type: 'image',
+        imgId: id,
+        x: canvas.width/2 - sw/2,
+        y: canvas.height/2 - sh/2,
+        w: sw, h: sh,
+        rotation: 0,
+        scaleX: 1, scaleY: 1,
+        flipX: false, flipY: false,
+        opacity: 1,
+        fill: '#ffffff',
+        stroke: '#ffffff',
+        strokeWidth: 0,
+      };
+      currentShapes().push(obj);
+      selectedId = obj.id;
+      updateInspector();
+      updateLayerList();
+      draw();
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+  input.value = ''; // reset
+}
+
+// Upload zone drag & drop
+const uploadZone = document.getElementById('uploadZone');
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.style.borderColor = 'var(--accent)'; });
+uploadZone.addEventListener('dragleave', () => { uploadZone.style.borderColor = ''; });
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault();
+  uploadZone.style.borderColor = '';
+  if (e.dataTransfer.files.length) {
+    const input = document.getElementById('imgUpload');
+    input.files = e.dataTransfer.files;
+    handleImageUpload(input);
+  }
+});
+
+// ═══════════════════════════════════════════════════
+//  CANVAS RENDERING
+// ═══════════════════════════════════════════════════
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Grid
+  if (document.getElementById('showGridChk').checked) {
+    ctx.save();
+    ctx.strokeStyle = 'rgba(146, 104, 255, 0.06)';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < canvas.width; x += 50) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+    }
+    for (let y = 0; y < canvas.height; y += 50) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+    }
+    // Center cross
+    ctx.strokeStyle = 'rgba(146, 104, 255, 0.15)';
+    ctx.setLineDash([6, 4]);
+    ctx.beginPath(); ctx.moveTo(canvas.width/2, 0); ctx.lineTo(canvas.width/2, canvas.height); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, canvas.height/2); ctx.lineTo(canvas.width, canvas.height/2); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+  }
+
+  // Onion skin (previous frame)
+  if (document.getElementById('onionSkinChk').checked && currentFrameIdx > 0) {
+    ctx.save();
+    ctx.globalAlpha = 0.18;
+    renderShapes(frames[currentFrameIdx - 1]);
+    ctx.restore();
+  }
+
+  // Current frame shapes
+  renderShapes(currentShapes());
+
+  // Pen mode preview drawing
+  if (penMode && penPoints.length > 0) {
+    ctx.save();
+    ctx.strokeStyle = 'var(--accent)';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(penPoints[0].x, penPoints[0].y);
+    for (let i = 1; i < penPoints.length; i++) {
+      ctx.lineTo(penPoints[i].x, penPoints[i].y);
+    }
+    // Dotted line to cursor
+    if (currentMousePos) {
+      ctx.setLineDash([5, 3]);
+      ctx.lineTo(currentMousePos.x, currentMousePos.y);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+    
+    // Draw joints
+    ctx.fillStyle = 'var(--accent-2)';
+    penPoints.forEach((p, idx) => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, idx === 0 ? 6 : 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    });
+    ctx.restore();
+  }
+
+  // Selection highlight
+  const sel = selectedShape();
+  if (sel) {
+    ctx.save();
+    ctx.translate(sel.x + sel.w * sel.scaleX / 2, sel.y + sel.h * sel.scaleY / 2);
+    ctx.rotate(sel.rotation * Math.PI / 180);
+    const hw = sel.w * sel.scaleX / 2 + 4;
+    const hh = sel.h * sel.scaleY / 2 + 4;
+    ctx.strokeStyle = 'rgba(61, 255, 154, 0.7)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([5, 3]);
+    ctx.strokeRect(-hw, -hh, hw * 2, hh * 2);
+    ctx.setLineDash([]);
+
+    // Corner handles
+    ctx.fillStyle = 'rgba(61, 255, 154, 0.9)';
+    [[-hw, -hh], [hw, -hh], [-hw, hh], [hw, hh]].forEach(([cx, cy]) => {
+      ctx.fillRect(cx - 4, cy - 4, 8, 8);
+    });
+
+    // Rotation handle
+    ctx.beginPath();
+    ctx.moveTo(0, -hh);
+    ctx.lineTo(0, -hh - 18);
+    ctx.strokeStyle = 'rgba(255, 180, 60, 0.7)';
+    ctx.setLineDash([]);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(0, -hh - 18, 5, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255, 180, 60, 0.9)';
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  updateFrameThumbnails();
+}
+
+function renderShapes(shapes) {
+  shapes.forEach(s => {
+    ctx.save();
+    ctx.globalAlpha = s.opacity;
+    ctx.translate(s.x + s.w * s.scaleX / 2, s.y + s.h * s.scaleY / 2);
+    ctx.rotate(s.rotation * Math.PI / 180);
+    ctx.scale(s.flipX ? -s.scaleX : s.scaleX, s.flipY ? -s.scaleY : s.scaleY);
+    ctx.translate(-s.w / 2, -s.h / 2);
+
+    if (s.type === 'image' && uploadedImages[s.imgId]) {
+      ctx.drawImage(uploadedImages[s.imgId], 0, 0, s.w, s.h);
+    } else if (s.type === 'vector') {
+      ctx.fillStyle = s.fill;
+      ctx.strokeStyle = s.stroke;
+      ctx.lineWidth = s.strokeWidth;
+      const lib = shapeLibrary[s.cat];
+      if (lib && lib[s.idx]) {
+        lib[s.idx].draw(ctx, s.w, s.h);
+      }
+    } else if (s.type === 'custom' && s.points) {
+      ctx.fillStyle = s.fill;
+      ctx.strokeStyle = s.stroke;
+      ctx.lineWidth = s.strokeWidth;
+      ctx.beginPath();
+      if (s.points.length > 0) {
+        ctx.moveTo(s.points[0].x, s.points[0].y);
+        for (let i = 1; i < s.points.length; i++) {
+          ctx.lineTo(s.points[i].x, s.points[i].y);
+        }
+      }
+      ctx.closePath();
+      ctx.fill();
+      if (s.strokeWidth > 0) ctx.stroke();
+    }
+    ctx.restore();
+  });
+}
+
+// ═══════════════════════════════════════════════════
+//  CANVAS INTERACTION (Drag, Rotate, Drop)
+// ═══════════════════════════════════════════════════
+
+// Drop shapes from library onto canvas
+canvas.addEventListener('dragover', e => e.preventDefault());
+canvas.addEventListener('drop', e => {
+  e.preventDefault();
+  try {
+    const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+    if (data.cat && data.idx !== undefined) {
+      const obj = createShapeObj(data.cat, data.idx);
+      const rect = canvas.getBoundingClientRect();
+      obj.x = (e.clientX - rect.left) / canvasZoom - obj.w / 2;
+      obj.y = (e.clientY - rect.top) / canvasZoom - obj.h / 2;
+      currentShapes().push(obj);
+      selectedId = obj.id;
+      updateInspector();
+      updateLayerList();
+      draw();
+    }
+  } catch (_) {}
+});
+
+canvas.onmousedown = (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+  const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+  if (penMode) {
+    if (penPoints.length >= 3 && Math.hypot(mx - penPoints[0].x, my - penPoints[0].y) < 10) {
+      closePenPath();
+    } else {
+      penPoints.push({ x: mx, y: my });
+      draw();
+    }
+    return;
+  }
+
+  // Check rotation handle first
+  const sel = selectedShape();
+  if (sel) {
+    const cx = sel.x + sel.w * sel.scaleX / 2;
+    const cy = sel.y + sel.h * sel.scaleY / 2;
+    const hh = sel.h * sel.scaleY / 2 + 4 + 18;
+    const cos = Math.cos(sel.rotation * Math.PI / 180);
+    const sin = Math.sin(sel.rotation * Math.PI / 180);
+    const hx = cx + sin * (-hh + 4);
+    const hy = cy - cos * (hh - 4);
+    const handleLocalY = -(sel.h * sel.scaleY / 2 + 22);
+    const rotHandleX = cx + Math.sin(sel.rotation * Math.PI / 180) * handleLocalY * -1;
+    const rotHandleY = cy + Math.cos(sel.rotation * Math.PI / 180) * handleLocalY;
+    
+    if (Math.hypot(mx - rotHandleX, my - rotHandleY) < 12) {
+      isRotating = true;
+      rotStartAngle = Math.atan2(my - cy, mx - cx) * 180 / Math.PI - sel.rotation;
+      return;
+    }
+  }
+
+  // Hit test shapes (reverse order for top-most)
+  let hit = null;
+  for (let i = currentShapes().length - 1; i >= 0; i--) {
+    const s = currentShapes()[i];
+    if (hitTest(s, mx, my)) {
+      hit = s;
+      break;
+    }
+  }
+
+  if (hit) {
+    selectedId = hit.id;
+    isDragging = true;
+    dragOffsetX = mx - hit.x;
+    dragOffsetY = my - hit.y;
+  } else {
+    selectedId = null;
+  }
+  updateInspector();
+  updateLayerList();
+  draw();
+};
+
+canvas.onmousemove = (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+  const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+  currentMousePos = { x: mx, y: my };
+
+  if (penMode) {
+    draw();
+    return;
+  }
+
+  if (!isDragging && !isRotating) return;
+  const sel = selectedShape();
+  if (!sel) return;
+
+  if (isRotating) {
+    const cx = sel.x + sel.w * sel.scaleX / 2;
+    const cy = sel.y + sel.h * sel.scaleY / 2;
+    sel.rotation = Math.atan2(my - cy, mx - cx) * 180 / Math.PI - rotStartAngle;
+    updateInspector();
+    draw();
+    return;
+  }
+
+  if (isDragging) {
+    sel.x = mx - dragOffsetX;
+    sel.y = my - dragOffsetY;
+    updateInspector();
+    draw();
+  }
+};
+
+canvas.onmouseup = () => { isDragging = false; isRotating = false; };
+canvas.onmouseleave = () => { isDragging = false; isRotating = false; currentMousePos = null; };
+
+function hitTest(s, mx, my) {
+  const sw = s.w * s.scaleX;
+  const sh = s.h * s.scaleY;
+  return mx >= s.x && mx <= s.x + sw && my >= s.y && my <= s.y + sh;
+}
+
+// ═══════════════════════════════════════════════════
+//  INSPECTOR
+// ═══════════════════════════════════════════════════
+function updateInspector() {
+  const sel = selectedShape();
+  document.getElementById('inspectorNone').style.display = sel ? 'none' : 'block';
+  document.getElementById('inspectorActive').style.display = sel ? 'block' : 'none';
+  if (!sel) return;
+
+  document.getElementById('insName').value = sel.name;
+  document.getElementById('insX').value = Math.round(sel.x);
+  document.getElementById('insY').value = Math.round(sel.y);
+  document.getElementById('insRot').value = Math.round(sel.rotation);
+  document.getElementById('insRotNum').value = Math.round(sel.rotation);
+  document.getElementById('insSX').value = sel.scaleX;
+  document.getElementById('insSY').value = sel.scaleY;
+  document.getElementById('insFlipX').value = sel.flipX ? 'true' : 'false';
+  document.getElementById('insFlipY').value = sel.flipY ? 'true' : 'false';
+  document.getElementById('insOpacity').value = sel.opacity;
+  document.getElementById('insFill').value = sel.fill || '#c8b8ff';
+  document.getElementById('insStroke').value = sel.stroke || '#5533aa';
+  document.getElementById('insStrokeW').value = sel.strokeWidth || 2;
+}
+
+function updateProp(prop, val) {
+  const sel = selectedShape();
+  if (!sel) return;
+  sel[prop] = val;
+  if (prop === 'rotation') {
+    document.getElementById('insRot').value = Math.round(val);
+    document.getElementById('insRotNum').value = Math.round(val);
+  }
+  draw();
+}
+
+// ═══════════════════════════════════════════════════
+//  LAYER LIST
+// ═══════════════════════════════════════════════════
+function updateLayerList() {
+  const list = document.getElementById('layerList');
+  list.innerHTML = '';
+  const shapes = currentShapes();
+  // Render bottom to top (index 0 = back)
+  for (let i = shapes.length - 1; i >= 0; i--) {
+    const s = shapes[i];
+    const item = document.createElement('div');
+    item.className = 'layer-item' + (s.id === selectedId ? ' selected' : '');
+    item.innerHTML = `
+      <span class="layer-name">${s.name}</span>
+      <div class="layer-actions">
+        <button onclick="event.stopPropagation(); deleteShape('${s.id}')" title="Delete">✖</button>
+      </div>
+    `;
+    item.onclick = () => { selectedId = s.id; updateInspector(); updateLayerList(); draw(); };
+    list.appendChild(item);
+  }
+}
+
+function moveLayerUp() {
+  const shapes = currentShapes();
+  const idx = shapes.findIndex(s => s.id === selectedId);
+  if (idx < 0 || idx >= shapes.length - 1) return;
+  [shapes[idx], shapes[idx + 1]] = [shapes[idx + 1], shapes[idx]];
+  updateLayerList(); draw();
+}
+
+function moveLayerDown() {
+  const shapes = currentShapes();
+  const idx = shapes.findIndex(s => s.id === selectedId);
+  if (idx <= 0) return;
+  [shapes[idx], shapes[idx - 1]] = [shapes[idx - 1], shapes[idx]];
+  updateLayerList(); draw();
+}
+
+function deleteShape(id) {
+  const shapes = currentShapes();
+  const idx = shapes.findIndex(s => s.id === id);
+  if (idx >= 0) shapes.splice(idx, 1);
+  if (selectedId === id) selectedId = null;
+  updateInspector(); updateLayerList(); draw();
+}
+
+// ═══════════════════════════════════════════════════
+//  TIMELINE / FRAMES
+// ═══════════════════════════════════════════════════
+function updateFrameTrack() {
+  const track = document.getElementById('frameTrack');
+  track.innerHTML = '';
+  frames.forEach((_, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'frame-cell' + (i === currentFrameIdx ? ' active' : '');
+    cell.textContent = i + 1;
+    cell.onclick = () => setFrame(i);
+    
+    // Mini thumbnail canvas
+    const tc = document.createElement('canvas');
+    tc.width = 40; tc.height = 40;
+    cell.appendChild(tc);
+
+    track.appendChild(cell);
+  });
+  updateFrameThumbnails();
+}
+
+function updateFrameThumbnails() {
+  const track = document.getElementById('frameTrack');
+  const cells = track.querySelectorAll('.frame-cell');
+  cells.forEach((cell, i) => {
+    const tc = cell.querySelector('canvas');
+    if (!tc) return;
+    const tctx = tc.getContext('2d');
+    tctx.clearRect(0, 0, 40, 40);
+    tctx.save();
+    const scale = 40 / Math.max(canvas.width, canvas.height);
+    tctx.scale(scale, scale);
+    tctx.globalAlpha = 0.6;
+    if (frames[i]) renderShapes(frames[i]);
+    tctx.restore();
+  });
+}
+
+function setFrame(idx) {
+  currentFrameIdx = Math.max(0, Math.min(idx, frames.length - 1));
+  selectedId = null;
+  updateInspector();
+  updateLayerList();
+  updateFrameTrack();
+  draw();
+}
+
+function addFrame() {
+  frames.push([]);
+  setFrame(frames.length - 1);
+}
+
+function dupFrame() {
+  // Deep clone current frame
+  const clone = currentShapes().map(s => {
+    const c = { ...s, id: nextId() };
+    if (s.type === 'image' && s.imgId && uploadedImages[s.imgId]) {
+      // Share the same image reference
+      uploadedImages[c.id] = uploadedImages[s.imgId];
+      c.imgId = c.id;
+    }
+    return c;
+  });
+  frames.splice(currentFrameIdx + 1, 0, clone);
+  setFrame(currentFrameIdx + 1);
+}
+
+function delFrame() {
+  if (frames.length <= 1) return;
+  frames.splice(currentFrameIdx, 1);
+  if (currentFrameIdx >= frames.length) currentFrameIdx = frames.length - 1;
+  setFrame(currentFrameIdx);
+}
+
+// ═══════════════════════════════════════════════════
+//  PLAYBACK
+// ═══════════════════════════════════════════════════
+function updateFPS() {
+  fps = parseInt(document.getElementById('fpsInput').value) || 8;
+  if (isPlaying) {
+    clearInterval(playTimer);
+    playTimer = setInterval(playTick, 1000 / fps);
+  }
+}
+
+function togglePlay() {
+  if (isPlaying) {
+    clearInterval(playTimer);
+    isPlaying = false;
+    document.getElementById('btnPlay').textContent = '▶ Play';
+  } else {
+    isPlaying = true;
+    document.getElementById('btnPlay').textContent = '⏸ Pause';
+    playTimer = setInterval(playTick, 1000 / fps);
+  }
+}
+
+function playTick() {
+  let next = currentFrameIdx + 1;
+  if (next >= frames.length) next = 0;
+  setFrame(next);
+}
+
+function stopAnim() {
+  if (isPlaying) togglePlay();
+  setFrame(0);
+}
+
+// ═══════════════════════════════════════════════════
+//  VIEW ANGLE
+// ═══════════════════════════════════════════════════
+function setViewAngle(angle) {
+  viewAngle = angle;
+  // Could adjust default shape proportions here in future
+  draw();
+}
+
+// ═══════════════════════════════════════════════════
+//  ZOOM
+// ═══════════════════════════════════════════════════
+function zoomCanvas(factor) {
+  canvasZoom *= factor;
+  canvasZoom = Math.max(0.25, Math.min(canvasZoom, 4));
+  canvas.style.transform = `scale(${canvasZoom})`;
+}
+function resetZoom() {
+  canvasZoom = 1;
+  canvas.style.transform = 'scale(1)';
+}
+
+// ═══════════════════════════════════════════════════
+//  EXPORT
+// ═══════════════════════════════════════════════════
+function exportCurrentFrame() {
+  const exportCanvas = document.createElement('canvas');
+  exportCanvas.width = canvas.width;
+  exportCanvas.height = canvas.height;
+  const ectx = exportCanvas.getContext('2d');
+  // Temporarily draw to export canvas
+  const origCtx = ctx;
+  // We need to use the renderShapes function which uses the global ctx
+  // So we'll do a canvas toDataURL approach
+  const oldSel = selectedId;
+  selectedId = null; // hide selection handles
+  draw();
+  const dataUrl = canvas.toDataURL('image/png');
+  selectedId = oldSel;
+  draw();
+
+  const a = document.createElement('a');
+  a.href = dataUrl;
+  a.download = `character_frame_${currentFrameIdx + 1}.png`;
+  a.click();
+}
+
+function exportAllFrames() {
+  const oldFrame = currentFrameIdx;
+  const oldSel = selectedId;
+  selectedId = null;
+
+  frames.forEach((_, i) => {
+    currentFrameIdx = i;
+    // Temporarily disable onion skin
+    const onion = document.getElementById('onionSkinChk').checked;
+    document.getElementById('onionSkinChk').checked = false;
+    draw();
+    document.getElementById('onionSkinChk').checked = onion;
+
+    const dataUrl = canvas.toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = `character_frame_${(i + 1).toString().padStart(3, '0')}.png`;
+    a.click();
+  });
+
+  currentFrameIdx = oldFrame;
+  selectedId = oldSel;
+  draw();
+}
+
+function exportSpritesheet() {
+  const oldFrame = currentFrameIdx;
+  const oldSel = selectedId;
+  selectedId = null;
+  const onion = document.getElementById('onionSkinChk').checked;
+  document.getElementById('onionSkinChk').checked = false;
+
+  const sheetCanvas = document.createElement('canvas');
+  sheetCanvas.width = canvas.width * frames.length;
+  sheetCanvas.height = canvas.height;
+  const sheetCtx = sheetCanvas.getContext('2d');
+
+  frames.forEach((_, i) => {
+    currentFrameIdx = i;
+    draw();
+    sheetCtx.drawImage(canvas, i * canvas.width, 0);
+  });
+
+  document.getElementById('onionSkinChk').checked = onion;
+  currentFrameIdx = oldFrame;
+  selectedId = oldSel;
+  draw();
+
+  const dataUrl = sheetCanvas.toDataURL('image/png');
+  const a = document.createElement('a');
+  a.href = dataUrl;
+  a.download = 'character_spritesheet.png';
+  a.click();
+}
+
+// ═══════════════════════════════════════════════════
+//  KEYBOARD SHORTCUTS
+// ═══════════════════════════════════════════════════
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
+
+  if (penMode) {
+    if (e.key === 'Enter') {
+      closePenPath();
+      e.preventDefault();
+    }
+    if (e.key === 'Escape') {
+      cancelPenDrawing();
+      e.preventDefault();
+    }
+    return;
+  }
+
+  const sel = selectedShape();
+  if (e.key === 'Delete' || e.key === 'Backspace') {
+    if (sel) { deleteShape(sel.id); e.preventDefault(); }
+  }
+  if (e.key === 'ArrowLeft' && sel) { sel.x -= e.shiftKey ? 10 : 1; updateInspector(); draw(); e.preventDefault(); }
+  if (e.key === 'ArrowRight' && sel) { sel.x += e.shiftKey ? 10 : 1; updateInspector(); draw(); e.preventDefault(); }
+  if (e.key === 'ArrowUp' && sel) { sel.y -= e.shiftKey ? 10 : 1; updateInspector(); draw(); e.preventDefault(); }
+  if (e.key === 'ArrowDown' && sel) { sel.y += e.shiftKey ? 10 : 1; updateInspector(); draw(); e.preventDefault(); }
+  if (e.key === ' ') { togglePlay(); e.preventDefault(); }
+});
+
+// ═══════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════
+buildTabs();
+buildShapeGrid();
+updateFrameTrack();
+draw();
+</script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/><title>Image hub</title>
+<style>
+:root{--bg:#0c0e12;--card:#171b24;--b:#2f3848;--a:#72ffd4;}
+body{margin:0;background:var(--bg);font-family:system-ui;color:#e7edf7;}
+main{max-width:860px;margin:1rem auto;padding:0 .8rem;display:grid;gap:14px;}
+header{padding:1rem;background:var(--card);border-bottom:1px solid var(--b);}
+section{background:var(--card);padding:14px;border-radius:14px;border:1px solid var(--b);}
+button{background:var(--a);border:none;color:#081210;font-weight:800;padding:.46rem .8rem;border-radius:10px;cursor:pointer;}
+img{max-width:180px;margin:4px;border-radius:10px;}
+input[type=file]{margin-top:.4rem;}
+small{opacity:.7;}
+a{color:#8ddcff;}
+canvas{border:2px dashed #6d8cff;margin-top:.5rem;background:#090b10;}
+</style>
+</head>
+<body>
+<header><strong>Image hub</strong> · <a href="/">dash</a> · <a href="/skeletal-animator">skeletal animator</a> · <a href="/tool">full sprite remover UI</a></header>
+<main>
+<section>
+<strong>Archive to storage/images</strong>
+<form id="stash"><input type="file" id="imf" multiple /> <button type="submit">Store originals</button></form>
+<pre id="slog" style="font-size:.73rem;"></pre>
+</section>
+<section>
+<strong>Existing rembg service</strong>
+<form id="rem"><input type="file" id="rmf"/><button type="submit">single remove-bg PNG</button></form>
+<pre id="rlog"></pre>
+<canvas id="canvas" width="384" height="384" style="display:none;"></canvas>
+</section>
+</main>
+<script>
+document.getElementById("stash").onsubmit = async (e)=>{
+  e.preventDefault();
+  const picks = [...document.getElementById("imf").files];
+  const slog = [];
+  for(const fl of picks){
+    const fd = new FormData();
+    fd.append("kind","image");
+    fd.append("slug", fl.name.replace(/\.[^/.]+$/,""));
+    fd.append("file", fl);
+    slog.push(await fetch("/api/assets/upload",{method:'POST', body: fd}).then(r=>r.json()));
+  }
+  document.getElementById("slog").textContent = JSON.stringify(slog, null, 2);
+};
+
+document.getElementById("rem").onsubmit = async (e)=>{
+  e.preventDefault();
+  const fd = new FormData();
+  fd.append("image", document.getElementById("rmf").files[0]);
+  const res = await fetch("/remove-bg",{method:'POST', body: fd});
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  document.getElementById("rlog").textContent = "done — blob length "+blob.size+" bytes";
+};
+</script>
+</body></html>

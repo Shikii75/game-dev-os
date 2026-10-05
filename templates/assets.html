@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Asset Brain</title>
+  <style>
+    :root { --bg:#0c0e12;--surface:#141820;--border:#252d3a;--text:#e8ecf1;--muted:#8b96a8;--accent:#3dff9a; }
+    body { margin:0; font-family:system-ui,sans-serif; background:var(--bg); color:var(--text); }
+    header { padding:1rem 1.25rem; border-bottom:1px solid var(--border); background:var(--surface); display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; align-items:center; }
+    a { color:#7ddcff; text-decoration:none; }
+    main { padding:1.25rem; max-width:1100px; margin:0 auto; }
+    .grid { display:grid; gap:14px; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); margin-top:14px;}
+    fieldset { border:1px solid var(--border); border-radius:12px; background:var(--surface); padding:12px;}
+    label { font-size:0.8rem; color:var(--muted);}
+    input, select { width:100%; margin-top:6px; padding:8px 10px; border-radius:8px; border:1px solid var(--border); background:#0f1218; color:var(--text);}
+    button { margin-top:10px; background:var(--accent); color:#031106; border:none; padding:8px 14px; border-radius:10px; font-weight:700; cursor:pointer;}
+    pre { white-space:pre-wrap; word-break:break-all; font-size:0.75rem; background:#090a0c; border-radius:10px; padding:10px; border:1px solid var(--border); max-height:360px; overflow:auto;}
+    .list-mini { margin:0; padding-left:18px;}
+    code { font-size:.78rem; padding:2px 6px; border-radius:6px; background:#090a0c; border:1px solid var(--border);}
+  </style>
+</head>
+<body>
+<header>
+  <div><strong>Asset brain</strong> — typed uploads + listings</div>
+  <nav><a href="/">Dashboard</a> · <a href="/skeletal-animator">Skeletal Animator</a> · <a href="/character-builder">Character Builder</a> · <a href="/animations">Animations</a> · <a href="/audio-hub">Audio</a></nav>
+</header>
+<main>
+  <p id="toast" style="opacity:.72;font-size:.9rem;"></p>
+
+  <div class="grid">
+    <form id="uform">
+      <fieldset>
+        <legend>Upload asset</legend>
+        <label>Kind<select name="kind" id="kind">
+          <option value="image">image</option>
+          <option value="audio">audio</option>
+          <option value="video">video</option>
+        </select></label>
+        <label>Slug<input name="slug" id="slug" placeholder="friendly-name"/></label>
+        <label style="display:none" id="acwrap">Audio category<select name="audio_category" id="ac"><option value="ui">UI</option><option value="combat">Combat</option><option value="ambient">Ambient</option><option value="misc">misc</option></select></label>
+        <label>File<input type="file" name="file" id="file" required /></label>
+        <button type="submit">Upload</button>
+      </fieldset>
+    </form>
+
+    <fieldset>
+      <legend>Refresh catalogs</legend>
+      <button type="button" id="refresh">Reload JSON</button>
+      <small style="color:var(--muted); display:block;margin-top:.5rem;">
+        Stored under <code>storage/</code>, served securely via <code>/media/</code>.
+      </small>
+    </fieldset>
+  </div>
+
+  <h3>Indexed files</h3>
+  <div class="grid" style="grid-template-columns:1fr;">
+    <fieldset><legend>Images</legend><pre id="out-img">…</pre></fieldset>
+    <fieldset><legend>Videos</legend><pre id="out-vid">…</pre></fieldset>
+    <fieldset><legend>Animations</legend><pre id="out-anim">…</pre></fieldset>
+    <fieldset><legend>Audio (grouped)</legend><pre id="out-aud">…</pre></fieldset>
+  </div>
+
+</main>
+
+<script>
+const toast = document.getElementById("toast");
+
+document.getElementById("kind").addEventListener("change", () => {
+  const k = document.getElementById("kind").value;
+  document.getElementById("acwrap").style.display = k==="audio" ? "block":"none";
+});
+
+async function reload() {
+  const [imgs, vids, anims, aud] = await Promise.all([
+    fetch("/api/media/list/images").then(r=>r.json()),
+    fetch("/api/media/list/videos").then(r=>r.json()),
+    fetch("/api/media/list/animations").then(r=>r.json()),
+    fetch("/api/media/list/audio").then(r=>r.json()),
+  ]);
+  document.getElementById("out-img").textContent = JSON.stringify(imgs, null, 2);
+  document.getElementById("out-vid").textContent = JSON.stringify(vids, null, 2);
+  document.getElementById("out-anim").textContent = JSON.stringify(anims, null, 2);
+  document.getElementById("out-aud").textContent = JSON.stringify(aud, null, 2);
+}
+
+document.getElementById("refresh").onclick = reload;
+
+document.getElementById("uform").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const fd = new FormData();
+  fd.append("kind", document.getElementById("kind").value);
+  fd.append("slug", document.getElementById("slug").value);
+  if(document.getElementById("kind").value==="audio")
+    fd.append("audio_category", document.getElementById("ac").value);
+  fd.append("file", document.getElementById("file").files[0]);
+  toast.textContent = "Uploading…";
+  const res = await fetch("/api/assets/upload", {method:"POST", body: fd});
+  const payload = await res.json();
+  toast.textContent = res.ok ? "Saved "+JSON.stringify(payload) : JSON.stringify(payload);
+  await reload();
+});
+
+reload();
+</script>
+</body>
+</html>

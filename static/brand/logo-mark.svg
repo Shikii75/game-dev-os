@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Game Dev OS">
+  <defs>
+    <linearGradient id="gGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="45%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#ec4899"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="3" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <circle cx="60" cy="52" r="46" fill="none" stroke="#4c5d7a" stroke-width="1.2" opacity="0.55"/>
+  <circle cx="60" cy="52" r="46" fill="none" stroke="#a855f7" stroke-width="0.6" opacity="0.35" stroke-dasharray="4 6"/>
+  <path filter="url(#glow)" fill="url(#gGrad)" d="M78 28c-18-8-38 2-42 22-3 14 4 28 18 34-10 2-18 10-18 20 0 12 10 22 22 22 16 0 28-12 28-28 0-14-10-24-22-26 12-4 20-16 14-44zM48 82c0-8 6-14 14-14h8c-6-4-10-12-8-20 2-10 12-16 22-14 6 1 11 5 14 10-8-2-16 2-18 10-2 8 4 16 12 18-10 0-18 6-18 14 0 8 6 14 14 14s14-6 14-14h-12c0 4-4 8-10 8s-10-4-10-8z"/>
+  <text x="60" y="108" text-anchor="middle" font-family="Orbitron,Segoe UI,sans-serif" font-size="14" font-weight="700" fill="#c4b5fd" letter-spacing="4">OS</text>
+</svg>

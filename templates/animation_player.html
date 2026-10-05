@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Animation Workspace — {{ anim_id }}</title>
+
+  <style>
+    body {
+      margin:0;
+      background:#0c0e12;
+      color:#e8ecf1;
+      font-family:system-ui, -apple-system, sans-serif;
+      height:100vh;
+      display:flex;
+      flex-direction:column;
+      overflow: hidden;
+    }
+
+    header {
+      padding:.55rem 1rem;
+      border-bottom:1px solid #252d3a;
+      background: #121620;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+    }
+
+    header .title-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    header h2 {
+      margin: 0;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #9ab4d6;
+    }
+
+    header a {
+      color:#74dfff;
+      text-decoration: none;
+      font-size: 0.85rem;
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+
+    header a:hover {
+      background: rgba(116, 223, 255, 0.08);
+      border-color: rgba(116, 223, 255, 0.2);
+    }
+
+    .main-workspace {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Left Sidebar: Tool Panel (Photoshop style) */
+    .left-sidebar {
+      width: 56px;
+      background: #0e121a;
+      border-right: 1px solid #222936;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 15px 0;
+      gap: 12px;
+      z-index: 5;
+    }
+
+    .tool-btn {
+      width: 38px;
+      height: 38px;
+      background: transparent;
+      border: 1px solid #252d3a;
+      color: #a4b6cd;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      transition: all 0.15s;
+    }
+
+    .tool-btn:hover {
+      background: #171f2d;
+      color: #3dff9a;
+      border-color: #3dff9a;
+    }
+
+    .tool-btn.active {
+      background: #3dff9a;
+      color: #031106;
+      border-color: #3dff9a;
+      box-shadow: 0 0 10px rgba(61, 255, 154, 0.25);
+    }
+
+    .sidebar-divider {
+      width: 70%;
+      height: 1px;
+      background: #252d3a;
+      margin: 4px 0;
+    }
+
+    /* Center Stage: Canvas Container */
+    .stage {
+      flex: 1;
+      background: radial-gradient(circle, #18202d, #090c12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: auto;
+      position: relative;
+      padding: 40px;
+    }
+
+    .canvas-container {
+      position: relative;
+      display: inline-block;
+      transition: transform 0.12s cubic-bezier(0.2, 0.8, 0.2, 1);
+      transform-origin: center center;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.65);
+      border: 2px solid #222936;
+      background: repeating-conic-gradient(#141820 0% 25%, #1f2633 0% 50%) 50% / 16px 16px !important;
+    }
+
+    canvas {
+      image-rendering: pixelated;
+      display: block;
+      cursor: crosshair;
+      background: transparent;
+    }
+
+    /* Right Sidebar: Inspector / Settings Panel */
+    .right-sidebar {
+      width: 270px;
+      background: #0e121a;
+      border-left: 1px solid #222936;
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+      gap: 18px;
+      overflow-y: auto;
+      z-index: 5;
+    }
+
+    .sidebar-section {
+      border-bottom: 1px solid #222936;
+      padding-bottom: 16px;
+    }
+
+    .sidebar-section:last-child {
+      border-bottom: none;
+    }
+
+    .sidebar-section h3 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #788ca4;
+      margin: 0 0 12px 0;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .control-group label {
+      font-size: 0.8rem;
+      color: #abbecf;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .control-group input[type="range"] {
+      width: 100%;
+      accent-color: #3dff9a;
+      background: #1b2230;
+      height: 6px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .btn-row button {
+      flex: 1;
+      padding: 6px 10px;
+      font-size: 0.78rem;
+    }
+
+    .sidebar-btn {
+      width: 100%;
+      background: #171f2d;
+      border: 1px solid #2e3b52;
+      color: #e8ecf1;
+      padding: 9px 12px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.82rem;
+      transition: all 0.2s;
+      margin-top: 6px;
+    }
+
+    .sidebar-btn:hover {
+      background: #212c40;
+      border-color: #3dff9a;
+    }
+
+    .sidebar-btn.primary {
+      background: #3dff9a;
+      color: #031106;
+      border-color: #3dff9a;
+    }
+
+    .sidebar-btn.primary:hover {
+      background: #26e082;
+      box-shadow: 0 0 10px rgba(61, 255, 154, 0.2);
+    }
+
+    .sidebar-btn.ghost {
+      background: transparent;
+      border-color: #2e3b52;
+    }
+
+    .sidebar-btn.ghost:hover {
+      background: #171f2d;
+    }
+
+    .mode-indicators {
+      display: flex;
+      gap: 6px;
+      margin-top: 5px;
+    }
+
+    .mode-btn {
+      flex: 1;
+      font-size: 0.75rem;
+      padding: 6px;
+      border: 1px solid #2e3b52;
+      background: transparent;
+      color: #8fa0b5;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.15s;
+    }
+
+    .mode-btn:hover {
+      border-color: #74dfff;
+      color: #e8ecf1;
+    }
+
+    .mode-btn.active {
+      border-color: #74dfff;
+      color: #74dfff;
+      background: rgba(116, 223, 255, 0.08);
+    }
+
+    #saveStatus {
+      font-size:.8rem;
+      opacity:.9;
+      color: #3dff9a;
+      display: block;
+      margin-top: 6px;
+      text-align: center;
+    }
+
+    .zoom-badge {
+      font-size: 0.8rem;
+      background: #171f2d;
+      padding: 3px 8px;
+      border-radius: 4px;
+      border: 1px solid #2e3b52;
+      color: #abbecf;
+    }
+
+    .hidden { display:none; }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="title-area">
+    <a href="/animations">◀ Exit Editor</a>
+    <h2>Workspace: {{ anim_id }}</h2>
+  </div>
+  <div class="zoom-badge" id="zoomPercentLabel">100%</div>
+</header>
+
+<div class="main-workspace">
+  <!-- Left Photoshop-like Toolbar -->
+  <div class="left-sidebar">
+    <button type="button" class="tool-btn active" id="btnErase" onclick="setBrush('erase')" title="Erase Brush (E)">
+      🧽
+    </button>
+    <button type="button" class="tool-btn" id="btnRestore" onclick="setBrush('restore')" title="Restore Brush (R)">
+      🖌️
+    </button>
+    <div class="sidebar-divider"></div>
+    <button type="button" class="tool-btn" onclick="undo()" title="Undo (Ctrl+Z)">
+      ⎌
+    </button>
+    <div class="sidebar-divider"></div>
+    <button type="button" class="tool-btn" onclick="zoomIn()" title="Zoom In (+)">
+      ➕
+    </button>
+    <button type="button" class="tool-btn" onclick="zoomOut()" title="Zoom Out (-)">
+      ➖
+    </button>
+    <button type="button" class="tool-btn" onclick="resetZoom()" title="Reset Zoom (100%)">
+      🎯
+    </button>
+  </div>
+
+  <!-- Centered canvas editor stage -->
+  <div class="stage">
+  {% if frame_urls_json|length %}
+    <div class="canvas-container" id="canvasContainer">
+      <canvas id="editor"></canvas>
+    </div>
+  {% else %}
+    <div style="text-align:center;opacity:.76;">
+      No PNG frames indexed yet.<br>
+      Use extract + BG pipeline first.<br/>
+      <a href="/animations" style="color: #74dfff;">Go to Animations</a>
+    </div>
+  {% endif %}
+  </div>
+
+  <!-- Right Inspector Sidebar -->
+  <div class="right-sidebar {% if not frame_urls_json|length %}hidden{% endif %}">
+    
+    <!-- Workspace Layer Mode -->
+    <div class="sidebar-section">
+      <h3>Active layer mode</h3>
+      <div class="mode-indicators">
+        <button type="button" class="mode-btn active" id="mClean" onclick="useClean()">CLEANED</button>
+        <button type="button" class="mode-btn" id="mRaw" onclick="useRaw()">RAW SOURCE</button>
+      </div>
+    </div>
+
+    <!-- Brush Settings -->
+    <div class="sidebar-section">
+      <h3>Brush parameters</h3>
+      <div class="control-group">
+        <label>Brush Size <strong id="brushSizeLabel">20px</strong></label>
+        <input type="range" id="brushSize" min="2" max="100" value="20" oninput="setSize(this.value)">
+      </div>
+      <small style="color: #647b97; font-size: 0.72rem; line-height: 1.4; display: block;">
+        * Left-click drag paints with selected tool.<br>
+        * Right-click drag paints with the opposite tool to quickly revert mistakes.
+      </small>
+    </div>
+
+    <!-- Playback Control -->
+    <div class="sidebar-section">
+      <h3>Playback & Sequence</h3>
+      
+      <div class="control-group">
+        <label>Animation frame <strong id="label">Frame 1 / --</strong></label>
+      </div>
+
+      <div class="btn-row">
+        <button type="button" class="sidebar-btn" onclick="prevFrame()">◀ Prev</button>
+        <button type="button" class="sidebar-btn" id="tog" style="background: #2e3b52;">pause</button>
+        <button type="button" class="sidebar-btn" onclick="nextFrame()">Next ▶</button>
+      </div>
+
+      <div class="control-group" style="margin-top: 10px;">
+        <label>Framerate <strong id="fpsLabel">8 FPS</strong></label>
+        <input type="range" id="spd" min="1" max="24" step="1" value="8" oninput="document.getElementById('fpsLabel').textContent = this.value + ' FPS'">
+      </div>
+    </div>
+
+    <!-- Actions / Export -->
+    <div class="sidebar-section" style="margin-top: auto; border-bottom: none; padding-bottom: 0;">
+      <h3>Actions & pipeline</h3>
+      <button type="button" class="sidebar-btn primary" onclick="saveCurrentFrame()">Save Current Frame</button>
+      <button type="button" class="sidebar-btn primary ghost" onclick="saveAllEditedFrames()">Save All Edited</button>
+      <button type="button" class="sidebar-btn" onclick="packSpriteSheet()" style="border-color: #3dff9a; color: #3dff9a;">Pack Sprite Sheet</button>
+      <span id="saveStatus"></span>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const ANIM_ID = {{ anim_id|tojson }};
+let FRAMES = JSON.parse('{{ frame_urls_json|tojson }}');
+let RAW_FRAMES = [];
+let CLEAN_FRAMES = [];
+let activeFolder = window.location.search.includes("mode=raw") ? "raw" : "clean";
+
+const rawBaseCanvas = document.createElement("canvas");
+const rawBaseCtx = rawBaseCanvas.getContext("2d");
+
+let idx = 0;
+let playing = true;
+
+const canvas = document.getElementById("editor");
+const ctx = canvas.getContext("2d");
+
+let isPointerDown = false;
+let pointerButton = 0;
+let brushMode = "erase";
+let brushSize = 20;
+let zoomLevel = 1.0;
+
+let undoStack = [];
+const frameEdits = {};
+
+// -------------------- HELPERS --------------------
+function frameNameFromUrl(url) {
+  if (!url) return null;
+  const parts = url.split("/");
+  return parts[parts.length - 1];
+}
+
+function setSaveStatus(msg) {
+  const el = document.getElementById("saveStatus");
+  if (el) el.textContent = msg || "";
+}
+
+function cacheCurrentFrame() {
+  if (!canvas.width) return;
+  frameEdits[idx] = canvas.toDataURL("image/png");
+}
+
+function setBrush(mode) {
+  brushMode = mode;
+  document.getElementById("btnErase")?.classList.toggle("active", mode === "erase");
+  document.getElementById("btnRestore")?.classList.toggle("active", mode === "restore");
+}
+
+function setSize(v) {
+  brushSize = parseFloat(v) || 20;
+  const label = document.getElementById("brushSizeLabel");
+  if (label) label.textContent = brushSize + "px";
+}
+
+// -------------------- ZOOM --------------------
+function updateZoom(newZoom) {
+  zoomLevel = Math.max(0.25, Math.min(8.0, newZoom));
+  const container = document.getElementById("canvasContainer");
+  if (container) {
+    container.style.transform = `scale(${zoomLevel})`;
+  }
+  const label = document.getElementById("zoomPercentLabel");
+  if (label) {
+    label.textContent = Math.round(zoomLevel * 100) + "%";
+  }
+}
+
+function zoomIn() { updateZoom(zoomLevel + 0.25); }
+function zoomOut() { updateZoom(zoomLevel - 0.25); }
+function resetZoom() { updateZoom(1.0); }
+
+// -------------------- UNDO --------------------
+function saveUndo() {
+  undoStack.push(canvas.toDataURL("image/png"));
+  if (undoStack.length > 25) undoStack.shift();
+}
+
+function undo() {
+  if (!undoStack.length) return;
+  const img = new Image();
+  img.onload = () => {
+    ctx.globalCompositeOperation = "source-over";
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0);
+    cacheCurrentFrame();
+  };
+  img.src = undoStack.pop();
+}
+
+// -------------------- LOAD FRAME SETS --------------------
+async function loadFrameSets() {
+  const res = await fetch(`/api/animation/${encodeURIComponent(ANIM_ID)}/frames`);
+  const data = await res.json();
+  RAW_FRAMES = data.raw || [];
+  CLEAN_FRAMES = data.clean || [];
+  if (!FRAMES.length && CLEAN_FRAMES.length) FRAMES = CLEAN_FRAMES;
+  if (!FRAMES.length && RAW_FRAMES.length) FRAMES = RAW_FRAMES;
+}
+
+function loadRawBaseForIndex() {
+  const rawUrl = RAW_FRAMES[idx] || FRAMES[idx];
+  if (!rawUrl) return Promise.resolve();
+
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      rawBaseCanvas.width = img.width;
+      rawBaseCanvas.height = img.height;
+      rawBaseCtx.clearRect(0, 0, rawBaseCanvas.width, rawBaseCanvas.height);
+      rawBaseCtx.drawImage(img, 0, 0);
+      resolve();
+    };
+    img.onerror = () => resolve();
+    img.src = rawUrl;
+  });
+}
+
+// -------------------- FRAME RENDER --------------------
+async function applyFrame() {
+  if (!FRAMES.length) return;
+
+  await loadRawBaseForIndex();
+
+  const edited = frameEdits[idx];
+  if (edited) {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.globalCompositeOperation = "source-over";
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+      document.getElementById("label").textContent =
+        `Frame ${idx + 1} / ${FRAMES.length}`;
+    };
+    img.src = edited;
+    return;
+  }
+
+  const img = new Image();
+  img.crossOrigin = "anonymous";
+  img.onload = () => {
+    canvas.width = img.width;
+    canvas.height = img.height;
+    ctx.globalCompositeOperation = "source-over";
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0);
+    document.getElementById("label").textContent =
+      `Frame ${idx + 1} / ${FRAMES.length}`;
+  };
+  img.src = FRAMES[idx];
+}
+
+function goToFrame(newIdx) {
+  if (!FRAMES.length) return;
+  cacheCurrentFrame();
+  idx = (newIdx + FRAMES.length) % FRAMES.length;
+  undoStack = [];
+  applyFrame();
+}
+
+function prevFrame() {
+  playing = false;
+  document.getElementById("tog").textContent = "play";
+  goToFrame(idx - 1);
+}
+
+function nextFrame() {
+  playing = false;
+  document.getElementById("tog").textContent = "play";
+  goToFrame(idx + 1);
+}
+
+// -------------------- PLAYBACK --------------------
+function tick() {
+  if (playing && FRAMES.length) {
+    cacheCurrentFrame();
+    idx = (idx + 1) % FRAMES.length;
+    applyFrame();
+  }
+  const fps = parseFloat(document.getElementById("spd").value) || 8;
+  setTimeout(() => requestAnimationFrame(tick), 1000 / fps);
+}
+
+// -------------------- MODE SWITCH --------------------
+function useRaw() {
+  if (!RAW_FRAMES.length) return;
+  cacheCurrentFrame();
+  FRAMES = RAW_FRAMES;
+  activeFolder = "raw";
+  document.getElementById("mRaw").classList.add("active");
+  document.getElementById("mClean").classList.remove("active");
+  idx = Math.min(idx, FRAMES.length - 1);
+  applyFrame();
+}
+
+function useClean() {
+  if (!CLEAN_FRAMES.length) return;
+  cacheCurrentFrame();
+  FRAMES = CLEAN_FRAMES;
+  activeFolder = "clean";
+  document.getElementById("mClean").classList.add("active");
+  document.getElementById("mRaw").classList.remove("active");
+  idx = Math.min(idx, FRAMES.length - 1);
+  applyFrame();
+}
+
+// -------------------- BRUSH --------------------
+function pointerPos(e) {
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: (e.clientX - rect.left) * (canvas.width / rect.width),
+    y: (e.clientY - rect.top) * (canvas.height / rect.height),
+  };
+}
+
+function draw(e) {
+  if (!isPointerDown) return;
+  const { x, y } = pointerPos(e);
+
+  let mode = brushMode;
+  if (pointerButton === 2) {
+    mode = (brushMode === "erase") ? "restore" : "erase";
+  }
+
+  if (mode === "erase") {
+    ctx.save();
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.beginPath();
+    ctx.arc(x, y, brushSize, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  } else if (mode === "restore" && rawBaseCanvas.width) {
+    ctx.save();
+    ctx.globalCompositeOperation = "source-over";
+    ctx.beginPath();
+    ctx.arc(x, y, brushSize, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.drawImage(rawBaseCanvas, 0, 0);
+    ctx.restore();
+  }
+
+  cacheCurrentFrame();
+}
+
+canvas.addEventListener("pointerdown", (e) => {
+  if (e.button !== 0 && e.button !== 2) return;
+  e.preventDefault();
+  isPointerDown = true;
+  pointerButton = e.button;
+  playing = false;
+  document.getElementById("tog").textContent = "play";
+  saveUndo();
+  draw(e);
+});
+
+canvas.addEventListener("pointermove", (e) => {
+  if (!isPointerDown) return;
+  e.preventDefault();
+  draw(e);
+});
+
+canvas.addEventListener("pointerup", () => { isPointerDown = false; });
+canvas.addEventListener("pointerleave", () => { isPointerDown = false; });
+canvas.addEventListener("contextmenu", (e) => { e.preventDefault(); });
+
+window.addEventListener("keydown", (event) => {
+  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
+    event.preventDefault();
+    undo();
+  } else if (event.key.toLowerCase() === "e") {
+    setBrush("erase");
+  } else if (event.key.toLowerCase() === "r") {
+    setBrush("restore");
+  } else if (event.key === "=" || event.key === "+") {
+    zoomIn();
+  } else if (event.key === "-") {
+    zoomOut();
+  } else if (event.key === "0") {
+    resetZoom();
+  }
+});
+
+// -------------------- SAVE --------------------
+async function saveCurrentFrame() {
+  cacheCurrentFrame();
+  const image = canvas.toDataURL("image/png");
+  const filename = frameNameFromUrl(FRAMES[idx]);
+  setSaveStatus("Saving…");
+  try {
+    const res = await fetch(`/api/animations/${encodeURIComponent(ANIM_ID)}/save-frame`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        frame_index: idx,
+        filename,
+        image,
+        folder: activeFolder,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "save failed");
+    setSaveStatus(`Saved → ${data.filename}`);
+  } catch (err) {
+    setSaveStatus(err.message || "Save failed");
+  }
+}
+
+async function saveAllEditedFrames() {
+  cacheCurrentFrame();
+  const keys = Object.keys(frameEdits);
+  if (!keys.length) {
+    setSaveStatus("No edits to save");
+    return;
+  }
+  const frames = keys.map((k) => ({
+    frame_index: parseInt(k, 10),
+    filename: frameNameFromUrl(FRAMES[parseInt(k, 10)]),
+    image: frameEdits[k],
+  }));
+  setSaveStatus(`Saving ${frames.length} frame(s)…`);
+  try {
+    const res = await fetch(`/api/animations/${encodeURIComponent(ANIM_ID)}/save-frames`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ frames, folder: activeFolder }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "save failed");
+    setSaveStatus(`Saved ${data.saved} frame(s) & synced all to Unity.`);
+  } catch (err) {
+    setSaveStatus(err.message || "Save failed");
+  }
+}
+
+// -------------------- UI --------------------
+document.getElementById("tog").onclick = () => {
+  playing = !playing;
+  document.getElementById("tog").textContent = playing ? "pause" : "play";
+};
+
+async function packSpriteSheet() {
+  setSaveStatus("Packing sprite sheet…");
+  try {
+    const res = await fetch(`/api/animations/${encodeURIComponent(ANIM_ID)}/pack`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ folder: activeFolder }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "packing failed");
+    setSaveStatus(`Packed sheet exported to Unity & outputs → ${data.filename}`);
+  } catch (err) {
+    setSaveStatus(err.message || "Packing failed");
+  }
+}
+
+window.useRaw = useRaw;
+window.useClean = useClean;
+window.undo = undo;
+window.setBrush = setBrush;
+window.setSize = setSize;
+window.prevFrame = prevFrame;
+window.nextFrame = nextFrame;
+window.saveCurrentFrame = saveCurrentFrame;
+window.saveAllEditedFrames = saveAllEditedFrames;
+window.packSpriteSheet = packSpriteSheet;
+window.zoomIn = zoomIn;
+window.zoomOut = zoomOut;
+window.resetZoom = resetZoom;
+
+setBrush("erase");
+
+loadFrameSets().then(() => {
+  applyFrame();
+  requestAnimationFrame(tick);
+});
+</script>
+</body>
+</html>

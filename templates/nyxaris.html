@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/><title>Nyxaris</title>
+<style>
+:root{ color-scheme:dark;}
+body{margin:0;background:#0f0f1a;color:white;font-family:system-ui,sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+.character{display:flex;justify-content:center;align-items:flex-end;flex:1;overflow:hidden;}
+.character img{max-height:100%;max-width:clamp(260px,50vw,650px);width:auto;object-fit:contain;}
+.dialogue{background:#1a1a2e;border-top:3px solid #00d4ff;padding:16px;box-sizing:border-box;width:100%;flex-shrink:0;}
+.dialogue-header{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.name{font-weight:800;color:#00d4ff;}
+#phase{color:#ffa6ff;font-size:.8rem;}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin:.5rem 0;}
+input{padding:10px;border-radius:10px;border:none;flex:3;min-width:200px;}
+button{padding:10px;border-radius:10px;background:#00d4ff;color:#081218;font-weight:800;border:none;cursor:pointer;}
+#loading{display:none;margin-top:.3rem;color:#aab;}
+.dev{margin-top:.6rem;border-radius:12px;background:#090b18;padding:12px;font-size:.8rem;}
+textarea{width:100%;min-height:80px;background:#090b18;color:#eaf0fb;border-radius:10px;padding:10px;font-family:ui-monospace,monospace;}
+</style></head>
+<body>
+
+<div class="character">
+<img id="nyx-img" src="{{ url_for('static', filename='neutral.png') }}" alt="avatar"/>
+</div>
+
+<div class="dialogue">
+
+<div class="dialogue-header">
+<div class="name">Nyxaris</div>
+<div id="phase">phase: scanning…</div>
+</div>
+<div style="opacity:.74;font-size:.85rem;"><a href="/" style="color:#8ddcff;">dashboard</a> · <a href="/skeletal-animator" style="color:#8ddcff;">skeletal animator</a> · needs Ollama <code>http://localhost:11434</code> <span id="ollama-status" style="margin-left: 12px; font-weight: bold;">checking Ollama…</span></div>
+
+<div id="reply">Speak when ready.</div>
+
+<div class="controls">
+<input id="msg" placeholder="Talk to Nyxaris…"/>
+<button type="button" onclick="send()">send</button>
+<select id="mode"><option value="idle">idle</option><option value="combat">combat</option><option value="story">story</option></select>
+<select id="level">
+  <option value="Ancient Village">Ancient Village</option>
+  <option value="Cave Network">Cave Network</option>
+  <option value="Dojo Gate">Dojo Gate</option>
+</select>
+<code style="opacity:.7;">trust</code>
+<input style="flex:0;width:90px;" type="number" step="0.05" min="0" max="1" value="0.5" id="trust"/>
+</div>
+<div id="sprite-key-display" style="color:#00d4ff; font-size:.8rem; margin-top: 4px;">sprite_key: calm_neutral_neutral</div>
+<div id="loading">conjuring glyphs…</div>
+
+<div class="dev">
+<details>
+<summary style="cursor:pointer;"><strong>Nyxaris dev-assistant</strong></summary>
+<textarea id="devtopic" placeholder="Topic: biome, boss gimmick ideas, whatever…"></textarea>
+<button type="button" onclick="devDump()">JSON generation</button>
+<pre id="devout" style="max-height:200px;overflow:auto;font-size:.71rem;"></pre>
+</details>
+</div>
+
+</div>
+
+<script>
+const emotionMap = {
+ neutral: "{{ url_for('static', filename='neutral.png') }}",
+ "cutely-annoyed": "{{ url_for('static', filename='cutely-annoyed.png') }}",
+ explaining: "{{ url_for('static', filename='explaining.png') }}",
+};
+
+async function send(){
+ const msg=document.getElementById("msg").value;
+ if(!msg) return;
+ document.getElementById("loading").style.display="block";
+ const res = await fetch("/nyxaris",{
+  method:'POST',
+  headers:{'Content-Type':'application/json'},
+  body: JSON.stringify({
+   message: msg,
+   mode: document.getElementById('mode').value,
+   trust: parseFloat(document.getElementById('trust').value||'0.5'),
+   level: document.getElementById('level').value,
+  }),
+ });
+ let data={};
+ try{ data = await res.json(); }
+ catch{_=> data={}}
+
+ document.getElementById("loading").style.display='none';
+
+ if(data.error) document.getElementById("reply").textContent=data.error+" — check Ollama / model slug.";
+ else document.getElementById("reply").textContent = data.response || '…';
+
+ if(data.evolution){
+  document.getElementById("phase").textContent = `phase: ${data.evolution.phase||'?'} (${(data.evolution.corruption*100)||0}% corruption)`;
+ }
+
+ if(data.sprite_key){
+  document.getElementById("sprite-key-display").textContent = `sprite_key: ${data.sprite_key}`;
+ }
+
+ let emotion = 'neutral';
+ if (data.sprite_key) {
+  const parts = data.sprite_key.split('_');
+  if (parts.length >= 2) emotion = parts[1];
+ }
+ document.getElementById('nyx-img').src = emotionMap[emotion]||emotionMap.neutral;
+}
+
+async function devDump(){
+ document.getElementById("devout").textContent = await fetch('/api/nyxaris/dev-assist',{
+  method:'POST',
+  headers:{'Content-Type':'application/json'},
+  body: JSON.stringify({topic: document.getElementById('devtopic').value})
+ }).then(r=>r.text());
+}
+
+async function checkOllama() {
+  try {
+    const res = await fetch("/api/nyxaris/status");
+    const data = await res.json();
+    const badge = document.getElementById("ollama-status");
+    if (data.ollama_running) {
+      if (data.has_nyxaris) {
+        badge.innerHTML = "🟢 Ollama Connected (Nyxaris Model Ready)";
+        badge.style.color = "#3dff9a";
+      } else {
+        badge.innerHTML = "🟡 Ollama Connected (Model 'nyxaris' missing) <button onclick='pullModel()' style='padding:2px 6px; font-size:0.75rem; background:#ffd84d; border:none; border-radius:4px; cursor:pointer;'>Install Model</button>";
+        badge.style.color = "#ffd84d";
+      }
+    } else {
+      badge.innerHTML = "🔴 Ollama Offline (Run Ollama local server)";
+      badge.style.color = "#ff4d4d";
+    }
+  } catch(e) {
+    document.getElementById("ollama-status").innerHTML = "🔴 Connection error";
+    document.getElementById("ollama-status").style.color = "#ff4d4d";
+  }
+}
+
+async function pullModel() {
+  document.getElementById("ollama-status").innerHTML = "⏳ Installing model 'nyxaris' in background...";
+  await fetch("/api/nyxaris/pull", {method:"POST"});
+}
+
+checkOllama();
+document.getElementById('phase').textContent = 'listening — whisper when ready.';
+ </script></body></html>

@@ -1,0 +1,22 @@
+{
+  "id": "normalfemalesamuraiidle-f9f03502",
+  "slug": "normalfemalesamuraiidle",
+  "label": "normalfemalesamuraiidle",
+  "video_source": "source.MP4",
+  "frame_interval_sec": 0.05,
+  "extract_stats": {
+    "frame_count": 25,
+    "source_frames_read": 25,
+    "effective_fps_estimate": 24.311183144246353,
+    "stride": 1,
+    "interval_requested_sec": 0.05,
+    "duration_approx_sec": 1.0283333333333333,
+    "pattern": "frame_%03d.png"
+  },
+  "raw_frame_count": 25,
+  "clean_frame_count": 25,
+  "frame_pattern": "frame_%03d.png",
+  "updated_at": "2026-07-30T13:57:49.346087+00:00",
+  "video_relpath": "source.MP4",
+  "bg_removal_method": "rembg"
+}

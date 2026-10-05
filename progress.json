@@ -1,0 +1,288 @@
+{
+  "categories": [
+    {
+      "id": "launch-readiness",
+      "tasks": [
+        {
+          "completed": true,
+          "id": "launch-1",
+          "label": "Mobile Virtual Touch Controls & Joystick Simulation (D-pad / Buttons for Dash, Melee, Spear, Blob)"
+        },
+        {
+          "completed": true,
+          "id": "launch-2",
+          "label": "Save Point & Checkpoint System Integration (Automatic checkpoint save and scene respawn validation)"
+        },
+        {
+          "completed": true,
+          "id": "launch-3",
+          "label": "CaveScene Merchant NPC & Shop Setup (Subterranean camp dialogue, items, and currency exchange)"
+        },
+        {
+          "completed": true,
+          "id": "launch-4",
+          "label": "Arcade Vault & Mini-Games Overhaul (GPU CRT/Neon bloom shader, Bilinear filtering, and coin rewards)"
+        },
+        {
+          "completed": false,
+          "id": "launch-5",
+          "label": "Polishing Nyxaris AI (Contextual awareness, cave & boss victory dialogue triggers, fast response fallback)"
+        },
+        {
+          "completed": true,
+          "id": "launch-6",
+          "label": "Ads & Monetization Integration (Rewarded revival ads & banner placement)"
+        },
+        {
+          "completed": false,
+          "id": "launch-7",
+          "label": "Complete Sound Effects & Cavern Atmosphere Pass (Footstep variants, spider screeches, ambient drips)"
+        },
+        {
+          "completed": false,
+          "id": "launch-8",
+          "label": "End-to-End Game Flow & Victory Loop (TutorialScene \u2794 MountainPath \u2794 Dojo 1 \u2794 Dojo 2 \u2794 CaveScene \u2794 Victory Screen)"
+        },
+        {
+          "completed": false,
+          "id": "launch-9",
+          "label": "General Cleanups & Asset Optimization (ASTC texture compression, sprite atlasing, memory GC check)"
+        },
+        {
+          "completed": false,
+          "id": "launch-10",
+          "label": "Final Standalone Build Verification (Android APK & Windows Executable export)"
+        }
+      ],
+      "title": "\ud83d\ude80 LAUNCH & RELEASE READINESS"
+    },
+    {
+      "id": "character",
+      "tasks": [
+        {
+          "completed": true,
+          "id": "character-1",
+          "label": "Polish mage girl idle animation"
+        },
+        {
+          "completed": true,
+          "id": "character-2",
+          "label": "Polish mage attack animation set"
+        },
+        {
+          "completed": true,
+          "id": "character-3",
+          "label": "Add dodge / dash animation"
+        },
+        {
+          "completed": true,
+          "id": "character-4",
+          "label": "Blob transformation & narrow crawlspace morphing"
+        },
+        {
+          "completed": true,
+          "id": "character-5",
+          "label": "Lumi Blue-Magic Spear system (throw, wall embed, perch, drag)"
+        },
+        {
+          "completed": true,
+          "id": "character-6",
+          "label": "Lumi companion spirit (squash & stretch, shield, follow physics)"
+        }
+      ],
+      "title": "\ud83c\udfad Character & Animation"
+    },
+    {
+      "id": "combat",
+      "tasks": [
+        {
+          "completed": true,
+          "id": "combat-1",
+          "label": "Mage combat moveset (basic + advanced attacks)"
+        },
+        {
+          "completed": true,
+          "id": "combat-2",
+          "label": "Enemy wave system implementation (Dojo 1 & Dojo 2)"
+        },
+        {
+          "completed": true,
+          "id": "combat-3",
+          "label": "Samurai & Strawhat enemy AI variants (Fat Strawhat, Female Whip, Sparring AI)"
+        },
+        {
+          "completed": true,
+          "id": "combat-4",
+          "label": "Boss fight: Tsuchigumo (3-Phase State Machine, Boulders, Web Shots, Stun Knockdown)"
+        },
+        {
+          "completed": true,
+          "id": "combat-5",
+          "label": "Hit feedback juice (Hitstop, Pure White Flash, Impact Frames, Floating Numbers)"
+        }
+      ],
+      "title": "\u2694\ufe0f COMBAT SYSTEM"
+    },
+    {
+      "id": "world",
+      "tasks": [
+        {
+          "completed": true,
+          "id": "world-1",
+          "label": "Ancient Japanese village (Level 1 town / MountainPath)"
+        },
+        {
+          "completed": true,
+          "id": "world-2",
+          "label": "Path to first clan dojo"
+        },
+        {
+          "completed": true,
+          "id": "world-3",
+          "label": "First clan dojo interior (Strawhat arena)"
+        },
+        {
+          "completed": true,
+          "id": "world-4",
+          "label": "Path to second clan dojo"
+        },
+        {
+          "completed": true,
+          "id": "world-5",
+          "label": "Second dojo interior (Samurai arena)"
+        },
+        {
+          "completed": true,
+          "id": "world-6",
+          "label": "Tsuchigumo cave entrance + vertical shaft + subterranean cavity"
+        },
+        {
+          "completed": true,
+          "id": "world-7",
+          "label": "Interactive physics hazards (Spring water, crumbling platforms, spike platforms)"
+        }
+      ],
+      "title": "\u26e9\ufe0f WORLD BUILDING & LEVEL GEOMETRY"
+    },
+    {
+      "id": "ui",
+      "tasks": [
+        {
+          "completed": true,
+          "id": "ui-1",
+          "label": "Cyber-Gothic Pause Menu (Frameless glassmorphic design)"
+        },
+        {
+          "completed": true,
+          "id": "ui-2",
+          "label": "HUD system (Player Health, Mana, Boss Health Bar, Damage Popups)"
+        },
+        {
+          "completed": true,
+          "id": "ui-3",
+          "label": "Shop UI system & Currency inventory display"
+        },
+        {
+          "completed": true,
+          "id": "ui-4",
+          "label": "UI Toolkit Title Screen (120-frame logo animation + settings modal)"
+        }
+      ],
+      "title": "\ud83d\udda5\ufe0f UI & HUD SYSTEMS"
+    },
+    {
+      "id": "npc",
+      "tasks": [
+        {
+          "completed": true,
+          "id": "npc-1",
+          "label": "Create NPCs for direction + lore drops"
+        },
+        {
+          "completed": true,
+          "id": "npc-2",
+          "label": "Implement dialogue interaction system (NPCDialogueUI)"
+        },
+        {
+          "completed": true,
+          "id": "npc-3",
+          "label": "Nyxaris Companion AI dialogue engine & responsive chat panel"
+        },
+        {
+          "completed": false,
+          "id": "npc-4",
+          "label": "Subterranean hermit / merchant dialogue tree in CaveScene"
+        }
+      ],
+      "title": "\ud83e\udde0 NPC & DIALOGUE SYSTEM"
+    },
+    {
+      "id": "shop",
+      "tasks": [
+        {
+          "completed": true,
+          "id": "shop-1",
+          "label": "In-game shop in village"
+        },
+        {
+          "completed": true,
+          "id": "shop-2",
+          "label": "Currency system (Coin drops & pickups)"
+        },
+        {
+          "completed": true,
+          "id": "shop-3",
+          "label": "Buyable items: Healing potions & Mana refills"
+        },
+        {
+          "completed": false,
+          "id": "shop-4",
+          "label": "Buyable power-ups (Damage boost, Spear range, Shield capacity)"
+        }
+      ],
+      "title": "\ud83d\uded2 SHOP & ECONOMY"
+    },
+    {
+      "id": "audio",
+      "tasks": [
+        {
+          "completed": true,
+          "id": "audio-1",
+          "label": "Background music for village & mountain path"
+        },
+        {
+          "completed": true,
+          "id": "audio-2",
+          "label": "Combat music for dojos and Tsuchigumo boss fight"
+        },
+        {
+          "completed": false,
+          "id": "audio-3",
+          "label": "Comprehensive SFX pass for all attacks, impacts, and UI clicks"
+        }
+      ],
+      "title": "\ud83d\udd0a AUDIO & POLISH"
+    },
+    {
+      "id": "movement",
+      "tasks": [
+        {
+          "completed": true,
+          "id": "movement-1",
+          "label": "Dynamic slope & wall jump physics"
+        },
+        {
+          "completed": true,
+          "id": "movement-2",
+          "label": "Start Dash Run & double-tap sprint"
+        },
+        {
+          "completed": true,
+          "id": "movement-3",
+          "label": "Falling state machine & ground impact reactions"
+        }
+      ],
+      "title": "\ud83c\udf0d MOVEMENT SYSTEM"
+    }
+  ]
+}

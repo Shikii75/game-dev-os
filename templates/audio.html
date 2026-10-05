@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Audio Hub</title>
+<style>
+:root{--bg:#0c0e12;--surface:#141820;--border:#252d3a;--accent:#ffd84d;--txt:#eaf0fb;}
+body{margin:0;background:var(--bg);font-family:system-ui;color:var(--txt);}
+header{padding:1rem;background:var(--surface);border-bottom:1px solid var(--border);} a{color:#8dd7ff;}
+main{max-width:960px;margin:1rem auto;padding:0 .9rem;display:grid;gap:14px;}
+fieldset{border-radius:12px;background:var(--surface);border:1px solid var(--border);}
+pre{background:#090a0c;border-radius:8px;padding:.6rem;font-size:.75rem;}
+label{font-size:.8rem;color:#9aaabe;}
+button{background:var(--accent);border:none;color:#261800;font-weight:800;padding:.45rem .8rem;border-radius:10px;cursor:pointer;}
+input,select{border-radius:8px;background:#090c12;color:var(--txt);border:1px solid var(--border);padding:6px;margin-top:.25rem;width:calc(100% - 14px);}
+</style>
+</head>
+<body>
+<header><strong>Audio hub</strong> · <a href="/">dashboard</a> · <a href="/skeletal-animator">skeletal animator</a> · <a href="/assets">assets</a></header>
+<main>
+<fieldset>
+<legend>Categorized uploads</legend>
+<form id="up"><label>WAV category<select name="cat"><option>ui</option><option>combat</option><option>ambient</option></select></label><input type="file" name="f" accept="audio/*"/><button type="submit">Upload</button></form></fieldset>
+
+<fieldset>
+<legend>Placeholder generator batch</legend>
+<form id="gen">
+<label>Preset slug<input id="pst" placeholder="dungeon-click"/></label>
+<label>Nyx glitch ambient qty<input id="nx" type="number" min="0" value="3"/></label>
+<label>UI beeps qty<input id="ui" type="number" min="0" value="6"/></label>
+<label>Combat hits qty<input id="cb" type="number" min="0" value="4"/></label>
+<button type="submit">Bake WAVs into storage/audio/generated/</button>
+</form>
+<pre id="gout"></pre>
+</fieldset>
+
+<fieldset><legend>Explorer</legend><button type="button" id="reload">Reload JSON dump</button><pre id="dump"></pre></fieldset>
+</main>
+<script>
+document.getElementById("up").onsubmit = async (e)=>{
+  e.preventDefault();
+  const fd = new FormData();
+  fd.append("kind","audio");
+  fd.append("audio_category", document.querySelector('[name="cat"]').value);
+  fd.append("slug", "import");
+  fd.append("file", document.querySelector('[name="f"]').files[0]);
+  await fetch("/api/assets/upload",{method:'POST', body: fd});
+};
+
+document.getElementById("gen").onsubmit = async (e)=>{
+  e.preventDefault();
+  document.getElementById("gout").textContent = await fetch('/api/audio/generate',{
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      preset: document.getElementById("pst").value || "dungeon",
+      nyx_ambient: parseInt(document.getElementById("nx").value,10)||0,
+      ui: parseInt(document.getElementById("ui").value,10)||0,
+      combat: parseInt(document.getElementById("cb").value,10)||0,
+    })
+  }).then(r=>r.text());
+};
+
+document.getElementById("reload").onclick = async ()=>{
+  document.getElementById("dump").textContent = JSON.stringify(await fetch("/api/media/list/audio").then(r=>r.json()), null, 2);
+};
+document.getElementById("reload").click();
+
+</script>
+</body></html>

@@ -1,0 +1,26 @@
+{
+  "id": "ai_attack_390943-dfada396",
+  "slug": "ai_attack_390943",
+  "label": "AI Attack: Test Slash",
+  "video_source": null,
+  "frame_interval_sec": null,
+  "extract_stats": {},
+  "raw_frame_count": 4,
+  "clean_frame_count": 4,
+  "frame_pattern": "frame_%03d.png",
+  "updated_at": "2026-07-27T12:50:22.102318+00:00",
+  "prompt": "Test Slash",
+  "motion_type": "attack",
+  "source_image": null,
+  "sprite_sheet": "/outputs/ai_attack_390943_spritesheet.png",
+  "pack_details": {
+    "sprite_sheet_path": "c:\\Users\\tyram\\Desktop\\game\\outputs\\ai_attack_390943_spritesheet.png",
+    "total_frames": 4,
+    "columns": 2,
+    "rows": 2,
+    "cell_width": 256,
+    "cell_height": 256,
+    "sheet_width": 512,
+    "sheet_height": 512
+  }
+}

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="cosmic">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Game Dev OS — Tracker</title>
+  {% include 'partials/head_assets.html' %}
+  <style>
+    .tracker-shell { padding: 1.5rem; }
+    .tracker-header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; align-items: center; margin-bottom: 1.5rem; }
+    .tracker-header h2 { margin: 0; font-size: 1.5rem; letter-spacing: 0.02em; }
+    .tracker-header p { margin: 0.25rem 0 0; color: var(--muted); }
+    .tracker-panel { display: grid; gap: 1rem; grid-template-columns: 1fr 320px; }
+    .tracker-main { display: grid; gap: 1rem; }
+    .tracker-card { background: var(--surface-2); border: 1px solid rgba(146, 104, 255, 0.12); border-radius: 18px; padding: 1.25rem; box-shadow: 0 16px 45px rgba(0,0,0,0.14); }
+    .tracker-card h3 { margin: 0 0 0.5rem; font-size: 1.05rem; }
+    .tracker-card small { color: var(--muted); }
+    .tracker-master-bar { display: grid; gap: 0.75rem; }
+    .tracker-master-bar .bar-wrapper { background: rgba(134, 91, 255, 0.12); border-radius: 999px; overflow: hidden; height: 18px; }
+    .tracker-master-bar .bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #9f7aea 0%, #7c3aed 100%); transform: translateX(-100%); transition: width 280ms ease; }
+    .tracker-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+    .tracker-actions button { padding: 0.85rem 1rem; border-radius: 999px; border: 1px solid rgba(124, 58, 237, 0.3); background: transparent; color: var(--text); cursor: pointer; transition: background 200ms ease, transform 200ms ease; }
+    .tracker-actions button:hover { background: rgba(124, 58, 237, 0.16); transform: translateY(-1px); }
+    .category-card { background: var(--surface); border: 1px solid rgba(146, 104, 255, 0.08); border-radius: 18px; overflow: hidden; }
+    .category-header { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; cursor: pointer; background: rgba(146, 104, 255, 0.02); }
+    .category-header h3 { margin: 0; font-size: 1rem; }
+    .category-header span { color: var(--muted); font-size: 0.85rem; }
+    .category-body { padding: 0 1.25rem 1rem; display: grid; gap: 1rem; }
+    .category-progress { height: 10px; border-radius: 999px; background: rgba(146, 104, 255, 0.12); overflow: hidden; }
+    .category-progress .fill { height: 100%; width: 0%; background: linear-gradient(90deg, #7c3aed 0%, #d8b4fe 100%); transition: width 260ms ease; }
+    .task-row { display: grid; grid-template-columns: auto 1fr auto; gap: 0.75rem; align-items: start; padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .task-row:last-child { border-bottom: none; }
+    .task-label { display: grid; gap: 0.35rem; }
+    .task-label strong { display: block; font-size: 0.95rem; }
+    .task-label small { color: var(--muted); }
+    .task-checkbox { width: 18px; height: 18px; accent-color: #a78bfa; cursor: pointer; }
+    .subtask-list { padding-left: 1.75rem; display: grid; gap: 0.5rem; }
+    .subtask { display: flex; align-items: center; gap: 0.75rem; color: var(--muted); }
+    .subtask label { display: flex; align-items: center; gap: 0.75rem; width: 100%; }
+    .collapsed .category-body { display: none; }
+    .hidden-completed .task-row.completed { opacity: 0.28; display: none; }
+    .hidden-completed .subtask.completed { opacity: 0.28; display: none; }
+    .badge { padding: 0.25rem 0.55rem; border-radius: 999px; background: rgba(124, 58, 237, 0.16); color: #d8b4fe; font-size: 0.75rem; }
+  </style>
+</head>
+<body class="gdos-shell">
+<header class="gdos-header">
+  <div class="gdos-brand">
+    <img src="{{ url_for('static', filename='brand/logo-mark.svg') }}" alt="">
+    <div>
+      <h1>TRACKER</h1>
+      <span class="sub">Spawn of Chaos development progress</span>
+    </div>
+  </div>
+  <div class="gdos-header-actions">
+    {% include 'partials/theme_select.html' %}
+    <a class="gdos-btn ghost" href="{{ url_for('dashboard') }}">Back to dashboard</a>
+  </div>
+</header>
+<nav class="gdos-nav">
+  <div class="nav-label">Workspaces</div>
+  <a href="/dashboard">Overview</a>
+  <a class="active" href="/tracker">Tracker</a>
+  <a href="/assets">Asset brain</a>
+  <a href="/animations">Animation pipeline</a>
+  <a href="/skeletal-animator">Skeletal Animator</a>
+  <a href="/audio-hub">Audio hub</a>
+  <a href="/images">Image hub</a>
+  <a href="/styles">Style presets</a>
+  <a href="/status-board">Status &amp; progress</a>
+  <a href="/script-setup">Script Setup</a>
+  <a href="/prompt-planner">Prompt Planner</a>
+  <a href="/character-builder">Character Builder</a>
+  <div class="nav-label">Tools</div>
+  <a href="{{ url_for('tool') }}">Sprite / BG remover</a>
+  <a href="/audio-extractor">Audio Extractor</a>
+  <a href="/nyxaris-chat">Nyxaris</a>
+  <div class="nav-label">Export</div>
+  <a href="/export/unity">Unity .zip</a>
+  <a href="/export/full">Full snapshot .zip</a>
+</nav>
+<main class="gdos-main tracker-shell">
+  <div class="tracker-panel">
+    <div class="tracker-main">
+      <div class="tracker-card tracker-master-bar">
+        <div class="tracker-header">
+          <div>
+            <h2>Development progress</h2>
+            <p>Track monthly game dev work across all teams and systems.</p>
+          </div>
+          <span class="badge" id="masterPercent">0%</span>
+        </div>
+        <div class="bar-wrapper"><div class="bar-fill" id="masterFill"></div></div>
+        <div class="tracker-actions">
+          <button id="resetBtn">Reset progress</button>
+          <button id="focusBtn">Focus mode</button>
+        </div>
+      </div>
+      <div id="categories"></div>
+    </div>
+    <div class="tracker-card">
+      <h3>How it works</h3>
+      <p>Use the project tracker to close tasks, review completion rates, and stay focused on the next game cycle.</p>
+      <p>Categories are weighted by task count and the master completion updates automatically.</p>
+      <p>Completed tasks are saved automatically in <code>progress.json</code>.</p>
+    </div>
+  </div>
+</main>
+<script>
+const trackerApi = '/api/tracker/progress';
+const defaultState = {
+  categories: [
+    { id: 'character', title: '🎭 Character & Animation', tasks: [
+      { id: 'character-1', label: 'Polish mage girl idle animation', completed: false },
+      { id: 'character-2', label: 'Polish mage attack animation set', completed: false },
+      { id: 'character-3', label: 'Add dodge / dash animation', completed: false }
+    ]},
+    { id: 'npc', title: '🧠 NPC & Dialogue System', tasks: [
+      { id: 'npc-1', label: 'Create NPCs for direction + lore drops', completed: false },
+      { id: 'npc-2', label: 'Implement dialogue interaction system', completed: false },
+      { id: 'npc-3', label: 'Add story hints for Nyxaris system', completed: false }
+    ]},
+    { id: 'ui', title: '🖥️ UI SYSTEMS', tasks: [
+      { id: 'ui-1', label: 'Pause menu UI', completed: false },
+      { id: 'ui-2', label: 'Health bar UI (player + enemies)', completed: false },
+      { id: 'ui-3', label: 'Shop UI system', completed: false }
+    ]},
+    { id: 'world', title: '🏯 WORLD BUILDING', tasks: [
+      { id: 'world-1', label: 'Ancient Japanese village (Level 1 town)', completed: false },
+      { id: 'world-2', label: 'Path to first clan dojo', completed: false },
+      { id: 'world-3', label: 'First clan dojo interior', completed: false },
+      { id: 'world-4', label: 'Path to second clan dojo', completed: false },
+      { id: 'world-5', label: 'Second dojo interior', completed: false },
+      { id: 'world-6', label: 'Tsuchigumo cave entrance + structure', completed: false }
+    ]},
+    { id: 'combat', title: '⚔️ COMBAT SYSTEM', tasks: [
+      { id: 'combat-1', label: 'Mage combat moveset (basic + advanced attacks)', completed: false },
+      { id: 'combat-2', label: 'Enemy wave system implementation', completed: false },
+      { id: 'combat-3', label: 'Spider enemy variants (at least 3 types)', completed: false },
+      { id: 'combat-4', label: 'Boss fight: Tsuchigumo', completed: false }
+    ]},
+    { id: 'shop', title: '🛒 SHOP SYSTEM', tasks: [
+      { id: 'shop-1', label: 'In-game shop in village', completed: false },
+      { id: 'shop-2', label: 'Currency system', completed: false },
+      { id: 'shop-3', label: 'Buyable items: Healing potions', completed: false },
+      { id: 'shop-4', label: 'Buyable items: Small power-ups (damage boost, speed boost)', completed: false }
+    ]},
+    { id: 'audio', title: '🔊 AUDIO & POLISH', tasks: [
+      { id: 'audio-1', label: 'Background music for village', completed: false },
+      { id: 'audio-2', label: 'Combat music for boss fight', completed: false },
+      { id: 'audio-3', label: 'Sound effects system (attacks, UI, hits)', completed: false }
+    ]},
+    { id: 'movement', title: '🌍 MOVEMENT SYSTEM (ADVANCED - OPTIONAL)', tasks: [
+      { id: 'movement-1', label: 'Dynamic climbing', completed: false },
+      { id: 'movement-2', label: 'Smoother walking animation blending', completed: false },
+      { id: 'movement-3', label: 'Improved jump physics', completed: false }
+    ]}
+  ]
+};
+let state = null;
+let focusMode = false;
+
+async function fetchState() {
+  try {
+    const res = await fetch(trackerApi);
+    if (!res.ok) throw new Error('Load failed');
+    state = await res.json();
+  } catch (error) {
+    state = defaultState;
+    saveState();
+  }
+}
+
+async function saveState() {
+  try {
+    await fetch(trackerApi, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(state) });
+  } catch (error) {
+    console.warn('Unable to save tracker state', error);
+  }
+}
+
+function calculatePercent(items) {
+  if (!items.length) return 0;
+  const done = items.filter(item => item.completed).length;
+  return Math.round(done / items.length * 100);
+}
+
+function calculateMasterPercent() {
+  const counts = state.categories.flatMap(cat => cat.tasks);
+  return calculatePercent(counts);
+}
+
+function renderCategories() {
+  const container = document.getElementById('categories');
+  container.innerHTML = '';
+  state.categories.forEach(category => {
+    const progress = calculatePercent(category.tasks);
+    const categoryCard = document.createElement('section');
+    categoryCard.className = 'category-card';
+    categoryCard.innerHTML = `
+      <div class="category-header">
+        <div>
+          <h3>${category.title}</h3>
+          <span>${progress}% complete</span>
+        </div>
+        <span class="badge">${category.tasks.filter(t => t.completed).length}/${category.tasks.length}</span>
+      </div>
+      <div class="category-body">
+        <div class="category-progress"><div class="fill" style="width:${progress}%"></div></div>
+        <div class="task-list"></div>
+      </div>
+    `;
+    const header = categoryCard.querySelector('.category-header');
+    const body = categoryCard.querySelector('.category-body');
+    header.addEventListener('click', () => {
+      categoryCard.classList.toggle('collapsed');
+    });
+    const taskList = categoryCard.querySelector('.task-list');
+    category.tasks.forEach(task => {
+      const taskRow = document.createElement('div');
+      taskRow.className = 'task-row' + (task.completed ? ' completed' : '');
+      if (focusMode && task.completed) taskRow.style.display = 'none';
+      taskRow.innerHTML = `
+        <label class="task-label">
+          <strong>${task.label}</strong>
+          <small>${task.subtasks ? task.subtasks.length + ' subtasks available' : 'Click to mark as done'}</small>
+        </label>
+        <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} data-task="${task.id}">
+      `;
+      taskList.appendChild(taskRow);
+      taskRow.querySelector('input').addEventListener('change', (event) => {
+        task.completed = event.target.checked;
+        renderPage();
+        saveState();
+      });
+      if (task.subtasks && task.subtasks.length) {
+        const subtaskList = document.createElement('div');
+        subtaskList.className = 'subtask-list';
+        task.subtasks.forEach(subtask => {
+          const subtaskRow = document.createElement('div');
+          subtaskRow.className = 'subtask' + (subtask.completed ? ' completed' : '');
+          if (focusMode && subtask.completed) subtaskRow.style.display = 'none';
+          subtaskRow.innerHTML = `
+            <label><input type="checkbox" ${subtask.completed ? 'checked' : ''} data-subtask="${subtask.id}"><span>${subtask.label}</span></label>
+          `;
+          subtaskList.appendChild(subtaskRow);
+          subtaskRow.querySelector('input').addEventListener('change', (event) => {
+            subtask.completed = event.target.checked;
+            renderPage();
+            saveState();
+          });
+        });
+        taskList.appendChild(subtaskList);
+      }
+    });
+    container.appendChild(categoryCard);
+  });
+}
+
+function renderPage() {
+  const percent = calculateMasterPercent();
+  document.getElementById('masterPercent').textContent = `${percent}%`;
+  document.getElementById('masterFill').style.width = `${percent}%`;
+  renderCategories();
+}
+
+function toggleFocus() {
+  focusMode = !focusMode;
+  document.getElementById('focusBtn').textContent = focusMode ? 'Exit focus' : 'Focus mode';
+  renderPage();
+}
+
+function resetProgress() {
+  if (!confirm('Reset all tracker progress?')) return;
+  state = JSON.parse(JSON.stringify(defaultState));
+  saveState();
+  renderPage();
+}
+
+window.addEventListener('DOMContentLoaded', async () => {
+  await fetchState();
+  renderPage();
+  document.getElementById('focusBtn').addEventListener('click', toggleFocus);
+  document.getElementById('resetBtn').addEventListener('click', resetProgress);
+});
+</script>
+</body>
+</html>

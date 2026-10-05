@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.Python
+*.egg-info/
+
+# Storage & Uploads (Keeps cloud deployment fast and lightweight)
+uploads/*
+!uploads/.gitkeep
+outputs/*
+!outputs/.gitkeep
+storage/audio/*
+!storage/audio/.gitkeep
+storage/videos/*
+!storage/videos/.gitkeep
+data/audio_slicer_cache/
+
+# OS and Editors
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+.vscode/
+.idea/

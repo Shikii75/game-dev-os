@@ -1,0 +1,19 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><title>Style presets</title>
+<style>
+:root{--bg:#0c0f12;--c:#171b22;--a:#ffa6ff;color-scheme:dark;} body{margin:0;background:var(--bg);font-family:system-ui;color:#e8eaf0;} header{padding:.9rem 1rem;background:var(--c);border-bottom:1px solid #2f3847;}main{max-width:820px;margin:1rem auto;padding:0 .7rem;display:grid;gap:14px;} fieldset{border:1px solid #2f3746;border-radius:12px;background:var(--c);padding:12px;} input, textarea{width:100%;box-sizing:border-box;border-radius:8px;background:#090b10;color:#eaf0fb;border:1px solid #2e3645;padding:.45rem;} button{margin-top:.5rem;background:var(--a);border:none;color:#250016;font-weight:800;padding:.42rem .7rem;border-radius:10px;cursor:pointer;} a{color:#71dfff;}
+</style></head><body><header><strong>Style tagging</strong> · <a href="/">dash</a></header>
+<main>
+<fieldset><legend>Create / overwrite preset</legend>
+<form id="f"><label>Name<input name="nm" placeholder="Inkborne"/></label><label>comma tags<input name="tg" placeholder="cel, bold lines"/></label><label>Rules textarea<textarea name="rules" rows="6" placeholder="Always keep rim lighting magenta..."></textarea></label><button>Save preset</button></form></fieldset>
+<fieldset><legend>Stored</legend><pre id="lis">{{ presets | tojson(indent=2) }}</pre></fieldset>
+</main>
+<script>
+document.getElementById("f").onsubmit = async(e)=>{
+ e.preventDefault();
+ const fd=new FormData(e.target);
+ const body={name:fd.get('nm'), tags:String(fd.get('tg')).split(',').map(x=>x.trim()).filter(Boolean), rules: fd.get('rules')};
+ await fetch('/api/styles',{method:'POST',headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
+ window.location.reload();
+};
+</script>
+</body></html>
