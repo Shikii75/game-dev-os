@@ -7,12 +7,12 @@
     "pipeline_runs": 0,
     "companion_chats": 0,
     "companion_dev_calls": 0,
-    "ai_animations_generated": 0
+    "animations_generated": 0
   },
   "companion": {
-    "corruption": 0.0,
+    "trust": 0.5,
     "interaction_count": 0,
-    "phase": "calm"
+    "phase": "neutral"
   },
   "styles": [],
   "interaction_log_sample": []

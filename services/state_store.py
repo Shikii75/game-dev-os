@@ -1,4 +1,4 @@
-"""Persistent JSON game state (progress + Nyxaris evolution + styles)."""
+"""Persistent JSON game state (pipeline metrics + companion interaction + styles)."""
 
 from __future__ import annotations
 
@@ -21,14 +21,12 @@ DEFAULT_STATE = {
         "pipeline_runs": 0,
         "companion_chats": 0,
         "companion_dev_calls": 0,
-        "nyxaris_chats": 0,
-        "nyxaris_dev_calls": 0,
     },
-    "companion": {"corruption": 0.0, "interaction_count": 0, "phase": "calm"},
-    "nyxaris": {"corruption": 0.0, "interaction_count": 0, "phase": "calm"},
+    "companion": {"trust": 0.5, "interaction_count": 0, "phase": "calm"},
     "styles": [],
     "interaction_log_sample": [],
 }
+
 
 _lock = threading.Lock()
 
@@ -48,8 +46,8 @@ def load_state() -> dict:
     merged.update(data)
     if "counts" in data:
         merged["counts"] = {**DEFAULT_STATE["counts"], **data["counts"]}
-    if "nyxaris" in data:
-        merged["nyxaris"] = {**DEFAULT_STATE["nyxaris"], **data["nyxaris"]}
+    if "companion" in data:
+        merged["companion"] = {**DEFAULT_STATE["companion"], **data["companion"]}
     return merged
 
 
@@ -68,24 +66,27 @@ def bump_counter(key: str, amount: int = 1):
         save_state(s)
 
 
-def nyxaris_update_after_chat(evolution_prompt_suffix: str) -> tuple[float, str, str]:
-    """Advance corruption slightly; returns (corruption, phase, suffix)."""
+def companion_update_after_chat(evolution_prompt_suffix: str = "") -> tuple[float, str, str]:
+    """Advance companion interaction trust/phase slightly; returns (trust, phase, suffix)."""
     with _lock:
         s = load_state()
-        n = s["nyxaris"]
-        corr = float(n.get("corruption", 0.0))
-        n["interaction_count"] = n.get("interaction_count", 0) + 1
-        corr = min(1.0, corr + 0.03 + (n["interaction_count"] % 7) * 0.005)
-        n["corruption"] = corr
-        if corr < 0.35:
-            phase = "calm"
-        elif corr < 0.65:
-            phase = "unstable"
+        comp = s.setdefault("companion", {"trust": 0.5, "interaction_count": 0, "phase": "calm"})
+        trust = float(comp.get("trust", 0.5))
+        comp["interaction_count"] = comp.get("interaction_count", 0) + 1
+        trust = min(1.0, trust + 0.02)
+        comp["trust"] = trust
+        if trust < 0.35:
+            phase = "reserved"
+        elif trust < 0.70:
+            phase = "neutral"
         else:
-            phase = "corrupted"
-        n["phase"] = phase
+            phase = "friendly"
+        comp["phase"] = phase
         save_state(s)
-        return corr, phase, evolution_prompt_suffix
+        return trust, phase, evolution_prompt_suffix
+
+
+nyxaris_update_after_chat = companion_update_after_chat
 
 
 def append_interaction_preview(text: str, max_keep: int = 30):

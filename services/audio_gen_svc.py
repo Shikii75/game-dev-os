@@ -1,4 +1,4 @@
-"""Procedural WAV placeholder SFX generator."""
+"""Procedural WAV placeholder SFX generator with ambient and harmonic layers."""
 
 from __future__ import annotations
 

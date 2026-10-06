@@ -1,4 +1,4 @@
-"""Nyxaris: Ollama chat, dev-assistant structured JSON, evolution-aware prompts."""
+"""Companion: Ollama chat, dev-assistant structured JSON, dialogue generation."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ from .activity import hub as activity_hub
 
 
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434/api/generate")
-DEFAULT_MODEL = os.environ.get("NYX_MODEL", "nyxaris")
+DEFAULT_MODEL = os.environ.get("COMPANION_MODEL", os.environ.get("NYX_MODEL", "companion"))
 
 FALLBACK_DIALOGUES = {
     "calm": {
@@ -51,7 +51,7 @@ FALLBACK_DIALOGUES = {
             {"response": "N-nothingness... Nothing for you.", "emotion": "neutral"},
         ],
         "neutral": [
-            {"response": "The signal is fading... connection interrupted.", "emotion": "neutral"},
+            {"response": "C-chaos is... calling. The connection... breaks.", "emotion": "neutral"},
             {"response": "Glitch... The dark is spilling over. Wait.", "emotion": "explaining"},
         ],
         "close": [
@@ -143,9 +143,9 @@ def _evolution_hints(phase: str, corruption: float) -> str:
 
 def chat(message: str, mode: str = "idle", trust: float = 0.5, model: str | None = None, level: str | None = None) -> dict[str, Any]:
     s = state_store.load_state()
-    n = s.get("nyxaris", {})
+    n = s.get("companion", {})
     phase = n.get("phase", "calm")
-    corruption = float(n.get("corruption", 0.0))
+    corruption = float(n.get("trust", 0.5))
 
     trust_bucket = "neutral"
     if trust > 0.7:
@@ -228,10 +228,10 @@ Player: {message}
         data = random.choice(fallback_choices)
 
     # State updates
-    corr, phase2, _ = state_store.nyxaris_update_after_chat("")
+    corr, phase2, _ = state_store.companion_update_after_chat("")
     state_store.append_interaction_preview(message)
-    state_store.bump_counter("nyxaris_chats")
-    activity_hub.log("nyx_chat", f"{phase2} (Fallback)" if is_fallback else phase2)
+    state_store.bump_counter("companion_chats")
+    activity_hub.log("companion_chat", f"{phase2} (Fallback)" if is_fallback else phase2)
 
     payload = dict(data)
     
@@ -268,8 +268,8 @@ No markdown."""
 
 def dev_assist(topic: str, model: str | None = None) -> dict[str, Any]:
     s = state_store.load_state()
-    n = s.get("nyxaris", {})
-    evo = _evolution_hints(n.get("phase", "calm"), float(n.get("corruption", 0.0)))
+    n = s.get("companion", {})
+    evo = _evolution_hints(n.get("phase", "calm"), float(n.get("trust", 0.5)))
 
     prompt = f"""You assist an indie game designer on an action RPG game with atmospheric combat and world lore.
 
@@ -284,6 +284,6 @@ Topic / direction from designer:
     model_to_use = _resolve_model(model)
     raw = _call_ollama(model_to_use, prompt)
     data = _parse_json_maybe(raw)
-    state_store.bump_counter("nyxaris_dev_calls")
-    activity_hub.log("nyx_dev_assist", topic[:60])
+    state_store.bump_counter("companion_dev_calls")
+    activity_hub.log("companion_dev_assist", topic[:60])
     return data

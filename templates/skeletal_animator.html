@@ -256,7 +256,7 @@
         <select onchange="loadTemplate(this.value)">
           <option value="none">-- Select Template --</option>
           <option value="dark_fantasy_rogue">Dark Fantasy Rogue (Chibi-Dark - NEW!)</option>
-          <option value="strawhat_side">Strawhat Swordsman (Sideview - Tall)</option>
+          <option value="swordsman_side">Agile Swordsman (Sideview - Tall)</option>
           <option value="samurai_34">Samurai Warrior (3/4 View - Tall)</option>
           <option value="npc_village">Village NPC (3/4 View - Standard)</option>
           <option value="spider_34">Spider Boss (3/4 Perspective)</option>
@@ -403,7 +403,7 @@
         <label>Headwear & Accessories</label>
         <select id="char-headwear" onchange="updateCharacterSkin('headwear', this.value)">
           <option value="none">None</option>
-          <option value="strawhat">Curved White Horns</option>
+          <option value="horns">Curved White Horns</option>
           <option value="helmet">Necro Horned Hood</option>
           <option value="headband">Simple Mage Hood</option>
           <option value="crown">Royal Crown</option>
@@ -428,7 +428,7 @@
           <option value="none">None</option>
           <option value="katana">Katana</option>
           <option value="spear">Yari Spear</option>
-          <option value="staff">Skull Staff (Necro)</option>
+          <option value="staff">Staff of Chaos (Skull)</option>
           <option value="axe">Necro Glaive Axe</option>
           <option value="wand">Blue Orb Staff</option>
           <option value="hammer">Heavy Hammer</option>
@@ -537,7 +537,7 @@
   let characterSkin = {
     bodyType: "tall", // chibi, tall, spider
     hair: "ponytail", // none, topknot, ponytail, bob
-    headwear: "strawhat", // none, strawhat, helmet, headband
+    headwear: "none", // none, horns, helmet, headband
     clothing: "kimono", // none, kimono, armor, tunic
     weapon: "katana", // none, katana, spear, staff
     skinColor: "#ffd1b3",
@@ -767,7 +767,7 @@
       { id: "right_hand", name: "R_Hand", parent: "right_shoulder", length: 30, angle: 20, shape: "circle", shapeW: 14 },
       { id: "weapon", name: "Dagger", parent: "right_hand", length: 60, angle: -90, shape: "capsule", shapeW: 10 }
     ],
-    strawhat_side: [
+    swordsman_side: [
       { id: "hips", name: "Hips", parent: null, length: 15, angle: 0, x: 400, y: 390, shape: "circle", shapeW: 30 },
       { id: "spine", name: "Spine", parent: "hips", length: 90, angle: -90, shape: "capsule", shapeW: 24 },
       { id: "head", name: "Head", parent: "spine", length: 35, angle: 0, shape: "circle", shapeW: 46 },
@@ -892,7 +892,7 @@
       let slice = null;
       if (key === "mage" && mageSlices[b.id]) slice = { ...mageSlices[b.id] };
       else if (key === "dark_fantasy_rogue" && rogueSlices[b.id]) slice = { ...rogueSlices[b.id] };
-      else if ((key === "samurai_34" || key === "strawhat_side") && samuraiSlices[b.id]) slice = { ...samuraiSlices[b.id] };
+      else if ((key === "samurai_34" || key === "swordsman_side") && samuraiSlices[b.id]) slice = { ...samuraiSlices[b.id] };
       else if (key === "swordsman" && swordsmanSlices[b.id]) slice = { ...swordsmanSlices[b.id] };
       else if (key === "npc_village" && npcSlices[b.id]) slice = { ...npcSlices[b.id] };
       else if ((key === "spider_34" || key === "spider") && spiderSlices[b.id]) slice = { ...spiderSlices[b.id] };
@@ -926,7 +926,7 @@
       spritesheetImg.src = "/static/chibi_swordsman_rig.png";
       updateSkinStyle("spritesheet");
       if (document.getElementById("char-skin-style")) document.getElementById("char-skin-style").value = "spritesheet";
-    } else if (key === "samurai_34" || key === "strawhat_side") {
+    } else if (key === "samurai_34" || key === "swordsman_side") {
       spritesheetImg.src = "/static/chibi_samurai_rig.png";
       updateSkinStyle("spritesheet");
       if (document.getElementById("char-skin-style")) document.getElementById("char-skin-style").value = "spritesheet";
@@ -941,10 +941,10 @@
     }
 
     // Sync Character Builder UI
-    if (key === "strawhat_side") {
+    if (key === "swordsman_side") {
       characterSkin.bodyType = "tall";
       characterSkin.hair = "ponytail";
-      characterSkin.headwear = "strawhat";
+      characterSkin.headwear = "none";
       characterSkin.clothing = "kimono";
       characterSkin.weapon = "katana";
       characterSkin.clothingColor = "#7a2b2b";
@@ -1499,7 +1499,7 @@
       }
 
       // Draw Headwear & Accessories
-      if (characterSkin.headwear === "strawhat") {
+      if (characterSkin.headwear === "horns") {
         // Curved White Horns
         ctx.fillStyle = "#f5f5f5";
         ctx.strokeStyle = "#100824";

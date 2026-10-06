@@ -200,16 +200,16 @@ def register_routes(app) -> None:
                     {"id": "character", "title": "🎭 Character & Animation", "tasks": [
                         {"id": "character-1", "label": "Polish protagonist idle animation", "completed": False},
                         {"id": "character-2", "label": "Polish attack combo animation set", "completed": False},
-                        {"id": "character-3", "label": "Add dodge / dash animation with i-frames", "completed": False}
+                        {"id": "character-3", "label": "Add dodge roll / dash animation", "completed": False}
                     ]},
                     {"id": "npc", "title": "🧠 NPC & Dialogue System", "tasks": [
-                        {"id": "npc-1", "label": "Create world NPCs for quests and guidance", "completed": False},
+                        {"id": "npc-1", "label": "Create world NPCs for navigation & quest guidance", "completed": False},
                         {"id": "npc-2", "label": "Implement interactive dialogue branching system", "completed": False},
                         {"id": "npc-3", "label": "Add story hints and narrative trigger cues", "completed": False}
                     ]},
                     {"id": "ui", "title": "🖥️ UI SYSTEMS", "tasks": [
                         {"id": "ui-1", "label": "Pause menu & settings UI", "completed": False},
-                        {"id": "ui-2", "label": "Health bar & stamina gauges (player + enemies)", "completed": False},
+                        {"id": "ui-2", "label": "Health bar & resource gauges (player + enemies)", "completed": False},
                         {"id": "ui-3", "label": "Merchant shop and inventory UI", "completed": False}
                     ]},
                     {"id": "world", "title": "🏯 WORLD BUILDING", "tasks": [
@@ -400,7 +400,7 @@ def register_routes(app) -> None:
     @app.route("/companion-chat")
     @app.route("/nyxaris-chat")
     def page_nyxaris_chat():
-        return render_template("nyxaris.html")
+        return render_template("companion.html")
 
     @app.route("/animations/<anim_id>/play")
     def page_play_animation(anim_id: str):
@@ -612,16 +612,18 @@ def register_routes(app) -> None:
             if res.status_code == 200:
                 models = res.json().get("models", [])
                 model_names = [m.get("name") for m in models]
-                has_nyxaris = any("nyxaris" in name.lower() for name in model_names)
+                has_model = any(any(k in name.lower() for k in ["companion", "llama", "gemma", "mistral", "nyxaris"]) for name in model_names)
                 return jsonify({
                     "ollama_running": True,
-                    "has_nyxaris": has_nyxaris,
+                    "has_companion": has_model,
+                    "has_nyxaris": has_model,
                     "models": model_names
                 })
         except Exception:
             pass
         return jsonify({
             "ollama_running": False,
+            "has_companion": False,
             "has_nyxaris": False,
             "models": []
         })
@@ -632,12 +634,12 @@ def register_routes(app) -> None:
         import requests
         def pull_model():
             try:
-                requests.post("http://localhost:11434/api/pull", json={"name": "nyxaris"}, timeout=300)
+                requests.post("http://localhost:11434/api/pull", json={"name": "llama3.2"}, timeout=300)
             except Exception:
                 pass
         import threading
         threading.Thread(target=pull_model).start()
-        return jsonify({"status": "started", "message": "Pulling 'nyxaris' model from Ollama in background."})
+        return jsonify({"status": "started", "message": "Pulling LLM model in background."})
 
     @app.route("/api/ai-animation/providers")
     def api_ai_animation_providers():

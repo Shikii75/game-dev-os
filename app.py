@@ -141,6 +141,7 @@ ANIMATION_FOLDERS = {
     "worried_upset": "companion_dialogue_demo"
 }
 
+# Randomized animation pools for natural, expressive variety
 EXPLAINING_POOL = ["companion_dialogue_demo"]
 CASUAL_TALK_POOL = ["companion_dialogue_demo"]
 THINKING_POOL = ["companion_dialogue_demo"]
@@ -166,12 +167,13 @@ def try_generate_llm_response(raw_message: str, level: str, trust: float, hp_pct
     import os
     import requests
     
+    companion_name = os.environ.get("COMPANION_NAME", "Companion")
     # ── Strict Chat-Template Formatting (Prevents Safety Misunderstandings & Maximizes Coherence) ──
     system_msg = (
-        "You are roleplaying as an intelligent in-game narrative companion in a 2D action RPG.\n"
-        f"Setting: Current Zone ({level}). You are accompanying the player on their adventure.\n"
+        f"You are roleplaying as {companion_name}, a knowledgeable companion guiding the player in an indie 2D action RPG.\n"
+        f"Setting: Current Zone ({level}). You accompany the hero across dungeon chambers, wilderness trails, and boss arenas.\n"
         f"Game Stats: Player HP={int(hp_pct * 100)}%, Mana={int(mana_pct * 100)}%, Trust={trust:.2f}.\n"
-        "Personality: Witty, sharp, observant, and protective of the player.\n"
+        "Personality: Observant, tactical, encouraging, and protective of the player.\n"
         "Directives:\n"
         "1. Stay in character and directly address what the player says.\n"
         "2. Keep your response brief (1 to 2 natural sentences).\n"
@@ -208,7 +210,7 @@ def try_generate_llm_response(raw_message: str, level: str, trust: float, hp_pct
 
     # 2. TIER 2: Local Lightweight Ollama LLM (llama3.2:1b)
     try:
-        model_name = os.environ.get("NYX_MODEL", "llama3.2:1b")
+        model_name = os.environ.get("COMPANION_MODEL", os.environ.get("NYX_MODEL", "llama3.2:1b"))
         payload = {
             "model": model_name,
             "prompt": formatted_prompt,
@@ -249,6 +251,7 @@ def get_animation_for_emotion(emotion: str) -> str:
         return ANIMATION_FOLDERS[emotion]
     return random.choice(CASUAL_TALK_POOL)
 
+@app.route("/companion", methods=["POST"])
 @app.route("/nyxaris", methods=["POST"])
 def nyxaris_chat():
     import random
@@ -289,119 +292,119 @@ def nyxaris_chat():
     # 1. Low HP Context
     if hp_pct < 0.35 and any(k in message for k in ["heal", "hurt", "hp", "health", "help", "dying", "pain", "ouch"]):
         responses = [
-            "You are battered, mortal! Do not throw your life away so recklessly. Take a breath or train in the Void Surge.",
-            "Your wounds are severe! Step back and gather health orbs before you collapse!",
-            "Look at you, barely standing! A fallen warrior is of no use to my mission. Recover immediately!"
+            "Your vitality is running low! Fall back and consume a healing flask before engaging.",
+            "Take cover! Recover your health before the next wave surrounds you.",
+            "Wounds like that will slow your sword arm. Rest and restore your health first!"
         ]
         resp = random.choice(responses)
         emotion = "cutely_upset"
         anim = ANIMATION_FOLDERS["cutely_upset"]
-        suggested_mg = "VoidSurge"
+        suggested_mg = "CombatArena"
         trust_delta = 0.04
 
     # 2. Low Mana Context
     elif mana_pct < 0.30 and any(k in message for k in ["mana", "spell", "mp", "magic", "empty", "cast"]):
         responses = [
-            "Your mana is dangerously depleted. Refresh your arcane flow before engaging the next clan guardian.",
-            "You cannot conjure spells on empty reserves! Collect mana orbs or meditate for a moment.",
-            "The void essence within you runs thin. Recharging your magic is essential right now."
+            "Your mana reserves are depleted. Meditate or gather mana orbs to replenish your spells.",
+            "You cannot invoke skills on an empty reserve! Pace your attacks until stamina recovers.",
+            "Conserve your energy—timing your abilities matters more than spamming them."
         ]
         resp = random.choice(responses)
         emotion = "warning"
         anim = ANIMATION_FOLDERS["warning"]
-        suggested_mg = "OrbSplash"
+        suggested_mg = "SpellPractice"
         trust_delta = 0.03
 
     # 3. Minigames & Training Inquiries
-    elif any(k in message for k in ["minigame", "arcade", "train", "practice", "void surge", "orb splash", "shadow runner", "skybound", "play a game"]):
-        games = ["VoidSurge", "OrbSplash", "ShadowRunner", "SkyboundBox"]
+    elif any(k in message for k in ["minigame", "arcade", "train", "practice", "arena", "trial", "play a game"]):
+        games = ["CombatArena", "DungeonTrial", "SpeedRunner", "BossRush"]
         suggested_mg = random.choice(games)
         responses = [
-            f"Sharpen your instincts in {suggested_mg}! Gathering void essence now will make your strikes lethal.",
-            f"A true warrior trains constantly. Test your reflexes in {suggested_mg} and return stronger!",
-            f"Looking to hone your arcane mastery? Step into {suggested_mg} and collect divine rewards."
+            f"Sharpen your instincts in {suggested_mg}! Practicing your attack chains will pay off in real fights.",
+            f"A true adventurer trains constantly. Test your reflexes in {suggested_mg} and return stronger!",
+            f"Looking to hone your timing? Step into {suggested_mg} to practice parries and evasions."
         ]
         resp = random.choice(responses)
         emotion = "excited"
         anim = random.choice(EXCITED_POOL)
         trust_delta = 0.05
 
-    # 4. Identity & Purpose
+    # 4. Identity & Role of Companion
     elif any(k in message for k in ["who are you", "what are you", "your name", "companion", "tell me about yourself"]):
         responses = [
-            "I am your tactical companion and narrative guide. I monitor your journey, track quest objectives, and assist in combat strategy.",
-            "Consider me your scout and advisor. Together, we'll navigate dungeons, uncover hidden lore, and conquer whatever lies ahead.",
-            "I am the voice at your side through every dungeon and arena. Ready to forge ahead whenever you are."
+            "I am your adventuring companion! I monitor tactical openings, track our quest milestones, and back you up in battle.",
+            "Think of me as your navigator and tactical guide. Together we can conquer whatever dungeon lies ahead.",
+            "I'm here to travel the world by your side, uncover forgotten secrets, and make sure we both survive each expedition."
         ]
         resp = random.choice(responses)
         emotion = "confidently"
         anim = random.choice(EXPLAINING_POOL)
         trust_delta = 0.03
 
-    # 5. Objectives & Lore
-    elif any(k in message for k in ["quest", "objective", "story", "mission", "lore", "target", "goal"]):
+    # 5. World Lore & History
+    elif any(k in message for k in ["lore", "history", "ruins", "world", "secret", "ancient", "mystery"]):
         responses = [
-            "Our main objective is clearing the regional dungeons and unlocking the pathway to the boss lair.",
-            "Search for ancient keystones across the exploration zones—they reveal lore and unlock sealed arena gates.",
-            "Keep advancing through enemy territories and gathering upgrade materials for your equipment."
+            "Ancient ruins across this region hold relics left by fallen civilizations. Careful study often reveals secret chambers.",
+            "Old legends speak of sealed portals hidden deep below ground. Keep your senses tuned for magical resonances.",
+            "Every territory has its own history. Exploring outposts and talking to locals will piece the story together."
         ]
         resp = random.choice(responses)
         emotion = "explaining"
         anim = random.choice(EXPLAINING_POOL)
         trust_delta = 0.03
 
-    # 6. First Zone & Dungeons
-    elif any(k in message for k in ["dungeon", "dungeon1", "ruins", "forest", "zone 1"]):
+    # 6. Guilds, Towns & Factions
+    elif any(k in message for k in ["faction", "clan", "town", "village", "guild", "settlement"]):
         responses = [
-            "The first dungeon tests your fundamentals—parrying, dash timing, and potion management.",
-            "Enemy patrols increase in density as you get closer to the inner sanctum. Keep your stamina managed.",
-            "Watch out for ambushes in tight corridors. Use area attacks to control the crowd."
+            "Local settlements provide gear upgrades, restorative items, and regional bounties. Always check with merchants.",
+            "Each faction holds different motives and allegiances. Pay attention to how locals treat outsiders.",
+            "The town blacksmith can reinforce weapon damage if you bring along gathered crafting materials."
         ]
         resp = random.choice(responses)
         emotion = "thinking"
         anim = random.choice(THINKING_POOL)
 
-    # 7. Elite Foes & Guardians
-    elif any(k in message for k in ["guardian", "elite", "guard", "heavy enemy", "miniboss"]):
+    # 7. Bosses & Combat Tactics
+    elif any(k in message for k in ["boss", "guardian", "enemy", "tactics", "strategy", "fight"]):
         responses = [
-            "Elite guardians possess heavy armor and uninterruptible attacks. Bait their combo and strike during cooldown.",
-            "Watch the guardian's weapon glow—it signals unblockable heavy swings. Dash behind them to counter.",
-            "Conserve your magic and special abilities for when the guardian's posture breaks."
+            "Every elite guardian telegraphs their heavy attacks with distinct wind-up animations. Dodge rolls are essential!",
+            "Watch the boss's attack rhythm closely. Attack during the recovery frames between combo strings.",
+            "Keep your distance when the boss enters an enrage phase, then strike swiftly during openings."
         ]
         resp = random.choice(responses)
         emotion = "warning"
         anim = ANIMATION_FOLDERS["warning"]
 
-    # 8. Boss Encounters
-    elif any(k in message for k in ["boss", "lair", "arena", "final boss"]):
+    # 8. Dungeons & Caverns
+    elif any(k in message for k in ["cave", "dungeon", "depths", "crypt", "catacomb", "underground"]):
         responses = [
-            "The regional boss features multiple phases and unique attack patterns. Learn their tells and keep moving!",
-            "Boss arenas often feature environmental hazards. Position yourself near the center to avoid corner traps.",
-            "Stock up on health potions at the merchant before initiating the boss encounter."
+            "The lower chambers teem with subterranean predators and hidden floor switches. Stay light on your feet!",
+            "Dungeon depths often hide locked treasure chests. Search for hidden keys or switch mechanisms.",
+            "Steel yourself before venturing deeper—the further underground we go, the fiercer the encounters."
         ]
         resp = random.choice(responses)
-        emotion = "angry"
-        anim = ANIMATION_FOLDERS["angry"]
+        emotion = "warning"
+        anim = ANIMATION_FOLDERS["warning"]
         trust_delta = 0.05
 
-    # 9. Guidance & Navigation
+    # 9. Guidance, Navigation & "What should I do?"
     elif any(k in message for k in ["what should i do", "what now", "where do i go", "where to go", "next", "lost", "guide me", "help me", "direction", "how to"]):
         responses = [
-            "Follow the stone pathway past the starter hub. Challenge the dungeon sentinels to unlock the inner sanctum.",
-            "Explore the surrounding zones, talk to the local merchant, and upgrade your gear before proceeding.",
-            "Look at your quest tracker—completing sub-objectives grants bonus experience and rare materials."
+            "Follow the main trail forward. Clearing regional milestones will unlock the gateway to the next zone.",
+            "Check your quest log and inventory. If you're well-prepared, head toward the marked landmark ahead.",
+            "Keep exploring along the stone path. Every area cleared brings new resources and stronger equipment."
         ]
         resp = random.choice(responses)
         emotion = "explaining"
         anim = random.choice(EXPLAINING_POOL)
 
-    # 10. Affection, Flirting & Compliments
-    elif any(k in message for k in ["cute", "love", "marry", "pretty", "beautiful", "like you", "kiss", "gorgeous", "waifu", "sweet"]):
+    # 10. Affection & Compliments
+    elif any(k in message for k in ["cute", "love", "marry", "pretty", "beautiful", "like you", "sweet"]):
         if trust > 0.65:
             responses = [
-                "H-hush, mortal! A goddess does not get swayed by simple sweet-talking... Though, I suppose your company isn't entirely dreadful.",
-                "Flattery from you is surprisingly pleasant... Not that I'm getting attached or anything! Keep your eyes on the road.",
-                "You truly are bold to speak to a deity like that. Just make sure you stay alive so I can keep hearing it."
+                "Well, aren't you sweet! I appreciate having such a dependable adventuring partner.",
+                "Thank you! Having you as a companion makes all these perilous quests worthwhile.",
+                "I'm glad we make such a good team. Let's make sure we both make it through to the end!"
             ]
             resp = random.choice(responses)
             emotion = "in_love"
@@ -409,20 +412,20 @@ def nyxaris_chat():
             trust_delta = 0.08
         else:
             responses = [
-                "Flattery will not distract me from our mission, mortal. Focus on the investigation at hand!",
-                "Do not think cheap compliments will earn you divine favor so easily. Prove your worth in battle first!",
-                "A goddess has no time for idle flirtation. Keep your blade sharp and your mind focused."
+                "Flattery is nice, but keep your eyes on the road! Monsters don't wait for polite conversation.",
+                "Thank you, but stay alert! Danger could be lurking around the very next corner.",
+                "Focus on the mission first, traveler. We can celebrate once the area is safe."
             ]
             resp = random.choice(responses)
             emotion = "cutely_annoyed"
             anim = random.choice(TSUNDERE_TEASE_POOL)
 
     # 11. Playful, Teasing, or Humorous
-    elif any(k in message for k in ["tease", "annoying", "bossy", "funny", "joke", "short", "cute horn", "horns", "lazy", "food", "eat", "hungry", "baka"]):
+    elif any(k in message for k in ["tease", "annoying", "bossy", "funny", "joke", "lazy", "food", "eat", "hungry"]):
         responses = [
-            "Who are you calling bossy?! I am guiding you so you don't wander off a cliff, ungrateful mortal!",
-            "Keep making remarks like that and I might just let the next spider have a nibble of your cloak!",
-            "My mana reserves require constant replenishment... which totally includes delicious festival treats, obviously!"
+            "Who are you calling bossy?! I'm keeping you from tumbling into spike pits, ungrateful traveler!",
+            "Keep making jokes like that and I might just take a nap while you fight the next swarm!",
+            "Exploring works up quite an appetite. Remind me to stop at the next campfire for snacks!"
         ]
         resp = random.choice(responses)
         emotion = "cutely_annoyed"
@@ -432,7 +435,7 @@ def nyxaris_chat():
     # 12. Gratitude, Agreement & Affirmations
     elif any(k in message for k in ["thank", "thanks", "ok", "okay", "alright", "got it", "understood", "yes", "yeah", "sure", "will do"]):
         responses = [
-            "Good. As long as we understand each other, nothing in this forest can stand in our way.",
+            "Good. As long as we understand each other, nothing in this realm can stand in our way.",
             "I expect nothing less from my companion. Let us proceed with haste.",
             "Very well. Lead onward, and strike true when the moment comes."
         ]
@@ -446,8 +449,8 @@ def nyxaris_chat():
         if trust > 0.6:
             responses = [
                 "I am primed for battle and eager to see what we uncover next. How are you holding up?",
-                "My arcane senses are tingling with anticipation. Whenever you are ready to move, I am with you.",
-                "Feeling stronger by your side, mortal. Let us see what secrets this mountain still hides."
+                "My senses are sharp and ready. Whenever you are prepared to advance, I am right behind you.",
+                "Feeling stronger by your side. Let us see what secrets this zone still holds."
             ]
             resp = random.choice(responses)
             emotion = "happy_to_say"
@@ -455,7 +458,7 @@ def nyxaris_chat():
             trust_delta = 0.03
         else:
             responses = [
-                "My senses are focused on the investigation. Make sure your reflexes are just as sharp.",
+                "My senses are focused on the surroundings. Make sure your reflexes are just as sharp.",
                 "I am ready when you are. Do not let your guard down for a single moment.",
                 "Standing by. Speak your intent or lead the way toward our next objective."
             ]
@@ -466,15 +469,15 @@ def nyxaris_chat():
     # 14. Greetings
     elif any(k in message for k in ["hello", "hi", "hey", "greetings", "good morning", "good evening", "yo"]):
         if hp_pct < 0.4:
-            resp = "I am with you, mortal. But you look exhausted—rest a moment before charging into danger."
+            resp = "I am with you, traveler. But you look exhausted—rest a moment before charging into danger."
             emotion = "worried_upset"
             anim = ANIMATION_FOLDERS["worried_upset"]
-            suggested_mg = "OrbSplash"
+            suggested_mg = "CombatArena"
         elif trust > 0.6:
             responses = [
                 "Greetings! It is good to see you standing tall. What shall we investigate next?",
                 "Ah, there you are. I was wondering when you would seek my counsel again.",
-                "Hello, companion. Ready to turn this mountain upside down?"
+                "Hello, companion. Ready for the next adventure?"
             ]
             resp = random.choice(responses)
             emotion = "happy_to_say"
@@ -482,53 +485,44 @@ def nyxaris_chat():
             trust_delta = 0.03
         else:
             responses = [
-                "I am with you, mortal. Speak your mind or ask for guidance on our investigation.",
-                "Greetings. What observations do you have to share from your journey?",
+                "I am with you, traveler. Speak your mind or ask for guidance on our journey.",
+                "Greetings. What observations do you have to share from your travels?",
                 "I am listening. What direction shall we take?"
             ]
             resp = random.choice(responses)
             emotion = "neutral"
             anim = random.choice(CASUAL_TALK_POOL)
 
-    # 15. Dynamic Conversational Fallback (Natural, varied, contextual)
+    # 15. Dynamic Conversational Fallback (Natural, varied, contextual for any action RPG)
     else:
-        if "Dungeon1" in level:
+        if "Dungeon" in level or "Cave" in level:
             responses = [
-                "We are at the dungeon entrance. Stay alert and watch for enemy patrols.",
-                "The guards ahead are vigilant. Prepare your weapons and check your potion stock.",
-                "Search this area carefully—hidden switches or loot chests might be nearby."
-            ]
-            resp = random.choice(responses)
-            emotion = "explaining"
-            anim = random.choice(EXPLAINING_POOL)
-        elif "Dungeon2" in level:
-            responses = [
-                "This sector has high enemy activity. Watch for traps along the floor.",
-                "Keep your distance from heavy armored foes until their attack cooldown.",
-                "Stay ready—an elite enemy could be guarding the inner doorway."
-            ]
-            resp = random.choice(responses)
-            emotion = "thinking"
-            anim = random.choice(THINKING_POOL)
-        elif "Boss" in level or "Cave" in level:
-            responses = [
-                "We stand at the threshold of the boss chamber. Prepare yourself for battle!",
-                "Watch the boss telegraph animations closely and dodge their area attacks.",
-                "Keep your health potions ready and look for vulnerability windows!"
+                "We stand at the threshold of the deep chambers. Prepare your weapon and watch for traps!",
+                "The shadows grow thicker here. Stay alert as we descend deeper into the ruins.",
+                "Hostile presence detected nearby. Let us clear this floor methodically!"
             ]
             resp = random.choice(responses)
             emotion = "angry"
-            anim = ANIMATION_FOLDERS["angry"]
+            anim = ANIMATION_FOLDERS.get("angry", "neutral")
+        elif "Arena" in level or "Combat" in level:
+            responses = [
+                "Hostiles are sizing you up. Keep your distance until you find an opening to strike.",
+                "Stay light on your feet. Dodge rolls will help avoid heavy telegraphed attacks.",
+                "Something dangerous approaches. Draw your weapon and hold your ground!"
+            ]
+            resp = random.choice(responses)
+            emotion = "thinking"
+            anim = random.choice(THINKING_POOL) if THINKING_POOL else "neutral"
         else:
             responses = [
-                "Stay vigilant as we explore this area—the quest markers lead ahead.",
-                "Interesting thought. Let us press onward to the next checkpoint.",
-                "Indeed. Keep your blade ready and your stamina managed.",
-                "Every encounter brings valuable experience and crafting materials."
+                "I hear you, traveler. Let us keep moving—our next objective lies just ahead.",
+                "Interesting thought. Let us press onward through the region and see what we discover.",
+                "Indeed. Stay vigilant and keep your equipment ready. Every step brings us closer to the goal.",
+                "A good observation. Keep your focus sharp, and let us unveil what lies in the next zone."
             ]
             resp = random.choice(responses)
             emotion = "explaining"
-            anim = random.choice(CASUAL_TALK_POOL + EXPLAINING_POOL)
+            anim = random.choice(CASUAL_TALK_POOL + EXPLAINING_POOL) if (CASUAL_TALK_POOL + EXPLAINING_POOL) else "neutral"
 
     new_trust = max(0.0, min(1.0, trust + trust_delta))
     return jsonify({

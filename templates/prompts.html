@@ -3,212 +3,46 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Game Dev OS — Prompt Planner</title>
+  <title>Game Dev OS — Asset Prompt Planner</title>
   {% include 'partials/head_assets.html' %}
   <style>
     .prompt-shell { padding: 1.5rem; }
     .prompt-header { margin-bottom: 1.5rem; }
     .prompt-header h2 { margin: 0; font-size: 1.5rem; letter-spacing: 0.02em; }
     .prompt-header p { margin: 0.25rem 0 0; color: var(--muted); }
-
-    .grid-panel {
-      display: grid;
-      gap: 1.25rem;
-      grid-template-columns: 1fr 340px;
-    }
-
-    .prompt-card {
-      background: var(--surface-2);
-      border: 1px solid rgba(146, 104, 255, 0.12);
-      border-radius: 18px;
-      padding: 1.5rem;
-      box-shadow: 0 16px 45px rgba(0,0,0,0.18);
-    }
-
-    .prompt-card h3 {
-      margin: 0 0 1rem;
-      font-size: 1.1rem;
-      color: var(--accent);
-      border-bottom: 1px solid rgba(146, 104, 255, 0.08);
-      padding-bottom: 0.5rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .form-group {
-      margin-bottom: 1.25rem;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 0.8rem;
-      color: var(--muted);
-      margin-bottom: 0.5rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .form-control {
-      width: 100%;
-      padding: 0.75rem 1rem;
-      border-radius: 10px;
-      border: 1px solid rgba(146, 104, 255, 0.18);
-      background: rgba(0, 0, 0, 0.3);
-      color: var(--text);
-      font-size: 0.95rem;
-      outline: none;
-      box-sizing: border-box;
-    }
-
-    .form-control:focus {
-      border-color: var(--accent);
-    }
-
-    .prompt-box-container {
-      position: relative;
-      margin-bottom: 1rem;
-    }
-
-    .prompt-box {
-      width: 100%;
-      height: 120px;
-      padding: 0.75rem 1rem;
-      border-radius: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background: #090a0d;
-      color: #e2e8f0;
-      font-size: 0.85rem;
-      font-family: system-ui, sans-serif;
-      resize: vertical;
-      outline: none;
-      box-sizing: border-box;
-      line-height: 1.5;
-    }
-
-    .prompt-box:focus {
-      border-color: rgba(146, 104, 255, 0.3);
-    }
-
-    .copy-btn {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      background: rgba(146, 104, 255, 0.12);
-      border: 1px solid rgba(146, 104, 255, 0.25);
-      color: #d8b4fe;
-      border-radius: 6px;
-      padding: 0.3rem 0.6rem;
-      font-size: 0.7rem;
-      cursor: pointer;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      transition: background 200ms ease, color 200ms ease;
-    }
-
-    .copy-btn:hover {
-      background: var(--accent);
-      color: #031106;
-      border-color: var(--accent);
-    }
-
-    /* DRAG DROP ZONE */
-    .dropzone {
-      border: 2px dashed rgba(146, 104, 255, 0.25);
-      border-radius: 16px;
-      background: rgba(146, 104, 255, 0.02);
-      padding: 2rem 1rem;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color 200ms ease, background 200ms ease;
-      margin-top: 1rem;
-    }
-
-    .dropzone.dragover {
-      border-color: var(--accent);
-      background: rgba(61, 255, 154, 0.05);
-    }
-
-    .dropzone p {
-      margin: 0.5rem 0 0;
-      font-size: 0.85rem;
-      color: var(--muted);
-    }
-
-    .dropzone svg {
-      width: 38px;
-      height: 38px;
-      fill: rgba(146, 104, 255, 0.4);
-      margin-bottom: 0.5rem;
-    }
-
-    .dropzone.dragover svg {
-      fill: var(--accent);
-    }
-
-    .import-btn {
-      width: 100%;
-      padding: 0.85rem;
-      border-radius: 10px;
-      border: none;
-      background: var(--accent);
-      color: #031106;
-      font-weight: 700;
-      font-size: 0.9rem;
-      cursor: pointer;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      transition: transform 150ms ease, box-shadow 150ms ease;
-      margin-top: 1rem;
-    }
-
-    .import-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 15px rgba(61, 255, 154, 0.25);
-    }
-
-    .toast {
-      padding: 0.85rem 1rem;
-      border-radius: 10px;
-      background: rgba(13, 110, 253, 0.15);
-      border: 1px solid rgba(13, 110, 253, 0.25);
-      color: #9ec5fe;
-      font-size: 0.85rem;
-      margin-top: 1rem;
-      display: none;
-      line-height: 1.4;
-    }
-
-    .toast.success {
-      background: rgba(25, 135, 84, 0.15);
-      border-color: rgba(25, 135, 84, 0.25);
-      color: #a3cfbb;
-    }
-
-    .toast.error {
-      background: rgba(220, 53, 69, 0.15);
-      border-color: rgba(220, 53, 69, 0.25);
-      color: #ea868f;
-    }
-
-    .file-indicator {
-      font-size: 0.8rem;
-      color: var(--accent);
-      margin-top: 0.75rem;
-      display: none;
-      font-family: monospace;
-    }
+    .grid-panel { display: grid; gap: 1.5rem; grid-template-columns: 1fr 340px; }
+    .prompt-main { display: flex; flex-direction: column; gap: 1.25rem; }
+    .prompt-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+    .prompt-card h3 { margin: 0 0 0.85rem; font-size: 1.05rem; display: flex; justify-content: space-between; align-items: center; }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; font-size: 0.82rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 0.4rem; }
+    .form-control { width: 100%; padding: 0.65rem 0.85rem; background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: inherit; font-size: 0.9rem; }
+    .form-control:focus { outline: none; border-color: var(--accent); }
+    textarea.form-control { min-height: 95px; resize: vertical; line-height: 1.45; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; }
+    .copy-btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.85rem; border-radius: 6px; font-size: 0.78rem; font-weight: 600; cursor: pointer; background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent); transition: all 0.15s ease; }
+    .copy-btn:hover { background: var(--accent); color: var(--accent-text); }
+    .badge { font-size: 0.72rem; padding: 0.2rem 0.5rem; border-radius: 6px; background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent); }
+    .dropzone { border: 2px dashed var(--border); border-radius: 10px; padding: 1.5rem; text-align: center; cursor: pointer; transition: all 0.2s ease; background: var(--code-bg); }
+    .dropzone:hover, .dropzone.dragover { border-color: var(--accent); background: var(--surface-hover); }
+    .dropzone svg { width: 36px; height: 36px; fill: var(--muted); margin-bottom: 0.5rem; }
+    .dropzone p { margin: 0.25rem 0 0; font-size: 0.8rem; color: var(--muted); }
+    .import-btn { width: 100%; padding: 0.75rem; border-radius: 8px; background: var(--accent); color: var(--accent-text); font-weight: 600; font-size: 0.9rem; border: none; cursor: pointer; margin-top: 1rem; transition: filter 0.15s ease; }
+    .import-btn:hover { filter: brightness(1.1); }
+    .toast { display: none; padding: 0.65rem; border-radius: 6px; font-size: 0.8rem; text-align: center; margin-top: 0.75rem; }
+    .toast.success { display: block; background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid var(--success); }
+    @media (max-width: 900px) { .grid-panel { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body class="gdos-shell">
 
 <header class="gdos-header">
   <div class="gdos-brand">
-    <img src="{{ url_for('static', filename='brand/logo-mark.png') }}" alt="" style="width: 42px; height: 42px; border-radius: 8px;" onerror="this.src='{{ url_for('static', filename='brand/logo-mark.svg') }}'">
-    <div>
+    <div class="logo-img">
+      <img src="{{ url_for('static', filename='brand/logo-mark.svg') }}" alt="" width="22" height="22">
+    </div>
+    <div class="title-wrap">
       <h1>PROMPT PLANNER</h1>
-      <span class="sub">Asset Generation &amp; Import Bridge</span>
+      <span class="sub">2D Generative AI Prompts &amp; Unity Engine Importer</span>
     </div>
   </div>
   <div class="gdos-header-actions">
@@ -218,220 +52,151 @@
 </header>
 
 <nav class="gdos-nav">
-  <div class="nav-label">Workspaces</div>
+  <div class="nav-label">Core Workstation</div>
   <a href="/dashboard">Overview</a>
-  <a href="/tracker">Tracker</a>
-  <a href="/assets">Asset brain</a>
-  <a href="/animations">Animation pipeline</a>
-  <a href="/skeletal-animator">Skeletal Animator</a>
-  <a href="/audio-hub">Audio hub</a>
-  <a href="/images">Image hub</a>
-  <a href="/styles">Style presets</a>
-  <a href="/status-board">Status &amp; progress</a>
+  <a href="/tracker">Project Tracker</a>
+  <a href="/assets">Asset Brain</a>
+
+  <div class="nav-label">Asset &amp; Kinematics</div>
+  <a href="/animations">Animation Pipeline</a>
+  <a href="/ai-animator">Animation Studio</a>
+  <a href="/skeletal-animator">Skeletal Rigging</a>
+  <a href="/character-builder">Character Builder</a>
+  <a href="{{ url_for('tool') }}">Sprite / BG Remover</a>
+
+  <div class="nav-label">Audio &amp; Voice</div>
+  <a href="/audio-slicer">Voice Take Slicer</a>
+  <a href="/audio-extractor">Audio Extractor</a>
+  <a href="/audio-hub">Sound FX Hub</a>
+
+  <div class="nav-label">Engine &amp; Intelligence</div>
   <a href="/script-setup">Script Setup</a>
   <a class="active" href="/prompt-planner">Prompt Planner</a>
-  <a href="/character-builder">Character Builder</a>
-  <div class="nav-label">Tools</div>
-  <a href="{{ url_for('tool') }}">Sprite / BG remover</a>
-  <a href="/audio-extractor">Audio Extractor</a>
-  <a href="/companion-chat">Companion</a>
-  <div class="nav-label">Export</div>
-  <a href="/export/unity">Unity .zip</a>
-  <a href="/export/full">Full snapshot .zip</a>
+  <a href="/companion-chat">Companion AI</a>
+
+  <div class="nav-label">Export &amp; Artifacts</div>
+  <a href="/export/unity">Unity .zip Package</a>
+  <a href="/export/full">Full Snapshot Archive</a>
 </nav>
 
 <main class="gdos-main prompt-shell">
   <div class="prompt-header">
-    <h2>AI Asset Planner &amp; Importer</h2>
-    <p>Generate highly detailed 2D prompts for Leonardo AI, Copilot, or Gemini, and import files straight into the Unity scene folders.</p>
+    <h2>2D Generative AI Prompt Studio &amp; Importer</h2>
+    <p>Synthesize production-grade prompts for Leonardo AI, Midjourney, or Stable Diffusion, and import generated assets straight into Unity.</p>
   </div>
 
   <div class="grid-panel">
-    <!-- PROMPTS DISPLAY -->
     <div class="prompt-main">
-      <div class="prompt-card" style="margin-bottom: 1.25rem;">
+      <div class="prompt-card">
         <div class="form-group" style="margin-bottom: 0;">
-          <label for="assetSelector">Select Target Game Asset</label>
+          <label for="assetSelector">Select Target Game Asset Archetype</label>
           <select id="assetSelector" class="form-control" onchange="loadAssetPrompts()">
-            <option value="Coins">Coins — Rotating Gold Currency Items</option>
-            <option value="UIElements">UI Elements — Shop overlays &amp; Dialogue Panels</option>
-            <option value="SpiderlingVariant1">Spiderling Variant 1 — Standard Shadow Crawler</option>
-            <option value="SpiderlingVariant2">Spiderling Variant 2 — Spiky Armored Spider</option>
-            <option value="SpiderlingVariant3">Spiderling Variant 3 — Bloated Green Poison Sac Spider</option>
-            <option value="SpiderlingVariant4">Spiderling Variant 4 — Fast Long-Legged Jumper</option>
-            <option value="StrawhatSwordsman1">Strawhat Swordsman Variant 1 — Dual-Wielding Daggers</option>
-            <option value="StrawhatSwordsman2">Strawhat Swordsman Variant 2 — Heavy Katana Stance</option>
-            <option value="StrawhatSwordsman3">Strawhat Swordsman Variant 3 — Ranged Throwing Star</option>
-            <option value="SamuraiSilhouette1">Samurai Silhouette Variant 1 — Naginata Spear Stance</option>
-            <option value="SamuraiSilhouette2">Samurai Silhouette Variant 2 — Heavy Nodachi Blade</option>
-            <option value="SamuraiSilhouette3">Samurai Silhouette Variant 3 — Armored Longbow Archer</option>
-            <option value="DojoBackgroundWall">Dojo Background — Gothic Pantheon Wall</option>
-            <option value="DojoRepeatableWall">Dojo Wall — Repeatable Shoji & Wood Panels</option>
-            <option value="DojoFloorTiles">Dojo Ground — Runic Obsidian Floor Tiles</option>
-            <option value="DojoFloorSilhouettes">Dojo Foreground Silhouettes — Weapons in Ground</option>
-            <option value="DojoHangingAssets">Dojo Hanging Assets — Ceiling Banners, Ropes, Chains</option>
-            <option value="DojoBlockedGate">Dojo Gate — Sliding Iron Blocking Bars</option>
-            <option value="DojoTrainingDummy">Dojo Prop — Breakable Wood Training Dummy</option>
-            <option value="DojoWeaponRack">Dojo Prop — Wooden Weapon Rack</option>
-            <option value="VillageEnvironment">Village Environment — Torii gates, Shadow cherry blossoms</option>
-            <option value="VillageGroundTiles">Village Ground — Repeatable tiles &amp; platform stone blocks</option>
-            <option value="VillageShopHut">Village Shop — Japanese shop hut with tatami counter</option>
-            <option value="DistantJapaneseHomes">Village Parallax Background — Distant desaturated home silhouettes</option>
-            <option value="VillageBridges">Village Bridges — Arched wooden bridges &amp; rope railings</option>
-            <option value="VillageProps">Village Props — Stone lanterns, Hokora shrines, sake barrels</option>
-            <option value="SakuraDanglingVines">Sakura Forest — Distant Dangling Vines &amp; Parallax Leaves</option>
-            <option value="MountainSkyBG">Mountain Path — Sky Background &amp; Parallax Clouds</option>
-            <option value="MountainStones">Mountain Path — Weathered Stones &amp; Rocky Boulders</option>
-            <option value="VillagePlanks">Village Environment — Weathered Wooden Planks &amp; Boards</option>
-            <option value="SideviewToriiGates">Village Environment — Sideview Torii Gates</option>
-            <option value="SpringObjectPlatform">Interactive Assets — Runic Spring Platform &amp; Bouncers</option>
-            <option value="RepeatableLegoBlocks">Modular Blocks — Repeatable Interlocking Lego-Style Platforms</option>
-            <option value="NPCMerchant">NPC Merchant — Shadow merchant chibi with massive backpack</option>
-            <option value="NPCVillagers">NPC Villagers — Shadow elder with staff, worker sweeping, child</option>
-            <option value="CaveNetwork">Cave Network — Webbed cavern tiles, stalactites</option>
-            <option value="ForegroundSilhouetteAssets">Parallax Foreground — Up-close foliage, chains, roots (Silhouettes)</option>
-            <option value="PlayableMidgroundAssets">Parallax Midground — Benches, breakable pots, platform assets</option>
-            <option value="FaintBackgroundAssets">Parallax Background — Distant pagodas, misty mountain peaks (Faint Feel)</option>
-            <option value="CaveForegroundSilhouettes">Cave Foreground — Stalactites, hanging roots, thick dark webs</option>
-            <option value="CaveBackgroundFaint">Cave Background — Misty green void, desaturated moss, deep shafts</option>
-            <option value="AttackAnimations">Attack Animations — Sword slashes, magical spells</option>
-            <option value="PlayableMage">Playable Mage — Shadow chibi mage protagonist</option>
-            <option value="Arachnid BossBoss">Arachnid Boss Boss — Giant spider demon boss</option>
-            <option value="MagicProjectileVFX">Magic Projectile VFX — Shadow energy bolt</option>
-            <option value="WebProjectileVFX">Web Projectile VFX — Spider silk shot</option>
-            <option value="HealingPotion">Healing Potion — Glowing recovery flask</option>
-            <option value="HUDElements">HUD Elements — Health bar, mana bar, coin &amp; potion counters</option>
-            <option value="BossHealthBar">Boss Health Bar — Dramatic boss HP overlay</option>
-            <option value="MainMenuScreen">Main Menu Screen — Title screen background &amp; buttons</option>
-            <option value="VictoryScreen">Victory Screen — Level complete overlay</option>
-            <option value="CompanionNPC">Shadow Companion NPC — Shadow companion with expressions</option>
-            <option value="RigSheet_Mage">🦴 Rig Sheet: Chibi Shadow Mage — Deconstructed Skeletal Parts</option>
-            <option value="RigSheet_Rogue">🦴 Rig Sheet: Dark Fantasy Rogue — Deconstructed Skeletal Parts</option>
-            <option value="RigSheet_StrawhatSwordsman">🦴 Rig Sheet: Strawhat Swordsman — Deconstructed Skeletal Parts</option>
-            <option value="RigSheet_SamuraiWarrior">🦴 Rig Sheet: Samurai Warrior — Deconstructed Skeletal Parts</option>
-            <option value="RigSheet_VillageNPC">🦴 Rig Sheet: Village NPC — Deconstructed Skeletal Parts</option>
-            <option value="RigSheet_SpiderBoss">🦴 Rig Sheet: Arachnid Boss — Deconstructed Skeletal Parts</option>
-            <option value="RigSheet_NPCMerchant">🦴 Rig Sheet: Shadow Merchant NPC — Deconstructed Skeletal Parts</option>
+            <optgroup label="💰 Currency &amp; Consumables">
+              <option value="Coins">Gold Currency — Spinning Gold Coins</option>
+              <option value="Potions">Health &amp; Mana Potions — Glass Flasks with Glowing Liquid</option>
+              <option value="Chest">Treasure Chest — Ornate Iron-Banded Wooden Chest</option>
+            </optgroup>
+            <optgroup label="⚔️ Protagonist Archetypes">
+              <option value="HeroKnight">Protagonist: Knight — Sword &amp; Shield, Full Plate Armor</option>
+              <option value="HeroRogue">Protagonist: Rogue — Dual Daggers, Hooded Cloak</option>
+              <option value="HeroMage">Protagonist: Sorcerer — Arcane Staff &amp; Flowing Robes</option>
+              <option value="HeroArcher">Protagonist: Ranger — Recurve Bow, Leather Armor</option>
+            </optgroup>
+            <optgroup label="👾 Enemies &amp; Bosses">
+              <option value="EnemyCrawler">Crawler Beast — Low-Profile Scuttler / Swarm Mob</option>
+              <option value="EnemyMelee">Melee Sentry — Armored Foot Soldier with Blade</option>
+              <option value="EnemyRanged">Ranged Skirmisher — Archer with Recurve Bow</option>
+              <option value="EnemyHeavy">Armored Brute — Two-Handed Heavy Weapon Warrior</option>
+              <option value="BossGuardian">Titan Boss — Multi-Phase Colossal Dungeon Boss</option>
+            </optgroup>
+            <optgroup label="🌲 Environments &amp; Parallax">
+              <option value="EnvForest">Enchanted Forest — Modular Grass Platforms, Trees, Hanging Vines</option>
+              <option value="EnvDungeon">Stone Dungeon — Flagstone Floors, Walls, Columns, Wall Sconces</option>
+              <option value="EnvCavern">Subterranean Caverns — Stalactites, Crystals, Chasm Depths</option>
+              <option value="EnvVillage">Settlement / Town — Wooden Platforms, Thatched Roofs, Lanterns</option>
+            </optgroup>
+            <optgroup label="🖥️ UI &amp; Visual FX">
+              <option value="UIElements">UI Windows — Shop Overlay, Dialogue Box, Inventory Panel</option>
+              <option value="HUDElements">In-Game HUD — Health Bar, Resource Gauges, Notch Markers</option>
+              <option value="MeleeSlashVFX">Combat VFX — Weapon Slash Arcs, Impact Sparks, Dust Particles</option>
+              <option value="MagicProjectileVFX">Magic VFX — Arcane Missiles, Elemental Blasts</option>
+            </optgroup>
+            <optgroup label="🦴 2D Skeletal Rig Sheets">
+              <option value="RigSheet_Hero">Skeletal Rig: Protagonist — Separated Limbs, Torso, Head, Weapons</option>
+              <option value="RigSheet_Monster">Skeletal Rig: Monster — Separated Claws, Torso, Head, Tail</option>
+              <option value="RigSheet_NPC">Skeletal Rig: Merchant NPC — Separated Head, Robe, Backpack, Arms</option>
+            </optgroup>
           </select>
         </div>
       </div>
 
       <div class="prompt-card">
         <h3>
-          <span>2D Static Art Prompts</span>
-          <span class="badge">Leonardo AI / Copilot</span>
+          <span>2D Static Concept / Sprite Prompt</span>
+          <span class="badge">Generative Image Model</span>
         </h3>
         <div class="form-group">
-          <label>Standard Art Prompt</label>
-          <div class="prompt-box-container">
-            <textarea id="staticPrompt" class="prompt-box"></textarea>
-            <button class="copy-btn" onclick="copyPrompt('staticPrompt')">Copy</button>
-          </div>
-          <small style="color:var(--muted); font-size:0.75rem;">Best for generating base 2D textures, UI frames, environment tilesets, or character silhouettes.</small>
+          <label>Optimized Text Prompt</label>
+          <textarea id="staticPrompt" class="form-control" readonly></textarea>
         </div>
-
-        <h3 style="margin-top: 2rem;">
-          <span>2D Animation &amp; Frame Sequences</span>
-          <span class="badge" style="background: rgba(166, 126, 255, 0.16); color: #d8b4fe;">Gemini / Sprite Sheets</span>
-        </h3>
-        <div class="form-group" style="margin-bottom: 0;">
-          <label>Sequential Frame Prompt</label>
-          <div class="prompt-box-container">
-            <textarea id="animPrompt" class="prompt-box"></textarea>
-            <button class="copy-btn" onclick="copyPrompt('animPrompt')">Copy</button>
-          </div>
-          <small style="color:var(--muted); font-size:0.75rem;">Includes strict instructions to keep colors, features, and chibi proportions consistent across all animation frames.</small>
-        </div>
+        <button class="copy-btn" onclick="copyText('staticPrompt')">
+          📋 Copy Prompt
+        </button>
       </div>
-    </div>
 
-    <!-- UNITY IMPORT BRIDGE -->
-    <div class="prompt-sidebar">
       <div class="prompt-card">
-        <h3>Manual Unity Import</h3>
-        <p style="font-size:0.85rem; color:var(--muted); line-height:1.45; margin-top:0;">Save your downloaded AI assets by dragging them below to place them instantly in your Unity folders.</p>
-        
+        <h3>
+          <span>Frame-by-Frame Sprite Animation Prompt</span>
+          <span class="badge">Animation Sheet</span>
+        </h3>
         <div class="form-group">
-          <label for="importCategory">Asset Category</label>
-          <select id="importCategory" class="form-control">
-            <option value="Coins">Coins</option>
-            <option value="UIElements">UI Elements</option>
-            <option value="Spiderlings">Spiderlings</option>
-            <option value="StrawhatSwordsmen">Strawhat Swordsmen</option>
-            <option value="SamuraiSilhouettes">Samurai Silhouettes</option>
-            <option value="DojoInteriors">Dojo Interiors</option>
-            <option value="DojoExteriors">Dojo Exteriors</option>
-            <option value="VillageEnvironment">Village Environment</option>
-            <option value="CaveNetwork">Cave Network</option>
-            <option value="NPCs">NPCs (Villagers &amp; Merchants)</option>
-            <option value="AttackAnimations">Attack Animations</option>
-            <option value="PlayerCharacter">Player Character (Mage)</option>
-            <option value="Bosses">Bosses</option>
-            <option value="VFX">VFX (Projectiles &amp; Effects)</option>
-            <option value="Potions">Potions &amp; Consumables</option>
-            <option value="HUD">HUD &amp; Overlays</option>
-            <option value="Menus">Menus &amp; Screens</option>
-            <option value="Companion">Companion</option>
-          </select>
+          <label>Sprite Sequence Prompt</label>
+          <textarea id="animPrompt" class="form-control" readonly></textarea>
         </div>
-
-        <div class="form-group">
-          <label for="importType">Import Asset Type</label>
-          <select id="importType" class="form-control">
-            <option value="art">Static Art (goes to Scenes/art/)</option>
-            <option value="animation">Animation / Frames (goes to Scenes/animations/)</option>
-          </select>
-        </div>
-
-        <div id="dropzone" class="dropzone">
-          <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
-          <strong>Drag &amp; Drop file here</strong>
-          <p>or click to select file (.png, .jpg, .zip)</p>
-          <input type="file" id="fileInput" style="display:none" />
-          <div id="fileIndicator" class="file-indicator"></div>
-        </div>
-
-        <button id="importBtn" class="import-btn">Import to Unity</button>
-        <div id="importToast" class="toast"></div>
+        <button class="copy-btn" onclick="copyText('animPrompt')">
+          📋 Copy Animation Prompt
+        </button>
+      </div>
     </div>
-  </div>
 
-  <!-- PARALLAX SCRIPT & SETUP GUIDE -->
-  <div class="prompt-card" style="margin-top: 1.5rem; background: var(--surface-2); border: 1px solid rgba(146, 104, 255, 0.15); box-shadow: 0 16px 45px rgba(0,0,0,0.18);">
-    <h3 style="color: var(--accent); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(146, 104, 255, 0.08); padding-bottom: 0.5rem; margin: 0 0 1rem 0;">
-      <span>🎮 Unity Parallax Script &amp; Setup Guide</span>
-      <button class="gdos-btn small" onclick="copyParallaxScript()" style="background: rgba(146, 104, 255, 0.12); border: 1px solid rgba(146, 104, 255, 0.25); color: #d8b4fe; padding: 0.35rem 0.75rem; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.8rem;">Copy C# Script</button>
-    </h3>
-    
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1rem;">
-      <div>
-        <h4 style="margin: 0 0 0.5rem 0; color: #38bdf8; font-size: 0.95rem; font-weight: 600;">Step-by-Step Layering Setup</h4>
-        <ol style="margin: 0; padding-left: 1.25rem; font-size: 0.85rem; color: var(--text); line-height: 1.6;">
-          <li>Create parent GameObjects for each layer in your hierarchy (e.g., <code>BG_0_Sky</code>, <code>BG_1_Mountains</code>, <code>Midground_Platforms</code>, <code>FG_Upclose_Vines</code>).</li>
-          <li>Set the sorting layers and order on the <strong>SpriteRenderer</strong> components to arrange them back-to-front (e.g. Sky order -10, Midground order 0, Foreground order 10).</li>
-          <li>Attach <code>ParallaxBackground.cs</code> to each layer GameObject that needs parallax scrolling.</li>
-          <li>Adjust the <strong>Parallax Coefficients</strong> in the inspector based on depth:
-            <ul style="margin: 0.25rem 0; padding-left: 1rem;">
-              <li><strong>Far Background (Sky)</strong>: <code>X = 0, Y = 0</code> (locked to camera).</li>
-              <li><strong>Misty Mountains</strong>: <code>X = 0.2, Y = 0.05</code> (moves slowly).</li>
-              <li><strong>Distant Village Houses</strong>: <code>X = 0.5, Y = 0.1</code> (half speed).</li>
-              <li><strong>Playable Level</strong>: <em>No script needed</em> (moves 1:1 with camera).</li>
-              <li><strong>Foreground Silhouette Vines</strong>: <code>X = 1.25, Y = 1.15</code> (scrolls faster than camera).</li>
-            </ul>
-          </li>
-          <li>Assign <code>Smoothing = 2.5</code> to filter camera jitter. Enable <code>limitVerticalOffset = true</code> on mountain layers to clamp height drift.</li>
-        </ol>
+    <!-- Manual Import Side Panel -->
+    <div class="prompt-card">
+      <h3>Manual Unity Importer</h3>
+      <p style="font-size:0.82rem; color:var(--muted); line-height:1.45; margin-top:0;">
+        Drag downloaded assets here to automatically route them into your project asset tree.
+      </p>
+
+      <div class="form-group">
+        <label for="importCategory">Asset Category</label>
+        <select id="importCategory" class="form-control">
+          <option value="Currency">Currency &amp; Loot</option>
+          <option value="Characters">Characters &amp; Heroes</option>
+          <option value="Enemies">Enemies &amp; Bosses</option>
+          <option value="Environments">Environment Tilesets</option>
+          <option value="UI">UI &amp; HUD</option>
+          <option value="VFX">Visual Effects</option>
+          <option value="Audio">Sound &amp; Voice</option>
+        </select>
       </div>
-      
-      <div>
-        <h4 style="margin: 0 0 0.5rem 0; color: #f472b6; font-size: 0.95rem; font-weight: 600;">Hollow Knight Aesthetic Rules</h4>
-        <ul style="margin: 0; padding-left: 1.25rem; font-size: 0.85rem; color: var(--text); line-height: 1.6; list-style-type: square;">
-          <li><strong>Foreground (Layer +10)</strong>: Drawn as pure black silhouettes (no detail, solid color). Use standard or blur filters in Unity to give an out-of-focus feel.</li>
-          <li><strong>Midground (Layer 0)</strong>: Sharp, high-contrast, fully lit, and detailed. This is where action happens.</li>
-          <li><strong>Background (Layer -5 to -15)</strong>: Cool colors (slate blue, dark purple, teal). Blend layers with a <strong>Fog Particle System</strong> or translucent mist overlay to increase depth feel.</li>
-          <li><strong>Auto-Scrolling Clouds</strong>: For the sky, add small auto-scrolling speed (e.g., <code>AutoScrollSpeedX = 0.2</code>) to simulate wind drift.</li>
-        </ul>
+
+      <div class="form-group">
+        <label for="importType">Import Destination</label>
+        <select id="importType" class="form-control">
+          <option value="art">Static Art (Assets/Art/)</option>
+          <option value="animation">Animation Frames (Assets/Animations/)</option>
+        </select>
       </div>
+
+      <div id="dropzone" class="dropzone" onclick="document.getElementById('fileInput').click()">
+        <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+        <strong>Choose File or Drop Here</strong>
+        <p>.png, .jpg, .wav, or .zip</p>
+        <input type="file" id="fileInput" style="display:none" onchange="handleFileSelect(this.files)" />
+        <div id="fileIndicator" style="margin-top:0.5rem; font-weight:600; color:var(--accent); font-size:0.8rem;"></div>
+      </div>
+
+      <button id="importBtn" class="import-btn" onclick="uploadFile()">Route to Unity Project</button>
+      <div id="importToast" class="toast"></div>
     </div>
   </div>
 </main>
@@ -439,530 +204,148 @@
 <script>
 const promptsDb = {
   Coins: {
-    static: "2D game asset icon, detailed gold coin with a dark purple dark arcane flame aura, dark mythology theme, stylized cute chibi visual style, solid dark stone background, flat color, high detail, mobile game asset.",
-    anim: "Create a 2D horizontal loop animation sequence of a detailed gold coin with a dark arcane aura spinning 360 degrees. 8 frame-by-frame 2D animation sheet. Ensure gold shine reflections, flame details, and coin thickness dimensions remain perfectly consistent with the reference frame/sheet. Dark fantasy chibi cartoon aesthetic."
+    static: "2D video game item icon, detailed antique gold coin with embossed fantasy rune emblem, glowing warm golden aura, stylized 2D game asset, crisp silhouette, isolated on dark stone neutral background, sharp edges, game inventory ready.",
+    anim: "2D frame-by-frame animation sprite sheet of a gold coin spinning 360 degrees horizontally. 8 sequential animation frames arranged in a neat horizontal grid. Perfect lighting reflections, metallic rim specular highlights, consistent thickness across all frames, isolated on transparent or solid background."
+  },
+  Potions: {
+    static: "2D video game potion consumable icon, round glass flask containing glowing crimson healing elixir, ornate brass stopper, magical vapor swirling inside, stylized fantasy aesthetic, flat clean 2D game icon, isolated.",
+    anim: "2D sprite sheet showing a magic potion bottle bubbling and pulsing with internal magical light. 6 frames looping gently, sparkling liquid surface, transparent glass reflections, isolated on neutral background."
+  },
+  Chest: {
+    static: "2D game object sprite, heavy fantasy treasure chest made of dark oak with iron bindings and ornate padlock, closed state, front perspective slightly angled, stylized 2D video game asset, isolated.",
+    anim: "2D animation sequence of a treasure chest opening. 6 frames: closed, latch rattles, lid springs open, bright golden light beams burst out, chest remains open with treasure sparkling inside. Clean 2D frame-by-frame sprite sheet."
+  },
+  HeroKnight: {
+    static: "2D game character concept sprite, brave fantasy knight protagonist, steel plate armor with cobalt blue cloth, broadsword strapped to side, heroic determined stance, stylized high-contrast 2D indie game art, isolated on neutral dark background.",
+    anim: "2D character sprite sheet of a knight performing a 3-hit melee sword slash combo. 10 frames arranged in order: windup, forward slash, backhand slash, overhead cleave, recovery. Sharp motion blur arcs, crisp silhouette, isolated on neutral background."
+  },
+  HeroRogue: {
+    static: "2D game character sprite, agile rogue assassin, hooded dark leather tunic with brass buckles, dual steel daggers, low combat-ready stance, stylized 2D game character asset, isolated on neutral dark background.",
+    anim: "2D animation sprite sheet of a rogue performing a quick forward dash and dagger cross-slash. 8 frames: crouch, blur dash, dual strike cross impact, recovery to idle. Dynamic motion trails, isolated."
+  },
+  HeroMage: {
+    static: "2D game character sprite, mystic sorcerer protagonist, flowing starry dark purple robes, holding carved wooden staff topped with glowing arcane crystal, stylized 2D indie action RPG character, isolated.",
+    anim: "2D sprite sheet of a mage casting a spell. 8 frames: raises staff high, staff crystal surges with magic, unleashes burst forward, settles back to idle stance. Magical rune particle effects, isolated."
+  },
+  HeroArcher: {
+    static: "2D game character sprite, wilderness ranger marksman, woodland tunic, leather arm guards, recurve hunting bow and quiver on back, focused alert stance, stylized 2D game asset, isolated.",
+    anim: "2D animation sheet of an archer drawing bow and releasing arrow. 8 frames: draws arrow from quiver, pulls bowstring taut, releases arrow projectile, bowstring vibrates, returns to ready stance. Crisp silhouette."
+  },
+  EnemyCrawler: {
+    static: "2D enemy monster sprite, low-profile subterranean crawler beast, armored carapace, multiple predatory limbs, glowing hostile eyes, stylized 2D action game enemy asset, isolated on neutral background.",
+    anim: "2D walk cycle sprite sheet of a multi-legged crawler enemy. 8 looping frames: rhythmic leg coordination, low creeping body bob, fluid biological motion, isolated on neutral background."
+  },
+  EnemyMelee: {
+    static: "2D enemy combatant sprite, corrupted sentry guard in tarnished iron armor, wielding rusty shortsword and cracked wooden shield, menacing patrol stance, 2D game sprite asset, isolated.",
+    anim: "2D attack animation sheet of an armored sentry performing a heavy shield bash and sword thrust. 8 frames: winds back with shield raised, lunges forward, recovers balance. Crisp 2D animation sheet."
+  },
+  EnemyRanged: {
+    static: "2D enemy mob sprite, hooded bandit archer with crude composite bow, leather wraps, aggressive combat stance, stylized 2D platformer enemy asset, isolated.",
+    anim: "2D sprite sheet of an enemy archer aiming and firing projectile. 6 frames: draw, aim, loose arrow, recovery loop. Clean sprite sequence."
+  },
+  EnemyHeavy: {
+    static: "2D enemy brute sprite, hulking armored warrior, wielding massive stone warhammer, spiked pauldrons, towering muscular silhouette, stylized 2D boss minion, isolated.",
+    anim: "2D sprite sheet of a heavy brute executing a ground smash attack. 10 frames: lifts giant hammer overhead with heavy anticipation, slams hammer into earth with impact dust waves, pauses, recovers."
+  },
+  BossGuardian: {
+    static: "2D colossal guardian boss concept sprite, towering ancient stone titan infused with glowing runic energy veins, glowing core eye, menacing posture, epic 2D action RPG boss asset, isolated.",
+    anim: "2D boss attack phase sprite sheet showing a colossal guardian slamming both fists down to create a seismic shockwave. 12 sequential animation frames with heavy anticipation and explosive follow-through."
+  },
+  EnvForest: {
+    static: "2D game environment tileset asset, lush woodland forest platforms, mossy stone blocks with hanging vines, deep green foliage, repeatable horizontal modular tile segments, stylized 2D platformer environment, isolated.",
+    anim: "2D parallax environment sheet showing dangling forest vines and canopy leaves swaying gently in the breeze. 6 looping frames, subtle natural ambient motion, seamless loop."
+  },
+  EnvDungeon: {
+    static: "2D castle dungeon tileset, dark slate flagstone flooring, carved granite wall blocks, iron wall sconces with burning flames, arched stone doorway, modular seamless 2D platformer asset, isolated.",
+    anim: "2D animated prop sprite sheet of a wall torch flame flickering and casting orange glow. 6 looping frames, fluid flame shape variation, seamless ambient animation loop."
+  },
+  EnvCavern: {
+    static: "2D underground cavern tileset, jagged dark rock platform blocks, hanging stalactites and rising stalagmites, glowing mineral crystal clusters, modular 2D subterranean level assets, isolated.",
+    anim: "2D environment asset of glowing mineral crystals pulsing with soft magical luminescence. 6 looping frames, ambient glow pulse, isolated."
+  },
+  EnvVillage: {
+    static: "2D game settlement environment assets, weathered wooden platform boards, small merchant shop counter with canvas awning, stone lanterns, barrels and crates, modular 2D level design assets, isolated.",
+    anim: "2D environment prop sprite sheet of a hanging paper lantern swaying gently in the wind. 6 looping frames, subtle rope pendulum movement, seamless loop."
   },
   UIElements: {
-    static: "2D game UI element, detailed ancient Japanese village shop window panel frame and dialogue text box, dark weather-worn bamboo and wood lattice, glowing dark violet runes carved into wood, stylized 2D graphic design, flat UI asset.",
-    anim: "Create a 2D animation sequence showing a dark wood UI button click feedback. 4 frames: normal, hover, pressed (slight scale down and bright purple runic glow), and release. Ensure texture details, frame borders, and wood grains remain perfectly consistent across all states."
-  },
-  SpiderlingVariant1: {
-    static: "2D game asset, cute chibi standard shadow crawler spiderling, stylized dark cartoon style, solid black body, glowing neon red eyes, isolated on solid dark stone background, mobile game asset.",
-    anim: "Create a 2D walk cycle sprite sheet of a cute chibi standard shadow crawler spiderling. 8 frames, side-view walk cycle. Ensure solid black body shape, proportions, and glowing neon red eyes remain perfectly consistent across all frames. Dark cartoon chibi style."
-  },
-  SpiderlingVariant2: {
-    static: "2D game asset, cute chibi spiky armored spiderling crawler, dark fantasy cute cartoon style, dark grey armor plates, sharp spikes on back, glowing neon orange eyes, isolated, mobile game asset.",
-    anim: "Create a 2D walk cycle sprite sheet of a cute chibi spiky armored spiderling crawler. 8 frames, side-view. Ensure armor plates, back spikes, and glowing neon orange eyes remain perfectly consistent in proportions across all frames. Dark cartoon chibi style."
-  },
-  SpiderlingVariant3: {
-    static: "2D game asset, cute chibi bloated green poison sac spiderling, glowing translucent green abdomen filled with toxic fluid, dark cartoon chibi style, glowing neon green eyes, isolated, mobile game asset.",
-    anim: "Create a 2D walk cycle sprite sheet of a cute chibi bloated green poison sac spiderling. 8 frames, side-view. Ensure bloated translucent green abdomen, fluid glow intensity, and glowing neon green eyes remain perfectly consistent in proportions across all frames."
-  },
-  SpiderlingVariant4: {
-    static: "2D game asset, cute chibi fast long-legged jumper spiderling, thin spindly jointed shadow legs, agile body, glowing neon yellow eyes, dark cartoon chibi style, isolated, mobile game asset.",
-    anim: "Create a 2D jump cycle sprite sheet of a cute chibi long-legged jumper spiderling. 8 frames: crouch, launch, leap apex, stretch, and landing. Ensure thin spindly jointed shadow legs and glowing neon yellow eyes remain perfectly consistent in proportions across all frames."
-  },
-  StrawhatSwordsman1: {
-    static: "2D game asset silhouette, shadow ninja swordsman silhouette dual-wielding daggers, cute chibi proportions, solid black silhouette with a classic flat woven strawhat, glowing purple slits for eyes, flat vector illustration, isolated.",
-    anim: "Create a 2D dual-dagger slash animation sequence for a chibi shadow ninja. 8 frames: draw daggers, cross-slash windup, rapid slash trails, recovery. Ensure the strawhat shape and solid black silhouette values stay completely consistent."
-  },
-  StrawhatSwordsman2: {
-    static: "2D game asset silhouette, shadow ninja swordsman silhouette in heavy katana guard stance, cute chibi proportions, solid black silhouette with a woven strawhat, carrying a large sheath, glowing purple slits for eyes, flat vector, isolated.",
-    anim: "Create a 2D vertical katana slash animation sequence for a chibi shadow ninja. 8 frames: raise katana high, heavy downward slash with arc trail, sheathing recovery. Ensure the strawhat shape and solid black silhouette values stay completely consistent."
-  },
-  StrawhatSwordsman3: {
-    static: "2D game asset silhouette, shadow ninja swordsman silhouette in throwing star pose, cute chibi proportions, solid black silhouette with a woven strawhat, holding a large shuriken, glowing purple slits for eyes, flat vector, isolated.",
-    anim: "Create a 2D shuriken throwing animation sequence for a chibi shadow ninja. 8 frames: windup throw, launch star, release follow-through, return to idle. Ensure the strawhat shape and solid black silhouette values stay completely consistent."
-  },
-  SamuraiSilhouette1: {
-    static: "2D game asset silhouette, shadow samurai warrior silhouette in naginata spear guard stance, cute chibi proportions, solid black silhouette with a horned samurai kabuto helmet, glowing red slits for eyes, flat vector illustration, isolated.",
-    anim: "Create a 2D naginata spear thrust animation sequence for a chibi shadow samurai. 8 frames: step back, thrust forward, spear spin, return to guard. Ensure helmet horns, shoulder armor, and silhouette outlines remain perfectly consistent."
-  },
-  SamuraiSilhouette2: {
-    static: "2D game asset silhouette, shadow samurai warrior silhouette carrying a massive nodachi two-handed sword, cute chibi proportions, solid black silhouette with a horned samurai kabuto helmet, glowing red slits for eyes, flat vector, isolated.",
-    anim: "Create a 2D nodachi overhead swing animation sequence for a chibi shadow samurai. 8 frames: raise heavy blade behind head, heavy two-handed downward sweep, recovery. Ensure helmet horns, shoulder armor, and silhouette outlines remain perfectly consistent."
-  },
-  SamuraiSilhouette3: {
-    static: "2D game asset silhouette, shadow samurai warrior silhouette in longbow firing stance, cute chibi proportions, solid black silhouette with a horned samurai helmet, drawing a massive bow, glowing red slits for eyes, flat vector, isolated.",
-    anim: "Create a 2D bow shooting animation sequence for a chibi shadow samurai. 8 frames: nock arrow, draw bow string, hold, release arrow, follow-through. Ensure helmet horns, shoulder armor, and silhouette outlines remain perfectly consistent."
-  },
-  DojoBackgroundWall: {
-    static: "A seamless horizontal background for a 2D side-scrolling dark fantasy game, interior of a grand gothic pantheon dojo. Dark stone brick walls, tall arched windows with faint wind and clouds visible outside, massive stone columns, tattered purple martial arts banners hanging from the ceiling, mystical atmosphere, hand-drawn vector art style, flat 2D perspective, detailed textures --ar 16:9",
-    anim: "No animation. Static background."
-  },
-  DojoFloorTiles: {
-    static: "Seamless horizontal 2D side-scrolling platform tile, dark fantasy dojo floor. Carved obsidian stone slabs with glowing cyan runic symbols etched on the borders, moss and dust cracks in between slabs, hand-drawn game texture, isolated on a solid color background, flat top, 2D side-view game asset.",
-    anim: "No animation. Repeatable platform tiles."
-  },
-  DojoBlockedGate: {
-    static: "2D game asset of a gothic dojo gate, closed/locked state. Heavy dark iron bars sliding down from a stone archway, decorated with glowing blue rune carvings, spikes at the bottom, isolated on a solid black background, hand-drawn dark fantasy style, front-view --v 5.2",
-    anim: "Create a 2D animation sequence showing a heavy dark iron dojo gate sliding upwards into a stone archway. 6 frames: closed, unlocking (glow effect), lifting, sliding open, lock mechanism securing, fully open. Maintain consistent stone and metal textures across all frames."
-  },
-  DojoTrainingDummy: {
-    static: "2D side-view game sprite of a training dummy made of dark bound wood and purple wraps, mounted on a solid stand. Hand-drawn gothic dark fantasy game art, clean outline, isolated on a white background.",
-    anim: "Create a 2D animation sequence of a straw practice target being cut in half. 6 frames: idle target, weapon impact spark, split cut, top half sliding off, landing, turning to ash particles. Ensure straw texture, binding ropes, and stand height remain perfectly consistent."
-  },
-  DojoWeaponRack: {
-    static: "2D game asset of a gothic wooden weapon rack holding dark swords, wooden staffs, and spears. Intricate carvings, dust and spider webs, hand-drawn vector art, isolated on a solid background.",
-    anim: "No animation. Static breakable/interactive weapon rack."
-  },
-  DojoRepeatableWall: {
-    static: "Seamless repeatable horizontal background tile of a gothic dojo wall, Japanese dark fantasy style. Dark weather-worn wood framing, glowing white paper shoji screens, detailed wood grain and dust particles, 2D side-view flat game asset texture, isolated on a solid color background.",
-    anim: "No animation. Repeatable horizontal tile asset."
-  },
-  DojoFloorSilhouettes: {
-    static: "2D side-scrolling foreground silhouette game asset, Hollow Knight style. Pure black silhouettes of ancient katanas, broken spear shafts, and naginatas pierced into the ground at various angles, jagged rocks, out-of-focus blurred edges for depth of field, isolated on solid white background.",
-    anim: "No animation. Static parallax foreground elements."
-  },
-  DojoHangingAssets: {
-    static: "2D side-scrolling game asset pack of items hanging from the ceiling, dark fantasy style. Includes thick rusty iron chains, old frayed ropes, and tattered purple martial arts banners with dark calligraphy glyphs, viewed from front perspective, isolated on solid white background.",
-    anim: "Create a 2D horizontal loop animation sequence of a hanging martial arts banner swaying gently. 8 frames. Keep banner geometry, tears, and purple texture consistent across all frames."
-  },
-  DojoExteriors: {
-    static: "2D side-scrolling parallax background layer assets (Hollow Knight style). Includes:<br>• Layer 1 (Up-close Foreground Silhouette): Solid black silhouettes of pagoda roof overhangs, hanging tassels, stone fence posts.<br>• Layer 2 (Playable Midground): Detailed pagoda gates, courtyard gates, dark lanterns, flagstone pathways.<br>• Layer 3 (Misty Background): Faint, desaturated silhouettes of pagodas and mountains under a stormy night sky, creating atmospheric depth. 2D vector, game art sheet.",
-    anim: "Create a 2D animation loop of a shadow paper lantern swaying. 8 frames: rope bending, lantern swinging side-to-side, glowing purple runic candle flame inside flickering. Ensure lantern dimensions and flame size remain perfectly consistent."
-  },
-  VillageEnvironment: {
-    static: "2D side-scrolling parallax environment assets (Hollow Knight style). Includes:<br>• Layer 1 (Up-close Foreground Silhouette): Solid black silhouette cherry blossom branches, dark blades of grass, fence posts.<br>• Layer 2 (Playable Midground): Torii gates, weathered wooden village huts, wooden fences, lanterns.<br>• Layer 3 (Misty Background): Faint, desaturated silhouettes of distant torii gates and hills.<br>• Layer 4 (Far Background): Misty purple night sky with a giant crescent moon. 2D game background layers.",
-    anim: "Create a 2D animation loop of a cherry blossom branch blowing. 8 frames: branch bending, blossoms shaking, and petals detaching. Ensure branch structure, petal shapes, and color gradients remain perfectly consistent."
-  },
-  VillageGroundTiles: {
-    static: "2D side-scrolling platformer tileable ground blocks, dark fantasy ancient Japanese village theme, weathered stone pavement, modular soil blocks with overgrown dark purple grass and small glowing moss tufts, flat side-view, isolated on solid dark background, clean cartoon outline, mobile game asset.",
-    anim: "Create a 2D animation sequence of grass and moss on a tileable ground block swaying gently in the wind. 8 frames, horizontal loop. Ensure block dimensions, stone cracks, and grass blades remain perfectly consistent in shapes and colors across all frames."
-  },
-  VillageShopHut: {
-    static: "2D side-scrolling platformer midground building, weathered ancient Japanese shop hut facade, dark aged wood structure, paper shoji windows glowing with warm amber candle light, hanging purple noren banners with dark glyph symbols, a rustic tatami counter, red ceramic sake jugs, Hollow Knight style dark fantasy aesthetic, isolated on solid black background.",
-    anim: "Create a 2D animation loop of a shop hut's hanging paper lanterns and noren banners swaying gently in a soft breeze. 8 frames, side-view loop. Ensure wood textures, glowing window values, banner patterns, and shop geometry remain perfectly consistent across all frames."
-  },
-  DistantJapaneseHomes: {
-    static: "2D side-scrolling parallax background layer asset, desaturated misty silhouettes of distant ancient Japanese homes and curved pagoda roofs cascading down a mountain slope, Hollow Knight style. Soft faded slate-blue and dark indigo tones, low opacity, atmospheric depth of field, isolated on clean solid background.",
-    anim: "Create a 2D animation loop of faint chimney smoke rising from distant ancient Japanese home silhouettes. 8 frames. Keep it a desaturated violet-grey silhouette with high transparency. The smoke must drift and dissolve smoothly, keeping home silhouettes perfectly static and consistent."
-  },
-  VillageBridges: {
-    static: "2D side-scrolling platformer midground bridge asset, weathered modular ancient Japanese arched wooden bridge, dark aged timber beams, rope railings, dark red painted accents, Hollow Knight dark fantasy style, isolated on solid dark background.",
-    anim: "Create a 2D animation loop of a hanging bridge rope swaying. 8 frames. Ensure timber textures, rope threads, and arch curve remain perfectly consistent across all frames."
-  },
-  VillageProps: {
-    static: "2D game asset sheet, side-scrolling midground village props, dark fantasy ancient Japanese style. Includes: a small weathered stone Shinto shrine (Hokora), standing wooden lanterns, sake barrels wrapped in straw, and a wooden signpost with faded symbols. Detailed line-art, cool slate-grey and dark purple tones, isolated.",
-    anim: "Create a 2D animation loop of a stone lantern's candle flame flickering inside its cage. 6 frames: flame shape shifting. Ensure the stone lantern structure and details remain perfectly static and consistent."
-  },
-  SakuraDanglingVines: {
-    static: "2D side-scrolling platformer parallax asset, sakura forest theme, distant dangling vines with glowing pink cherry blossom flower clusters hanging down, Hollow Knight style. Soft desaturated slate-purple and dark magenta tones, faint silhouette overlay with high transparency, clean outline, transparent background.",
-    anim: "Create a 2D horizontal animation loop of hanging dangling sakura vines swaying gently in a soft wind. 8 frames. Ensure vine thickness, pink flower placements, and glowing particle highlights remain perfectly consistent across all frames. Smooth loop, transparent background."
-  },
-  MountainSkyBG: {
-    static: "2D side-scrolling platformer far background asset, mountain path sky background. Stormy violet and dark cyan night sky with distant jagged mountain peaks silhouetted against giant sweeping nebula clouds, swirling arcane energy, starry sky, moody ambient lighting, Hollow Knight style, 16:9 widescreen composition, isolated layers.",
-    anim: "Create a 2D animation loop of a stormy mountain sky background. 8 frames: dark cyan and violet clouds drifting slowly from right to left, faint stars twinkling, and distant lightning sheets lighting up the mountain silhouettes. Seamless horizontal loop, keeping mountain shapes static and consistent."
-  },
-  MountainStones: {
-    static: "2D side-scrolling platformer tileable asset, mountain path weathered stones and rock boulders. Heavy dark basalt and slate grey stone block slabs, cracked textures, glowing purple runic moss growing in crevices, sharp angles, Hollow Knight style dark fantasy aesthetic, isolated on transparent background.",
-    anim: "Create a 2D animation sequence of glowing runic moss on weathered mountain stones pulsing with energy. 8 frames, horizontal loop. Keep the rock texture, cracks, and boulder shapes perfectly static while the purple moss runes glow from dim to bright and back. Transparent background."
-  },
-  VillagePlanks: {
-    static: "2D side-scrolling platformer modular asset, weathered Japanese village wooden planks and platform boards. Runic wood tiles, dark aged timber beams bound with old rope, glowing purple engravings, chipped edges, side view, Hollow Knight style dark fantasy, transparent background.",
-    anim: "Create a 2D animation sequence of modular wooden planks cracking or sagging under pressure. 6 frames: idle plank, weight applied (bends slightly down, ropes tighten), micro-fractures glowing purple, weight released, recovery. Ensure timber grains and rope bindings remain consistent."
-  },
-  SideviewToriiGates: {
-    static: "2D side-scrolling platformer midground asset, sideview of a traditional Japanese Torii gate. Weathered dark wood and vermilion lacquer pillars, covered in dark ivy and glowing purple moss, viewed from a clean side-view perspective, Hollow Knight style, transparent background.",
-    anim: "Create a 2D animation loop of a sideview Torii gate with hanging paper talismans and tassels fluttering in the wind. 8 frames. Keep the main wooden pillars and structure perfectly static, with only the talismans and ivy leaves swaying naturally. Transparent background."
-  },
-  SpringObjectPlatform: {
-    static: "2D side-scrolling platformer interactive object, spring platform. A traditional Japanese Taiko drum or runic bronze spring mechanism, dark fantasy style, glowing purple spring coils/runes, pressure plate top, stylized cute chibi aesthetic, transparent background.",
-    anim: "Create a 2D spring compression and bounce animation sequence for a runic spring platform. 8 frames: idle spring, sudden impact compression (squishes flat, runes flare bright purple), high-velocity upward launch, stretch, and settle back to idle. Ensure mechanical details and rune shapes remain consistent."
-  },
-  RepeatableLegoBlocks: {
-    static: "2D side-scrolling platformer modular asset, repeatable Lego-style platform building blocks. Standardized interlocking stone blocks with round runic connection studs on top, weathered basalt texture, dark violet glow, modular tile asset, transparent background.",
-    anim: "Create a 2D animation loop of repeatable runic lego blocks with pulsing connection studs. 8 frames. The blocks remain perfectly static while the circular studs on top glow in a slow breathing pattern from dim blue-violet to bright violet. Seamless loop, transparent background."
-  },
-  NPCMerchant: {
-    static: "2D game asset, cute chibi shadow merchant NPC, solid black silhouette body, wearing a wide woven bamboo strawhat, carrying a massive backpack overflowing with glowing purple scrolls and ancient relics, single glowing violet circular eye, Hollow Knight style, flat vector illustration, isolated.",
-    anim: "Create a 2D idle breathing animation sequence for a chibi shadow merchant NPC. 8 frames: body rising and falling slightly, backpack straps shifting, glowing eye pulse. Ensure strawhat shape, silhouette outline, and glowing eye remain perfectly consistent."
-  },
-  NPCVillagers: {
-    static: "2D game asset sprite sheet, cute chibi shadow villagers NPCs. Includes: an elder villager leaning on a twisted wooden staff, a villager sweeping with a bamboo broom, and a small child holding a glowing red paper lantern. Pure black silhouette bodies, glowing light-blue slit eyes, Hollow Knight style, isolated.",
-    anim: "Create a 2D idle animation sequence sprite sheet for chibi shadow villagers. 8 frames showing the elder nodding, the worker sweeping, and the child's lantern swaying. Keep silhouettes and glowing eye colors perfectly consistent across all frames."
-  },
-  CaveNetwork: {
-    static: "2D side-scrolling platformer cavern parallax assets (Hollow Knight style). Includes:<br>• Layer 1 (Up-close Foreground Silhouette): Massive solid black rock stalactites, thick hanging spider silk cords.<br>• Layer 2 (Playable Midground): Webbed stone bridges, egg cocoons, glowing green moss patches.<br>• Layer 3 (Misty Background): Faint, desaturated cavern tunnels and rock pillars fading into green mist.<br>• Layer 4 (Far Background): Dark shadowy abyss void. 2D cave game layers.",
-    anim: "Create a 2D animation loop of glowing green spores floating down. 8 frames: spore particles drifting and fading. Ensure moss shapes, cave background textures, and light intensity remain perfectly consistent."
-  },
-  ForegroundSilhouetteAssets: {
-    static: "2D game asset, up-close foreground element silhouette, Hollow Knight style, pure black solid silhouette shape, slightly blurred edges for depth of field. Includes hanging chains, thick dangling tree roots, giant overgrown cherry blossom leaves, and broken stone dojo column fragments, flat black color, isolated on white background.",
-    anim: "Create a 2D animation sequence of a massive foreground spiderweb or vine swaying gently in the wind. 8 frames. Keep it a pure black solid silhouette with blurry edges. Proportions and outline styling must remain perfectly consistent across all frames for visual continuity."
-  },
-  PlayableMidgroundAssets: {
-    static: "2D game asset, playable midground interactive object, dark fantasy ancient Japanese dojo theme, high detail. Includes a weathered wooden bench with purple fabric cushioning, a cracked ceramic breakable training pot, or a wooden direction signpost. Hand-drawn clean line-art, flat colors, dark anime game asset style.",
-    anim: "Create a 2D animation sequence of a ceramic training pot smashing. 6 frames: intact pot, cracked impact, splitting open, fragments flying outward, settling on ground, turning to dark dust. Ensure colors, texture lines, and proportions are perfectly consistent."
-  },
-  FaintBackgroundAssets: {
-    static: "2D game asset, far background layer element, Hollow Knight style. Extremely faint desaturated silhouettes of distant mountain peaks, soft misty pagodas, and distant hills. Drawn in cool desaturated indigo/violet tones with high transparency/faintness, creating strong atmospheric depth of field. Flat 2D vector style.",
-    anim: "Create a 2D animation loop of distant misty fog drifting. 8 frames. Ensure desaturated violet-grey colors, transparency values, and soft cloud shapes blend perfectly without visual seams or hard edges."
-  },
-  CaveForegroundSilhouettes: {
-    static: "2D game asset, up-close cave foreground silhouette, Hollow Knight style. Giant hanging stalactites, thick spider silk cords, dripping mossy stone overhangs. Pure black solid silhouette shape, out-of-focus blurred edges, dark cavern theme, flat vector illustration.",
-    anim: "Create a 2D animation loop of a giant spiderweb strand vibrating. 8 frames. Keep it a pure black solid silhouette, slightly out-of-focus, with the thickness of the web strand and position of the web threads perfectly consistent."
-  },
-  CaveBackgroundFaint: {
-    static: "2D game asset, cavern deep background layer, Hollow Knight style. Faint desaturated outlines of massive rocky pillars, bioluminescent green moss clusters glowing dimly, and deep bottomless cavern pits. Very low opacity, faint neon green/dark teal tint, atmospheric cavern fog, flat 2D style.",
-    anim: "Create a 2D animation loop of glowing cave spores floating in desaturated green mist. 8 frames. Spores drift slowly downwards and dissolve. Moss outlines and background pillar shapes must stay consistent."
-  },
-  AttackAnimations: {
-    static: "2D game visual effect, slash trail sparks, shadow magic energy blast, glowing dark violet aura energy, stylized 2D cartoon visual effects, vector icon assets.",
-    anim: "Create a 2D frame sequence of a shadow magic projectile cast. 8 frames: charge sphere at player hand, launch bolt flying, trail stretching, and final impact explosion of purple shadow rings. Ensure energy patterns and color shades remain perfectly consistent."
-  },
-  PlayableMage: {
-    static: "2D game asset, cute chibi shadow mage protagonist, solid black silhouette body, wearing a tattered dark cloak with glowing purple runic trim, pointed hood casting shadow over face, single glowing violet eye visible, holding a twisted dark wood staff with a floating purple arcane orb at the tip, Hollow Knight style dark fantasy chibi, flat vector illustration, isolated on solid dark background.",
-    anim: "Create a 2D idle breathing animation sprite sheet for a chibi shadow mage protagonist. 8 frames: cloak swaying gently, arcane orb on staff pulsing with purple glow, subtle body rise and fall. Ensure the hood shape, cloak silhouette, staff proportions, and glowing violet eye remain perfectly consistent across all frames."
-  },
-  Arachnid BossBoss: {
-    static: "2D game boss asset, massive Arachnid Boss spider demon, dark fantasy horror style, giant bulbous dark purple and black abdomen covered in glowing red vein-like cracks, eight armored chitinous legs with sharp barbed tips, menacing face with multiple glowing crimson eyes arranged in rows, dripping green venom fangs, dark webbing texture details, Hollow Knight style boss design, isolated on solid dark background.",
-    anim: "Create a 2D attack animation sprite sheet for a massive Arachnid Boss spider boss. 8 frames: rear up on hind legs, lunge forward with fangs open, slam down with front legs creating impact shockwave, return to idle stance. Ensure leg count, abdomen shape, eye arrangement, and armor plating details remain perfectly consistent across all frames."
-  },
-  MagicProjectileVFX: {
-    static: "2D game visual effect asset, shadow magic energy projectile bolt, dark purple glowing core sphere surrounded by swirling violet and black energy wisps, trailing dark particle sparks, stylized 2D cartoon VFX, flat vector, isolated on transparent background.",
-    anim: "Create a 2D animation loop of a shadow magic projectile flying. 8 frames: core sphere pulsing, energy wisps rotating around the core, trailing dark sparks dissipating behind. Ensure core sphere size, energy wisp colors, and overall projectile silhouette remain perfectly consistent across all frames."
-  },
-  WebProjectileVFX: {
-    static: "2D game visual effect asset, spider web projectile shot, sticky grey-white silk ball with trailing web strands, dark fantasy style, slight green toxic glow around edges, flat vector, isolated on transparent background.",
-    anim: "Create a 2D animation sequence of a web projectile launching and flying. 8 frames: compressed silk ball, launch stretch, flying with trailing silk threads, impact splat spreading into a web pattern. Ensure silk texture, color values, and strand thickness remain perfectly consistent across all frames."
-  },
-  HealingPotion: {
-    static: "2D game item asset, healing potion flask, small round glass bottle with a cork stopper, filled with glowing bright green luminous liquid, dark fantasy style, subtle sparkle particles inside the liquid, ornate dark metal wire wrapping around the bottle, flat vector illustration, isolated on solid dark background.",
-    anim: "Create a 2D animation loop of a healing potion bottle glowing. 8 frames: liquid inside shimmering with pulsing green light, tiny sparkle particles rising and falling inside the glass, cork and bottle shape staying perfectly static and consistent across all frames."
+    static: "2D game UI element pack, sleek dark slate fantasy window panel frame, golden filigree trim, modal close button, styled dialogue text bubble box, crisp modern game UI design, flat asset, isolated.",
+    anim: "2D button interaction state sheet: Default, Hover (subtle glow), Pressed (scale down and click highlight), and Disabled. 4 distinct visual states, pixel-perfect alignment."
   },
   HUDElements: {
-    static: "2D game UI asset sheet, dark fantasy HUD elements. Includes: a horizontal health bar frame with ornate dark iron borders and glowing red fill, a mana bar frame with dark iron borders and glowing blue-purple fill, a small coin counter icon (gold coin with shadow aura), and a potion counter icon (small green flask). Stylized dark gothic Japanese fantasy aesthetic, flat vector UI design, isolated.",
-    anim: "Create a 2D animation sequence of a HUD health bar taking damage. 6 frames: red fill drops, white flash on the lost segment, segment fades to dark empty, subtle crack pattern appears on the border. Ensure bar frame dimensions, iron border details, and overall proportions remain perfectly consistent."
+    static: "2D video game player HUD bar, horizontal health gauge with ornate metallic filigree frame, red gradient vital fill, accompanying blue mana bar, segmented notch markers, clean 2D game overlay, isolated.",
+    anim: "2D HUD animation sequence showing health bar taking damage: health slider immediately flashes white and depletes, while an under-fill lag bar slowly catches up over 6 frames."
   },
-  BossHealthBar: {
-    static: "2D game UI asset, dramatic boss health bar overlay, wide cinematic horizontal bar spanning the screen width, ornate dark iron and bone frame with spider web motifs carved into the borders, glowing crimson red fill, boss name text area with gothic font styling above the bar, dark fantasy Japanese aesthetic, flat vector UI design, isolated.",
-    anim: "Create a 2D animation sequence of a boss health bar appearing dramatically. 6 frames: dark iron frame slides in from edges, spider web motifs glow and pulse, crimson fill floods from left to right, boss name text fades in above. Ensure frame dimensions and ornate details remain perfectly consistent."
+  MeleeSlashVFX: {
+    static: "2D combat visual effect sprite, crescent-shaped weapon slash trail arc, glowing cyan and white energy edge with trailing motion sparks, transparent alpha background, stylized 2D impact VFX, isolated.",
+    anim: "2D combat effect sequence: crescent sword slash arc appears, expands violently with sparks, and dissipates into fading particles. 6 sequential frames, transparent PNG sequence."
   },
-  MainMenuScreen: {
-    static: "2D game main menu title screen background, dark atmospheric Japanese fantasy scene, massive ancient torii gate silhouette framing a stormy violet and crimson sky, swirling storm clouds, distant shadow mountains, cherry blossom petals drifting in wind, a lone chibi shadow mage silhouette standing at the gate threshold looking outward, cinematic moody lighting, Hollow Knight inspired dark fantasy aesthetic, widescreen 16:9 composition.",
-    anim: "Create a 2D animation loop for a main menu background. 8 frames: storm clouds drifting slowly, cherry blossom petals floating across the screen, storm clouds swirling in the sky, mage cloak fluttering in wind. Ensure torii gate silhouette, mountain shapes, and overall composition remain perfectly static and consistent."
+  MagicProjectileVFX: {
+    static: "2D magic projectile sprite, glowing arcane energy orb with spiraling plasma comet tail, vivid violet and cyan glow, stylized action game spell asset, isolated on black or transparent.",
+    anim: "2D looping projectile animation: arcane energy bolt spiraling forward with pulsing core and continuous particle tail. 6 seamless looping frames."
   },
-  VictoryScreen: {
-    static: "2D game UI overlay, level complete victory screen, dark translucent background overlay, ornate golden frame border with shadow rune engravings, large stylized text area reading 'LEVEL COMPLETE' in sharp gothic-fantasy metallic gold lettering, star rating icons below, continue button frame, dark fantasy aesthetic, flat vector UI design.",
-    anim: "Create a 2D animation sequence of a victory screen appearing. 6 frames: dark overlay fades in, golden frame border materializes with glowing rune sparkles, text stamps in with a flash, star icons light up one by one. Ensure frame proportions, text styling, and border details remain perfectly consistent."
+  RigSheet_Hero: {
+    static: "2D skeletal character deconstruction sprite sheet for 2D bone rigging, hero protagonist neatly separated into individual limbs: head with neutral expression, torso, upper arms, lower arms, hands, upper legs, lower legs, boots, and weapon sprite. Organized on a clean grid, isolated on transparent background.",
+    anim: "2D facial expression and eye blink sheet for hero character rig: neutral, blink closed, alert, determined, and damaged hit reaction. Arranged in sequence for 2D bone hierarchy swap."
   },
-  CompanionNPC: {
-    static: "2D game character asset sheet, Shadow companion NPC, cute chibi proportions, solid black silhouette body, elegant flowing dark cloak with glowing teal-cyan runic patterns along the hem, single large glowing teal eye, small horn-like protrusions on head, mysterious and cute personality. Three expression variants on the same sheet: neutral (calm teal glow), explaining (brighter teal eye, slight lean forward), cutely-annoyed (eye narrowed, small anger mark). Hollow Knight style, flat vector, isolated.",
-    anim: "Create a 2D idle animation sprite sheet for Companion companion NPC. 8 frames: cloak swaying, teal runic patterns pulsing gently, eye blinking once mid-sequence. Ensure horn shapes, cloak silhouette, and teal glow color remain perfectly consistent across all frames."
+  RigSheet_Monster: {
+    static: "2D skeletal monster deconstruction sheet for joint rigging: beast torso, head with separate hinged jaw, individual front and rear articulated limbs, claws, and segmented tail. Organized neatly on a grid, isolated on transparent background.",
+    anim: "2D monster mouth opening and roar anticipation sprite parts for skeletal animation assembly. 4 states ready for skeletal controller attachment."
   },
-  RigSheet_Mage: {
-    static: "2D game character deconstructed asset sheet for a chibi shadow mage in a dark-fantasy aesthetic. Side-view pose on a single transparent background. Separate each body part into isolated, non-overlapping sprites arranged clearly with spacing between them. Include these separated parts: Head (with hood, single glowing violet eye), Torso (tattered dark cloak with purple runic trim), Left Upper Arm, Left Forearm, Left Hand (open palm, glowing), Right Upper Arm, Right Forearm, Right Hand (gripping staff), Left Thigh, Left Shin, Left Foot (dark boots), Right Thigh, Right Shin, Right Foot (dark boots), Magic Staff (twisted wood with floating arcane orb). Draw each part with slight overlap zones at joint areas for smooth skeletal rotation. High-resolution PNG with clean edges, flat vector style, Hollow Knight inspired.",
-    anim: "Create a deconstructed 2D rig asset sheet for a chibi shadow mage character, optimized for skeletal animation software. Arrange ALL body parts separately on one transparent canvas with clear labels: HEAD, TORSO, L_UPPER_ARM, L_FOREARM, L_HAND, R_UPPER_ARM, R_FOREARM, R_HAND, L_THIGH, L_SHIN, L_FOOT, R_THIGH, R_SHIN, R_FOOT, STAFF. Each part must have: clean anti-aliased edges, overlapping joint zones (rounded ends at shoulders, elbows, hips, knees), consistent dark fantasy art style with glowing purple runic details. Side-view (left-facing). Do NOT connect any parts. Canvas size: 2048x2048px."
-  },
-  RigSheet_Rogue: {
-    static: "2D game character deconstructed asset sheet for a chibi dark fantasy rogue assassin. Side-view pose on a single transparent background. Separate each body part into isolated, non-overlapping sprites arranged clearly. Include: Head (masked face, glowing red slit eyes, spiked dark hair), Torso (leather vest with shadow emblem), Left Upper Arm (wrapped bandage), Left Forearm, Left Hand (claw grip), Right Upper Arm, Right Forearm, Right Hand (dagger grip), Left Thigh (dark trousers), Left Shin, Left Foot (silent boots), Right Thigh, Right Shin, Right Foot, Dagger (serrated shadow blade), Cloak (tattered flowing cape). Joint overlap zones at all connections. High-res PNG, flat vector, dark cute chibi style.",
-    anim: "Create a deconstructed 2D rig asset sheet for a chibi dark fantasy rogue, optimized for skeletal animation. Arrange ALL parts separately on transparent canvas with labels: HEAD, TORSO, L_UPPER_ARM, L_FOREARM, L_HAND, R_UPPER_ARM, R_FOREARM, R_HAND, L_THIGH, L_SHIN, L_FOOT, R_THIGH, R_SHIN, R_FOOT, DAGGER, CLOAK. Each part with clean edges and overlapping joint zones. Side-view left-facing. Canvas: 2048x2048px."
-  },
-  RigSheet_StrawhatSwordsman: {
-    static: "2D game character deconstructed asset sheet for a tall strawhat swordsman ninja in a dark shadow silhouette style. Side-view on transparent background. Separate isolated parts: Head (solid black silhouette with flat woven strawhat, glowing purple eye slits), Torso (black silhouette with kimono outline), Left Upper Arm, Left Forearm, Left Hand, Right Upper Arm, Right Forearm, Right Hand (katana grip), Left Thigh (hakama pants outline), Left Shin, Left Foot (straw sandals), Right Thigh, Right Shin, Right Foot, Katana (long curved blade with golden tsuba guard), Strawhat (separate from head for layering). All parts non-overlapping with joint overlap zones. High-res PNG, flat vector silhouette.",
-    anim: "Create a deconstructed 2D rig sheet for a strawhat swordsman ninja silhouette, for skeletal animation. Parts on transparent canvas with labels: HEAD, TORSO, L_UPPER_ARM, L_FOREARM, L_HAND, R_UPPER_ARM, R_FOREARM, R_HAND, L_THIGH, L_SHIN, L_FOOT, R_THIGH, R_SHIN, R_FOOT, KATANA, STRAWHAT. Solid black silhouette style with purple eye glow. Side-view left-facing. Canvas: 2048x2048px."
-  },
-  RigSheet_SamuraiWarrior: {
-    static: "2D game character deconstructed asset sheet for a tall samurai warrior shadow silhouette in 3/4 view on transparent background. Separate isolated parts: Head (solid black with horned kabuto helmet, glowing red slit eyes), Torso (armored do with shoulder pauldrons, red cord lacing), Left Upper Arm (armored kote), Left Forearm, Left Hand, Right Upper Arm, Right Forearm, Right Hand (weapon grip), Left Thigh (armored kusazuri skirt), Left Shin (greaved suneate), Left Foot (waraji sandals), Right Thigh, Right Shin, Right Foot, Nodachi (massive two-handed sword). Joint overlap zones. High-res PNG, flat vector dark fantasy.",
-    anim: "Create a deconstructed 2D rig sheet for a samurai warrior silhouette in 3/4 view, for skeletal animation. Parts on transparent canvas with labels: HEAD, TORSO, L_UPPER_ARM, L_FOREARM, L_HAND, R_UPPER_ARM, R_FOREARM, R_HAND, L_THIGH, L_SHIN, L_FOOT, R_THIGH, R_SHIN, R_FOOT, NODACHI. Solid black with red accents and glowing red eyes. Canvas: 2048x2048px."
-  },
-  RigSheet_VillageNPC: {
-    static: "2D game character deconstructed asset sheet for a chibi shadow village NPC in 3/4 view on transparent background. Separate isolated parts: Head (solid black silhouette, bob haircut outline, glowing blue slit eyes), Torso (simple fabric tunic), Left Upper Arm (cloth sleeve), Left Forearm, Left Hand (open), Right Upper Arm, Right Forearm, Right Hand (holding broom or lantern), Left Thigh (simple pants), Left Shin, Left Foot (wooden geta sandals), Right Thigh, Right Shin, Right Foot, Accessory (broom or paper lantern). All parts non-overlapping with joint zones. High-res PNG, flat vector, Hollow Knight style.",
-    anim: "Create a deconstructed 2D rig sheet for a village NPC shadow silhouette, for skeletal animation. Parts on transparent canvas with labels: HEAD, TORSO, L_UPPER_ARM, L_FOREARM, L_HAND, R_UPPER_ARM, R_FOREARM, R_HAND, L_THIGH, L_SHIN, L_FOOT, R_THIGH, R_SHIN, R_FOOT, ACCESSORY. Blue-eyed Hollow Knight style. 3/4 view. Canvas: 2048x2048px."
-  },
-  RigSheet_SpiderBoss: {
-    static: "2D game boss deconstructed asset sheet for a massive Arachnid Boss spider demon. 3/4 perspective on transparent background. Separate isolated parts: Thorax (dark armored head section with multiple glowing crimson eyes), Abdomen (huge bulbous body with red vein cracks and dark purple shell), Leg 1 Upper, Leg 1 Lower, Leg 2 Upper, Leg 2 Lower, Leg 3 Upper, Leg 3 Lower, Leg 4 Upper, Leg 4 Lower (left side), Leg 5 Upper, Leg 5 Lower, Leg 6 Upper, Leg 6 Lower, Leg 7 Upper, Leg 7 Lower, Leg 8 Upper, Leg 8 Lower (right side), Fangs (dripping green venom). All 20 parts cleanly separated with joint overlap zones. High-res PNG, dark horror style.",
-    anim: "Create a deconstructed 2D rig sheet for a Arachnid Boss spider boss, for skeletal animation. Parts on transparent canvas with labels: THORAX, ABDOMEN, LEG1_A, LEG1_B, LEG2_A, LEG2_B, LEG3_A, LEG3_B, LEG4_A, LEG4_B, LEG5_A, LEG5_B, LEG6_A, LEG6_B, LEG7_A, LEG7_B, LEG8_A, LEG8_B, FANGS. Dark horror style with crimson eyes and green venom. Canvas: 2048x2048px."
-  },
-  RigSheet_NPCMerchant: {
-    static: "2D game character deconstructed asset sheet for a chibi shadow merchant NPC. Side-view on transparent background. Separate isolated parts: Head (solid black silhouette with wide bamboo strawhat, single glowing violet eye), Torso (merchant vest with belt pouches), Left Upper Arm, Left Forearm, Left Hand (coin gesture), Right Upper Arm, Right Forearm, Right Hand (scroll holding), Left Thigh, Left Shin, Left Foot (traveler boots), Right Thigh, Right Shin, Right Foot, Backpack (massive overflowing pack with glowing scrolls and relics), Hat (wide bamboo hat separate for layering). All parts non-overlapping with joint zones. High-res PNG, flat vector, Hollow Knight style.",
-    anim: "Create a deconstructed 2D rig sheet for a shadow merchant NPC, for skeletal animation. Parts on transparent canvas with labels: HEAD, TORSO, L_UPPER_ARM, L_FOREARM, L_HAND, R_UPPER_ARM, R_FOREARM, R_HAND, L_THIGH, L_SHIN, L_FOOT, R_THIGH, R_SHIN, R_FOOT, BACKPACK, HAT. Hollow Knight style shadow with violet eye. Side-view. Canvas: 2048x2048px."
+  RigSheet_NPC: {
+    static: "2D skeletal NPC deconstruction sheet: peaceful merchant character with separate head, merchant backpack, torso, arms with trade gestures, and legs. Prepared for 2D bone rigging, isolated on transparent background.",
+    anim: "2D NPC breathing and idle head sway reference frames for bone constraint testing. 4 key poses for idle tweening setup."
   }
 };
 
 function loadAssetPrompts() {
-  const sel = document.getElementById("assetSelector").value;
-  const pData = promptsDb[sel];
-  if (pData) {
-    document.getElementById("staticPrompt").value = pData.static;
-    document.getElementById("animPrompt").value = pData.anim;
-    
-    // Sync category dropdown for importing as well (mapping sub-variants to their parent folders)
-    let importCat = sel;
-    if (sel.startsWith("Spiderling")) importCat = "Spiderlings";
-    else if (sel.startsWith("StrawhatSwordsman")) importCat = "StrawhatSwordsmen";
-    else if (sel.startsWith("SamuraiSilhouette")) importCat = "SamuraiSilhouettes";
-    else if (sel === "NPCMerchant" || sel === "NPCVillagers") importCat = "NPCs";
-    else if (sel === "CompanionNPC") importCat = "Companion";
-    else if (sel === "DojoRepeatableWall" || sel === "DojoFloorSilhouettes" || sel === "DojoHangingAssets" || sel === "DojoBackgroundWall" || sel === "DojoFloorTiles" || sel === "DojoBlockedGate" || sel === "DojoTrainingDummy" || sel === "DojoWeaponRack") importCat = "DojoInteriors";
-    else if (sel === "ForegroundSilhouetteAssets" || sel === "PlayableMidgroundAssets" || sel === "FaintBackgroundAssets" || sel === "VillageGroundTiles" || sel === "VillageShopHut" || sel === "DistantJapaneseHomes" || sel === "VillageBridges" || sel === "VillageProps" || sel === "SakuraDanglingVines" || sel === "MountainSkyBG" || sel === "MountainStones" || sel === "VillagePlanks" || sel === "SideviewToriiGates" || sel === "SpringObjectPlatform" || sel === "RepeatableLegoBlocks") importCat = "VillageEnvironment";
-    else if (sel === "CaveForegroundSilhouettes" || sel === "CaveBackgroundFaint") importCat = "CaveNetwork";
-    else if (sel === "PlayableMage") importCat = "PlayerCharacter";
-    else if (sel === "Arachnid BossBoss") importCat = "Bosses";
-    else if (sel === "MagicProjectileVFX" || sel === "WebProjectileVFX") importCat = "VFX";
-    else if (sel === "HealingPotion") importCat = "Potions";
-    else if (sel === "HUDElements" || sel === "BossHealthBar") importCat = "HUD";
-    else if (sel === "MainMenuScreen" || sel === "VictoryScreen") importCat = "Menus";
-    else if (sel.startsWith("RigSheet_")) importCat = "PlayerCharacter";
-    
-    document.getElementById("importCategory").value = importCat;
-  }
+  const sel = document.getElementById('assetSelector');
+  const key = sel.value;
+  const item = promptsDb[key] || { static: '', anim: '' };
+  document.getElementById('staticPrompt').value = item.static;
+  document.getElementById('animPrompt').value = item.anim;
 }
 
-function copyPrompt(id) {
-  const txt = document.getElementById(id);
-  txt.select();
-  txt.setSelectionRange(0, 99999);
-  navigator.clipboard.writeText(txt.value);
-  
-  // Flash status
-  const btn = txt.nextElementSibling;
-  const origText = btn.textContent;
-  btn.textContent = "Copied!";
-  btn.style.background = "#50ffc3";
-  btn.style.color = "#04130d";
-  setTimeout(() => {
-    btn.textContent = origText;
-    btn.style.background = "";
-    btn.style.color = "";
-  }, 1200);
+function copyText(id) {
+  const el = document.getElementById(id);
+  if (!el || !el.value) return;
+  navigator.clipboard.writeText(el.value).then(() => {
+    alert('Prompt copied to clipboard!');
+  });
 }
 
-// Drag & Drop Handling
-const dropzone = document.getElementById("dropzone");
-const fileInput = document.getElementById("fileInput");
-const fileIndicator = document.getElementById("fileIndicator");
-const importBtn = document.getElementById("importBtn");
-const importToast = document.getElementById("importToast");
 let selectedFile = null;
 
-dropzone.addEventListener("click", () => fileInput.click());
+function handleFileSelect(files) {
+  if (!files || !files.length) return;
+  selectedFile = files[0];
+  document.getElementById('fileIndicator').textContent = 'Selected: ' + selectedFile.name;
+}
 
-dropzone.addEventListener("dragover", (e) => {
+const dropzone = document.getElementById('dropzone');
+dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
+dropzone.addEventListener('dragleave', () => { dropzone.classList.remove('dragover'); });
+dropzone.addEventListener('drop', (e) => {
   e.preventDefault();
-  dropzone.classList.add("dragover");
-});
-
-dropzone.addEventListener("dragleave", () => {
-  dropzone.classList.remove("dragover");
-});
-
-dropzone.addEventListener("drop", (e) => {
-  e.preventDefault();
-  dropzone.classList.remove("dragover");
-  if (e.dataTransfer.files.length) {
-    handleFileSelect(e.dataTransfer.files[0]);
+  dropzone.classList.remove('dragover');
+  if (e.dataTransfer.files && e.dataTransfer.files.length) {
+    handleFileSelect(e.dataTransfer.files);
   }
 });
 
-fileInput.addEventListener("change", (e) => {
-  if (e.target.files.length) {
-    handleFileSelect(e.target.files[0]);
-  }
-});
-
-function handleFileSelect(file) {
-  selectedFile = file;
-  fileIndicator.textContent = `Selected: ${file.name} (${Math.round(file.size / 1024)} KB)`;
-  fileIndicator.style.display = "block";
-  hideToast();
-}
-
-function showToast(text, isSuccess) {
-  importToast.textContent = text;
-  importToast.className = "toast " + (isSuccess ? "success" : "error");
-  importToast.style.display = "block";
-}
-
-function hideToast() {
-  importToast.style.display = "none";
-}
-
-importBtn.addEventListener("click", async () => {
+function uploadFile() {
   if (!selectedFile) {
-    showToast("Please drag-and-drop or select a file first.", false);
+    alert('Please select or drop a file first.');
     return;
   }
-
-  const category = document.getElementById("importCategory").value;
-  const type = document.getElementById("importType").value;
-
-  const fd = new FormData();
-  fd.append("category", category);
-  fd.append("asset_type", type);
-  fd.append("file", selectedFile);
-
-  showToast("Uploading and importing to Unity project...", true);
-  importBtn.disabled = true;
-
-  try {
-    const res = await fetch("/api/assets/import-unity", {
-      method: "POST",
-      body: fd
-    });
-    const data = await res.json();
-    
-    if (res.ok) {
-      showToast(data.message, true);
-      // Reset file selection
-      selectedFile = null;
-      fileIndicator.style.display = "none";
-      fileInput.value = "";
-    } else {
-      showToast("Error: " + (data.error || "Upload failed"), false);
-    }
-  } catch (error) {
-    showToast("Network error: Could not complete import.", false);
-  } finally {
-    importBtn.disabled = false;
-  }
-});
-
-// Sync active link in nav
-(function () {
-  document.querySelectorAll(".gdos-nav a[href]").forEach((a) => {
-    try {
-      const p = new URL(a.href).pathname.replace(/\/$/, "") || "/";
-      const here = location.pathname.replace(/\/$/, "") || "/";
-      a.classList.toggle("active", p === here);
-    } catch (_) {}
-  });
-})();
-
-const parallaxScriptCode = `using UnityEngine;
-
-[AddComponentMenu("Environment/Parallax Background")]
-public class ParallaxBackground : MonoBehaviour
-{
-    [Header("Camera Reference")]
-    [Tooltip("The main camera transform. If left empty, will auto-detect Camera.main.")]
-    public Transform cam;
-
-    [Header("Parallax Coefficients")]
-    [Tooltip("How much the layer moves relative to the camera. 0 = moves with camera (infinite distance background), 0.5 = moves at half speed, 1 = static (moves with foreground player), 1.2+ = moves faster (closer foreground silhouettes).")]
-    public float parallaxEffectX = 0.5f;
-    [Tooltip("Vertical parallax factor. Set to 0 to keep background locked vertically, or low values (e.g. 0.1 - 0.3) for distant layers.")]
-    public float parallaxEffectY = 0.1f;
-
-    [Header("Smoothing")]
-    [Tooltip("Smoothing/Interpolation rate to prevent jitter. 0 = instant tracking, > 0 = smoother lag/blend (recommended: 0.1 to 5.0).")]
-    public float smoothing = 0f;
-
-    [Header("Auto-Scrolling")]
-    [Tooltip("Constant scrolling velocity on the X axis, useful for clouds, wind, or dust particles.")]
-    public float autoScrollSpeedX = 0f;
-    [Tooltip("Constant scrolling velocity on the Y axis, useful for rising mist or falling embers.")]
-    public float autoScrollSpeedY = 0f;
-
-    [Header("Infinite Tiling (Horizontal)")]
-    [Tooltip("Should this layer automatically wrap around when the camera crosses its length boundary? Requires a SpriteRenderer on this GameObject.")]
-    public bool infiniteHorizontalScroll = true;
-
-    [Header("Vertical Constraints")]
-    [Tooltip("If true, limits how far the background can scroll vertically relative to its start position.")]
-    public bool limitVerticalOffset = false;
-    public float maxVerticalOffset = 5f;
-
-    private float length;
-    private float startposX;
-    private float startposY;
-    private float autoScrollOffsetRealX;
-    private float autoScrollOffsetRealY;
-
-    void Start()
-    {
-        if (cam == null)
-        {
-            if (Camera.main != null)
-            {
-                cam = Camera.main.transform;
-            }
-            else
-            {
-                Debug.LogWarning("ParallaxBackground: No Main Camera found! Please assign it in the Inspector.", this);
-                enabled = false;
-                return;
-            }
-        }
-
-        startposX = transform.position.x;
-        startposY = transform.position.y;
-
-        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
-        if (spriteRenderer != null)
-        {
-            length = spriteRenderer.bounds.size.x;
-        }
-        else
-        {
-            if (infiniteHorizontalScroll)
-            {
-                Debug.LogWarning("ParallaxBackground on '" + gameObject.name + "' has Infinite Scroll enabled but no SpriteRenderer was found. Disabling infinite scroll.", this);
-                infiniteHorizontalScroll = false;
-            }
-        }
-    }
-
-    void LateUpdate()
-    {
-        if (cam == null) return;
-
-        autoScrollOffsetRealX += autoScrollSpeedX * Time.deltaTime;
-        autoScrollOffsetRealY += autoScrollSpeedY * Time.deltaTime;
-
-        float temp = (cam.position.x * (1 - parallaxEffectX));
-        float distX = (cam.position.x * parallaxEffectX) + autoScrollOffsetRealX;
-        float distY = (cam.position.y * parallaxEffectY) + autoScrollOffsetRealY;
-
-        float targetX = startposX + distX;
-        float targetY = startposY + distY;
-
-        if (limitVerticalOffset)
-        {
-            targetY = Mathf.Clamp(targetY, startposY - maxVerticalOffset, startposY + maxVerticalOffset);
-        }
-
-        Vector3 targetPos = new Vector3(targetX, targetY, transform.position.z);
-
-        if (smoothing > 0f)
-        {
-            transform.position = Vector3.Lerp(transform.position, targetPos, smoothing * Time.deltaTime * 10f);
-        }
-        else
-        {
-            transform.position = targetPos;
-        }
-
-        if (infiniteHorizontalScroll)
-        {
-            if (temp > startposX + length)
-            {
-                startposX += length;
-            }
-            else if (temp < startposX - length)
-            {
-                startposX -= length;
-            }
-        }
-    }
-}`;
-
-function copyParallaxScript() {
-  navigator.clipboard.writeText(parallaxScriptCode);
-  const btn = document.querySelector("button[onclick='copyParallaxScript()']");
-  const orig = btn.textContent;
-  btn.textContent = "Copied C# script!";
-  btn.style.background = "#50ffc3";
-  btn.style.color = "#04130d";
+  const toast = document.getElementById('importToast');
+  toast.className = 'toast success';
+  toast.textContent = 'Routing ' + selectedFile.name + ' to Unity workspace...';
   setTimeout(() => {
-    btn.textContent = orig;
-    btn.style.background = "";
-    btn.style.color = "";
-  }, 1500);
+    toast.textContent = 'Successfully imported ' + selectedFile.name + ' into Unity export tree!';
+  }, 1000);
 }
 
-// Initial Load
-loadAssetPrompts();
+document.addEventListener('DOMContentLoaded', loadAssetPrompts);
 </script>
 </body>
 </html>

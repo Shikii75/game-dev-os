@@ -175,11 +175,11 @@
           </td>
         </tr>
         <tr>
-          <td><span class="script-name">MageCombat.cs</span></td>
+          <td><span class="script-name">PlayerCombat.cs</span></td>
           <td><span class="target-object">Player</span></td>
           <td class="setup-instructions">
             • <strong>Melee Attack Collider</strong>: Drag Player weapon swing trigger collider.<br>
-            • <strong>Projectile Prefab</strong>: Assign the <code>MagicProjectile</code> prefab here.<br>
+            • <strong>Projectile Prefab</strong>: Assign ranged projectile prefab here.<br>
             • <strong>Projectile Spawn Point</strong>: Assign a child transform situated at the front of the Player.
           </td>
         </tr>
@@ -226,40 +226,40 @@
           </td>
         </tr>
         <tr>
-          <td><span class="script-name">SpiderBoss.cs</span></td>
-          <td><span class="target-object">Arachnid Boss</span></td>
+          <td><span class="script-name">BossController.cs</span></td>
+          <td><span class="target-object">Boss Encounter</span></td>
           <td class="setup-instructions">
             • <strong>Roam Points</strong>: Transforms of roam paths.<br>
-            • <strong>Web Projectile Prefab</strong> &amp; <strong>Spiderling Prefab</strong>: Assign web and spiderling prefabs.<br>
-            Manages phase transitions (3 phases based on health thresholds) and boss attacks (ClawSwipe, WebSpray, Spawnlings, Stomp).
+            • <strong>Ranged Attack Prefab</strong> &amp; <strong>Minion Spawn Prefab</strong>: Assign attack and minion prefabs.<br>
+            Manages phase transitions (3 phases based on health thresholds) and boss attacks (ClawSwipe, ProjectileSpray, SpawnMinions, GroundStomp).
           </td>
         </tr>
         <tr>
-          <td><span class="script-name">spiderpatrol.cs</span></td>
-          <td><span class="target-object">Spider Patrollers</span></td>
+          <td><span class="script-name">PatrolEnemy.cs</span></td>
+          <td><span class="target-object">Crawler / Patrol Enemies</span></td>
           <td class="setup-instructions">
-            Basic cave spider patroller script. Moves back and forth between left/right margins.
+            Basic crawler patroller script. Moves back and forth between left/right boundary margins.
           </td>
         </tr>
         <tr>
           <td><span class="script-name">EnemyPatrolAI.cs</span></td>
           <td><span class="target-object">Patrol Enemy AI</span></td>
           <td class="setup-instructions">
-            Legacy patroller AI script. Used for basic waypoint routing and player detection.
+            Waypoints routing and player proximity detection.
           </td>
         </tr>
         <tr>
-          <td><span class="script-name">WebProjectile.cs</span></td>
-          <td><span class="target-object">Web Projectile Prefab</span></td>
+          <td><span class="script-name">RangedProjectile.cs</span></td>
+          <td><span class="target-object">Ranged Projectile Prefab</span></td>
           <td class="setup-instructions">
-            Requires Rigidbody2D and Collider2D (check <strong>Is Trigger</strong>). Shot by Arachnid Boss; flies towards the player, deals damage, and applies a temporary movement speed slow.
+            Requires Rigidbody2D and Collider2D (check <strong>Is Trigger</strong>). Propels towards target, deals damage, and applies optional movement debuffs.
           </td>
         </tr>
         <tr>
-          <td><span class="script-name">Spiderling.cs</span></td>
-          <td><span class="target-object">Spiderling Prefab</span></td>
+          <td><span class="script-name">EnemyMinion.cs</span></td>
+          <td><span class="target-object">Enemy Minion Prefab</span></td>
           <td class="setup-instructions">
-            Requires Rigidbody2D and Collider2D. Mini spider spawned by boss; chases player aggressively, bites and explodes on contact. Implements <code>IDamageable</code>.
+            Requires Rigidbody2D and Collider2D. Swarm minion spawned by encounters; pursues player aggressively. Implements <code>IDamageable</code>.
           </td>
         </tr>
         <tr>

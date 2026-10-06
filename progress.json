@@ -6,182 +6,171 @@
       "tasks": [
         {
           "id": "launch-1",
-          "label": "Mobile Virtual Touch Controls & Joystick Simulation (D-pad & action buttons)",
-          "completed": true
+          "label": "Touch Controls & Gamepad Simulation (Virtual Joystick / Controller bindings)",
+          "completed": false
         },
         {
           "id": "launch-2",
-          "label": "Save Point & Checkpoint System Integration (Auto-save and respawn validation)",
-          "completed": true
+          "label": "Save Point & Checkpoint System Integration (Player state persistence and scene respawn)",
+          "completed": false
         },
         {
           "id": "launch-3",
-          "label": "Merchant NPC & In-Game Shop Setup (Item exchange and currency economy)",
-          "completed": true
+          "label": "In-Game Merchant NPC & Shop System (Dialogue trees, consumable items, and currency exchange)",
+          "completed": false
         },
         {
           "id": "launch-4",
-          "label": "Arcade Vault & Mini-Games System (CRT/Bloom shader and player reward system)",
-          "completed": true
+          "label": "Post-Processing & Visual FX Polish (Bloom, Vignette, and Custom CRT Shaders)",
+          "completed": false
         },
         {
           "id": "launch-5",
-          "label": "Dialogue Assistant Bridge (Contextual awareness and narrative fallbacks)",
-          "completed": true
+          "label": "Companion & NPC Dialogue AI (Contextual awareness and fallback conversation state machine)",
+          "completed": false
         },
         {
           "id": "launch-6",
-          "label": "Ads & Monetization Integration (Optional rewarded revival & banner placement)",
-          "completed": true
+          "label": "Audio & Atmospheric Sound Pass (Footsteps, ambient environment loops, and impact SFX)",
+          "completed": false
         },
         {
           "id": "launch-7",
-          "label": "Complete Sound Effects & Atmospheric Audio Pass (Footsteps, impacts, ambient loops)",
+          "label": "End-to-End Game Flow Loop (Title Menu ➔ Tutorial ➔ Exploration ➔ Dungeon ➔ Victory Screen)",
           "completed": false
         },
         {
           "id": "launch-8",
-          "label": "End-to-End Game Flow & Victory Loop (Tutorial ➔ Level 1 ➔ Level 2 ➔ Boss Lair ➔ Victory Screen)",
+          "label": "Asset & Memory Optimization (Texture compression presets, sprite atlasing, and memory garbage collection)",
           "completed": false
         },
         {
           "id": "launch-9",
-          "label": "Asset Optimization & Memory Pruning (ASTC texture compression, sprite atlasing, GC pass)",
-          "completed": false
-        },
-        {
-          "id": "launch-10",
-          "label": "Final Standalone Build Export Verification (Desktop Executable & Mobile Package)",
+          "label": "Standalone Build Verification (Cross-platform testing and executable packaging)",
           "completed": false
         }
       ]
     },
     {
       "id": "character",
-      "title": "🎭 CHARACTER & ANIMATION",
+      "title": "🎭 Character & Animation",
       "tasks": [
         {
-          "id": "char-1",
-          "label": "Polish protagonist idle and breathing animation",
-          "completed": true
+          "id": "character-1",
+          "label": "Protagonist Idle, Walk, and Run animation cycles",
+          "completed": false
         },
         {
-          "id": "char-2",
-          "label": "Polish 3-hit melee attack and combo animation set",
-          "completed": true
+          "id": "character-2",
+          "label": "Primary attack combo animation sequence",
+          "completed": false
         },
         {
-          "id": "char-3",
-          "label": "Implement dodge roll / dash with invincibility frames",
-          "completed": true
+          "id": "character-3",
+          "label": "Dodge roll / dash mechanics with invulnerability frames",
+          "completed": false
         },
         {
-          "id": "char-4",
-          "label": "Hurt and stagger reaction animations",
+          "id": "character-4",
+          "label": "Secondary weapon / ranged projectile casting animations",
+          "completed": false
+        },
+        {
+          "id": "character-5",
+          "label": "Hurt, knockback, and death animation states",
           "completed": false
         }
       ]
     },
     {
       "id": "combat",
-      "title": "⚔️ COMBAT & ENCOUNTERS",
+      "title": "⚔️ Combat & Enemy Systems",
       "tasks": [
         {
           "id": "combat-1",
-          "label": "Core combat system (hitboxes, damage calculation, knockback)",
-          "completed": true
+          "label": "Melee hit detection and collision triggers",
+          "completed": false
         },
         {
           "id": "combat-2",
-          "label": "Dynamic enemy wave spawner and arena lock gates",
-          "completed": true
+          "label": "Ranged spell / projectile physics and impact effects",
+          "completed": false
         },
         {
           "id": "combat-3",
-          "label": "Enemy mob archetypes (patrolling melee, ranged projectile, heavy brute)",
-          "completed": true
+          "label": "Enemy AI patrol states, vision cone detection, and pursuit logic",
+          "completed": false
         },
         {
           "id": "combat-4",
-          "label": "Multi-phase boss fight mechanics and phase transition cutscenes",
+          "label": "Enemy wave spawner and encounter triggers",
+          "completed": false
+        },
+        {
+          "id": "combat-5",
+          "label": "Multi-phase boss fight encounter logic and telegraphed attacks",
           "completed": false
         }
       ]
     },
     {
       "id": "world",
-      "title": "🏯 WORLD BUILDING & LEVELS",
+      "title": "🏯 World Building & Level Design",
       "tasks": [
         {
           "id": "world-1",
-          "label": "Starter village & hub zone environment layout",
-          "completed": true
+          "label": "Starter village / safe hub environment layout",
+          "completed": false
         },
         {
           "id": "world-2",
-          "label": "Exploration pathway leading to first dungeon",
-          "completed": true
+          "label": "Overworld exploration pathway and encounter zones",
+          "completed": false
         },
         {
           "id": "world-3",
-          "label": "First dungeon arena & encounter rooms",
-          "completed": true
+          "label": "Primary dungeon chambers and hazard obstacles",
+          "completed": false
         },
         {
           "id": "world-4",
-          "label": "Second dungeon challenge gauntlets",
-          "completed": true
+          "label": "Vertical platforming shaft and moving platforms",
+          "completed": false
         },
         {
           "id": "world-5",
-          "label": "Deep cavern shaft with crumbling vertical platforms",
-          "completed": true
-        },
-        {
-          "id": "world-6",
-          "label": "Boss chamber arena architecture and environmental hazards",
+          "label": "Final boss chamber arena architecture and boundary walls",
           "completed": false
         }
       ]
     },
     {
       "id": "ui",
-      "title": "🖥️ UI & HUD SYSTEMS",
+      "title": "🖥️ UI & HUD Systems",
       "tasks": [
         {
           "id": "ui-1",
-          "label": "Main menu, level select, and audio settings",
-          "completed": true
+          "label": "Animated Title Screen and Main Menu layout",
+          "completed": false
         },
         {
           "id": "ui-2",
-          "label": "In-game HUD (health, stamina, and ability cooldown gauges)",
-          "completed": true
+          "label": "In-game HUD (Health gauge, stamina bar, and currency counter)",
+          "completed": false
         },
         {
           "id": "ui-3",
-          "label": "Shop interface with inventory item inspection",
-          "completed": true
-        }
-      ]
-    },
-    {
-      "id": "audio",
-      "title": "🔊 AUDIO & MUSIC",
-      "tasks": [
-        {
-          "id": "audio-1",
-          "label": "Exploration soundtrack & ambient loops",
-          "completed": true
+          "label": "Pause menu modal with Audio/Video settings controls",
+          "completed": false
         },
         {
-          "id": "audio-2",
-          "label": "Adaptive combat music for arena encounters",
-          "completed": true
+          "id": "ui-4",
+          "label": "Merchant shop modal and purchase interaction",
+          "completed": false
         },
         {
-          "id": "audio-3",
-          "label": "Comprehensive SFX suite (sword swings, impacts, UI clicks)",
+          "id": "ui-5",
+          "label": "Game Over respawn screen and Victory celebration UI",
           "completed": false
         }
       ]

@@ -24,7 +24,7 @@ def snapshot() -> dict:
     buckets = list_audios()
     aud_total = sum(len(v) for v in buckets.values())
 
-    chats = cnt.get("companion_chats", cnt.get("nyxaris_chats", 0))
+    chats = cnt.get("companion_chats", 0)
     pipes = cnt.get("pipeline_runs", 0)
     removals = cnt.get("bg_removal_runs", 0)
 
