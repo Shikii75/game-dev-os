@@ -198,49 +198,49 @@ def register_routes(app) -> None:
             default = {
                 "categories": [
                     {"id": "character", "title": "🎭 Character & Animation", "tasks": [
-                        {"id": "character-1", "label": "Polish mage girl idle animation", "completed": False},
-                        {"id": "character-2", "label": "Polish mage attack animation set", "completed": False},
-                        {"id": "character-3", "label": "Add dodge / dash animation", "completed": False}
+                        {"id": "character-1", "label": "Polish protagonist idle animation", "completed": False},
+                        {"id": "character-2", "label": "Polish attack combo animation set", "completed": False},
+                        {"id": "character-3", "label": "Add dodge / dash animation with i-frames", "completed": False}
                     ]},
                     {"id": "npc", "title": "🧠 NPC & Dialogue System", "tasks": [
-                        {"id": "npc-1", "label": "Create NPCs for direction + lore drops", "completed": False},
-                        {"id": "npc-2", "label": "Implement dialogue interaction system", "completed": False},
-                        {"id": "npc-3", "label": "Add story hints for Nyxaris system", "completed": False}
+                        {"id": "npc-1", "label": "Create world NPCs for quests and guidance", "completed": False},
+                        {"id": "npc-2", "label": "Implement interactive dialogue branching system", "completed": False},
+                        {"id": "npc-3", "label": "Add story hints and narrative trigger cues", "completed": False}
                     ]},
                     {"id": "ui", "title": "🖥️ UI SYSTEMS", "tasks": [
-                        {"id": "ui-1", "label": "Pause menu UI", "completed": False},
-                        {"id": "ui-2", "label": "Health bar UI (player + enemies)", "completed": False},
-                        {"id": "ui-3", "label": "Shop UI system", "completed": False}
+                        {"id": "ui-1", "label": "Pause menu & settings UI", "completed": False},
+                        {"id": "ui-2", "label": "Health bar & stamina gauges (player + enemies)", "completed": False},
+                        {"id": "ui-3", "label": "Merchant shop and inventory UI", "completed": False}
                     ]},
                     {"id": "world", "title": "🏯 WORLD BUILDING", "tasks": [
-                        {"id": "world-1", "label": "Ancient Japanese village (Level 1 town)", "completed": False},
-                        {"id": "world-2", "label": "Path to first clan dojo", "completed": False},
-                        {"id": "world-3", "label": "First clan dojo interior", "completed": False},
-                        {"id": "world-4", "label": "Path to second clan dojo", "completed": False},
-                        {"id": "world-5", "label": "Second dojo interior", "completed": False},
-                        {"id": "world-6", "label": "Tsuchigumo cave entrance + structure", "completed": False}
+                        {"id": "world-1", "label": "Starter village / safe hub environment", "completed": False},
+                        {"id": "world-2", "label": "Pathway and exploration routes to Dungeon 1", "completed": False},
+                        {"id": "world-3", "label": "Primary dungeon interior & room layouts", "completed": False},
+                        {"id": "world-4", "label": "Secondary challenge zone & gauntlets", "completed": False},
+                        {"id": "world-5", "label": "Vertical platforming & hazard zone section", "completed": False},
+                        {"id": "world-6", "label": "Final boss chamber arena architecture", "completed": False}
                     ]},
                     {"id": "combat", "title": "⚔️ COMBAT SYSTEM", "tasks": [
-                        {"id": "combat-1", "label": "Mage combat moveset (basic + advanced attacks)", "completed": False},
-                        {"id": "combat-2", "label": "Enemy wave system implementation", "completed": False},
-                        {"id": "combat-3", "label": "Spider enemy variants (at least 3 types)", "completed": False},
-                        {"id": "combat-4", "label": "Boss fight: Tsuchigumo", "completed": False}
+                        {"id": "combat-1", "label": "Core combat moveset (basic + heavy attacks)", "completed": False},
+                        {"id": "combat-2", "label": "Dynamic enemy wave spawner implementation", "completed": False},
+                        {"id": "combat-3", "label": "Enemy mob variants (melee, ranged, heavy)", "completed": False},
+                        {"id": "combat-4", "label": "Multi-phase boss fight encounter logic", "completed": False}
                     ]},
                     {"id": "shop", "title": "🛒 SHOP SYSTEM", "tasks": [
-                        {"id": "shop-1", "label": "In-game shop in village", "completed": False},
-                        {"id": "shop-2", "label": "Currency system", "completed": False},
-                        {"id": "shop-3", "label": "Buyable items: Healing potions", "completed": False},
-                        {"id": "shop-4", "label": "Buyable items: Small power-ups (damage boost, speed boost)", "completed": False}
+                        {"id": "shop-1", "label": "In-game merchant NPC shop system", "completed": False},
+                        {"id": "shop-2", "label": "Currency and transaction exchange logic", "completed": False},
+                        {"id": "shop-3", "label": "Consumables: Health potions & stamina draughts", "completed": False},
+                        {"id": "shop-4", "label": "Gear upgrades: Weapon tiers and stat modifiers", "completed": False}
                     ]},
                     {"id": "audio", "title": "🔊 AUDIO & POLISH", "tasks": [
-                        {"id": "audio-1", "label": "Background music for village", "completed": False},
-                        {"id": "audio-2", "label": "Combat music for boss fight", "completed": False},
-                        {"id": "audio-3", "label": "Sound effects system (attacks, UI, hits)", "completed": False}
+                        {"id": "audio-1", "label": "Exploration soundtrack & ambient loops", "completed": False},
+                        {"id": "audio-2", "label": "Dynamic combat music system", "completed": False},
+                        {"id": "audio-3", "label": "Sound effects suite (swings, impacts, UI)", "completed": False}
                     ]},
-                    {"id": "movement", "title": "🌍 MOVEMENT SYSTEM (ADVANCED - OPTIONAL)", "tasks": [
-                        {"id": "movement-1", "label": "Dynamic climbing", "completed": False},
-                        {"id": "movement-2", "label": "Smoother walking animation blending", "completed": False},
-                        {"id": "movement-3", "label": "Improved jump physics", "completed": False}
+                    {"id": "movement", "title": "🌍 MOVEMENT SYSTEM", "tasks": [
+                        {"id": "movement-1", "label": "Ledge grab and dynamic climbing", "completed": False},
+                        {"id": "movement-2", "label": "Locomotion blend trees & smooth turning", "completed": False},
+                        {"id": "movement-3", "label": "Jump physics, gravity curves, and coyote time", "completed": False}
                     ]}
                 ]
             }
@@ -397,6 +397,7 @@ def register_routes(app) -> None:
         except Exception as e:
             return jsonify({"error": f"Import failed: {str(e)}"}), 500
 
+    @app.route("/companion-chat")
     @app.route("/nyxaris-chat")
     def page_nyxaris_chat():
         return render_template("nyxaris.html")
@@ -473,6 +474,7 @@ def register_routes(app) -> None:
         snap["active_jobs"] = activity_hub.active_jobs()
         return jsonify(snap)
 
+    @app.route("/companion", methods=["POST"])
     @app.route("/nyxaris", methods=["POST"])
     def api_nyxaris_chat():
         data = request.get_json(force=True, silent=True) or {}
@@ -489,6 +491,7 @@ def register_routes(app) -> None:
         res = nyx_chat_fn(message, mode, trust, model=model, level=level)
         return jsonify(res)
 
+    @app.route("/api/companion/dev-assist", methods=["POST"])
     @app.route("/api/nyxaris/dev-assist", methods=["POST"])
     def api_nyxaris_dev_assist():
         data = request.get_json(force=True, silent=True) or {}
@@ -600,6 +603,7 @@ def register_routes(app) -> None:
     def page_character_builder():
         return render_template("character_builder.html")
 
+    @app.route("/api/companion/status")
     @app.route("/api/nyxaris/status")
     def api_nyxaris_status():
         import requests
@@ -622,6 +626,7 @@ def register_routes(app) -> None:
             "models": []
         })
 
+    @app.route("/api/companion/pull", methods=["POST"])
     @app.route("/api/nyxaris/pull", methods=["POST"])
     def api_nyxaris_pull():
         import requests

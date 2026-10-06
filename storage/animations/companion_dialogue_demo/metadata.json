@@ -1,7 +1,7 @@
 {
-  "id": "nyxarisexplaining0-c6c6f20e",
-  "slug": "nyxarisexplaining0",
-  "label": "nyxarisexplaining0",
+  "id": "companion_dialogue_demo",
+  "slug": "companion_dialogue_demo",
+  "label": "Companion: Dialogue Stance",
   "video_source": "source.MP4",
   "frame_interval_sec": 0.05,
   "extract_stats": {

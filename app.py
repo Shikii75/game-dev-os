@@ -117,74 +117,36 @@ def bulk_remove():
     return jsonify(results)
 
 ANIMATION_FOLDERS = {
-    "angry": "nyxarisangry-e56db4b1",
-    "annoyed": "nyxarisannoyed-1fd7f301",
-    "annoyed_arms_folded": "nyxarisannoyedarmsfolded-6d8ef381",
-    "cheeks_full": "nyxarischeeksfulloffoodormana-246d2ced",
-    "confidently": "nyxarisconfidently-64b9a921",
-    "cutely_annoyed": "nyxariscutelyannoyed-9f21f3fd",
-    "cutely_thinking": "nyxariscutelythinking-08686484",
-    "cutely_upset": "nyxariscutelyupset-72bf7d95",
-    "excited": "nyxarisexcited-f2ab5508",
-    "excited_explaining": "nyxarisexcitedarmsspreadexplaining-cb776e55",
-    "explaining": "nyxarisexplaining0-c6c6f20e",
-    "explaining_alt": "nyxarisexplaining1-a4a19986",
-    "talking": "nyxaristalkingeyesclosed-a238b88a",
-    "happy": "nyxarishappy-f4e5a565",
-    "happy_to_say": "nyxarishappytosay-e0fd84be",
-    "in_love": "nyxarisinlove-279c11ce",
-    "neutral": "nyxarisnuetral-411247bb",
-    "pissed": "nyxarispissed-7e387d67",
-    "relieved": "nyxarisrelivedmp4-57352796",
-    "warning": "nyxarissternorimportantwarning-534901f6",
-    "thinking": "nyxaristhinking-616901a8",
-    "worried_upset": "nyxarisworriedupsetthinkingmp4-bd2148fc"
+    "angry": "companion_dialogue_demo",
+    "annoyed": "companion_dialogue_demo",
+    "annoyed_arms_folded": "companion_dialogue_demo",
+    "cheeks_full": "companion_dialogue_demo",
+    "confidently": "companion_dialogue_demo",
+    "cutely_annoyed": "companion_dialogue_demo",
+    "cutely_thinking": "companion_dialogue_demo",
+    "cutely_upset": "companion_dialogue_demo",
+    "excited": "companion_dialogue_demo",
+    "excited_explaining": "companion_dialogue_demo",
+    "explaining": "companion_dialogue_demo",
+    "explaining_alt": "companion_dialogue_demo",
+    "talking": "companion_dialogue_demo",
+    "happy": "companion_dialogue_demo",
+    "happy_to_say": "companion_dialogue_demo",
+    "in_love": "companion_dialogue_demo",
+    "neutral": "companion_dialogue_demo",
+    "pissed": "companion_dialogue_demo",
+    "relieved": "companion_dialogue_demo",
+    "warning": "companion_dialogue_demo",
+    "thinking": "companion_dialogue_demo",
+    "worried_upset": "companion_dialogue_demo"
 }
 
-# Randomized animation pools for natural, expressive variety
-EXPLAINING_POOL = [
-    "nyxarisexplaining0-c6c6f20e",
-    "nyxarisexplaining1-a4a19986",
-    "nyxarisexcitedarmsspreadexplaining-cb776e55",
-    "nyxaristalkingeyesclosed-a238b88a",
-    "nyxarisconfidently-64b9a921",
-    "nyxarisconfidently0-146ef255",
-]
-
-CASUAL_TALK_POOL = [
-    "nyxarishappytosay-e0fd84be",
-    "nyxarishappy-f4e5a565",
-    "nyxarishappythinking-bd1f19af",
-    "nyxarisshrug-82e20542",
-    "nyxarisnuetral-411247bb",
-    "nyxarisnuetralstare-14b61402",
-]
-
-THINKING_POOL = [
-    "nyxaristhinking-616901a8",
-    "nyxariscutelythinking-08686484",
-    "nyxarishappythinking-bd1f19af",
-]
-
-TSUNDERE_TEASE_POOL = [
-    "nyxariscutelyannoyed-9f21f3fd",
-    "nyxariseyesrolling-0c15d4fb",
-    "nyxarisannoyedarmsfolded-6d8ef381",
-    "nyxarisannoyed-1fd7f301",
-    "nyxarischeeksfulloffoodormana-246d2ced",
-]
-
-EXCITED_POOL = [
-    "nyxarisexcited-f2ab5508",
-    "nyxarisexcitedarmsspreadexplaining-cb776e55",
-    "nyxarisinfactuation-56ed8338",
-]
-
-AFFECTION_POOL = [
-    "nyxarisinlove-279c11ce",
-    "nyxarisinfactuation-56ed8338",
-    "nyxarishappytosay-e0fd84be",
-]
+EXPLAINING_POOL = ["companion_dialogue_demo"]
+CASUAL_TALK_POOL = ["companion_dialogue_demo"]
+THINKING_POOL = ["companion_dialogue_demo"]
+TSUNDERE_TEASE_POOL = ["companion_dialogue_demo"]
+EXCITED_POOL = ["companion_dialogue_demo"]
+AFFECTION_POOL = ["companion_dialogue_demo"]
 
 def _parse_llm_output(text: str) -> tuple[str, str]:
     import re
@@ -197,7 +159,7 @@ def _parse_llm_output(text: str) -> tuple[str, str]:
             emotion = tag
         text = re.sub(r"\[[a-zA-Z_]+\]", "", text).strip()
     
-    text = text.replace('"', '').replace('Nyxaris:', '').strip()
+    text = text.replace('"', '').replace('Companion:', '').replace('Nyxaris:', '').strip()
     return text, emotion
 
 def try_generate_llm_response(raw_message: str, level: str, trust: float, hp_pct: float, mana_pct: float) -> tuple[str, str] | None:
@@ -206,10 +168,10 @@ def try_generate_llm_response(raw_message: str, level: str, trust: float, hp_pct
     
     # ── Strict Chat-Template Formatting (Prevents Safety Misunderstandings & Maximizes Coherence) ──
     system_msg = (
-        "You are roleplaying as Nyxaris, an anime dark goddess companion in a fantasy 2D action game.\n"
-        f"Setting: Cherry Blossom Mountain ({level}). You are accompanying the player (a mortal hero) investigating the rivalry between the Strawhat and Samurai clans.\n"
+        "You are roleplaying as an intelligent in-game narrative companion in a 2D action RPG.\n"
+        f"Setting: Current Zone ({level}). You are accompanying the player on their adventure.\n"
         f"Game Stats: Player HP={int(hp_pct * 100)}%, Mana={int(mana_pct * 100)}%, Trust={trust:.2f}.\n"
-        "Personality: Classic anime tsundere goddess — proud, sharp-tongued, dramatic, but secretly fond of and protective of the player.\n"
+        "Personality: Witty, sharp, observant, and protective of the player.\n"
         "Directives:\n"
         "1. Stay in character and directly address what the player says.\n"
         "2. Keep your response brief (1 to 2 natural sentences).\n"
@@ -364,70 +326,70 @@ def nyxaris_chat():
         anim = random.choice(EXCITED_POOL)
         trust_delta = 0.05
 
-    # 4. Identity & Lore of Nyxaris
-    elif any(k in message for k in ["who are you", "what are you", "your name", "goddess", "nyxaris", "tell me about yourself"]):
+    # 4. Identity & Purpose
+    elif any(k in message for k in ["who are you", "what are you", "your name", "companion", "tell me about yourself"]):
         responses = [
-            "I am Nyxaris, Goddess of the Dark Multiverse. Bound across timelines to restore cosmic balance—and uncover the truth behind my followers' demise.",
-            "You stand before Nyxaris. Though my mortal form is diminished in this realm, the primordial void still answers my command.",
-            "I am the sovereign of shadows and forgotten realms. Together, we are going to unravel the conspiracy consuming this forest."
+            "I am your tactical companion and narrative guide. I monitor your journey, track quest objectives, and assist in combat strategy.",
+            "Consider me your scout and advisor. Together, we'll navigate dungeons, uncover hidden lore, and conquer whatever lies ahead.",
+            "I am the voice at your side through every dungeon and arena. Ready to forge ahead whenever you are."
         ]
         resp = random.choice(responses)
         emotion = "confidently"
-        anim = random.choice(["nyxarisconfidently-64b9a921", "nyxarisconfidently0-146ef255", "nyxarisexplaining0-c6c6f20e"])
+        anim = random.choice(EXPLAINING_POOL)
         trust_delta = 0.03
 
-    # 5. Massacre, Culprit & Followers
-    elif any(k in message for k in ["who", "killer", "massacre", "follower", "followers", "culprit", "murder", "died", "who did this"]):
+    # 5. Objectives & Lore
+    elif any(k in message for k in ["quest", "objective", "story", "mission", "lore", "target", "goal"]):
         responses = [
-            "My followers were slaughtered in cold blood across this timeline. Clues point to a warrior hidden among the mountain clans—or something far darker impersonating them.",
-            "Someone orchestrated the massacre to spark war between the Strawhat and Samurai clans. We must expose the imposter before more blood is spilled.",
-            "The killer leaves a trail of deception. Investigate both dōjōs in the mountains—the evidence will lead us to the culprit."
+            "Our main objective is clearing the regional dungeons and unlocking the pathway to the boss lair.",
+            "Search for ancient keystones across the exploration zones—they reveal lore and unlock sealed arena gates.",
+            "Keep advancing through enemy territories and gathering upgrade materials for your equipment."
         ]
         resp = random.choice(responses)
         emotion = "explaining"
         anim = random.choice(EXPLAINING_POOL)
         trust_delta = 0.03
 
-    # 6. Strawhat Clan Lore
-    elif any(k in message for k in ["strawhat", "dojo1", "dojo 1", "straw"]):
+    # 6. First Zone & Dungeons
+    elif any(k in message for k in ["dungeon", "dungeon1", "ruins", "forest", "zone 1"]):
         responses = [
-            "The Strawhat Clan claims innocence, insisting the killer is a shape-shifter in the Samurai Clan. Do not lower your guard in their dōjō.",
-            "Their warriors fight with swift straw blades. Challenge their altar guardian and demand the truth about the killings.",
-            "The Strawhat masters know more than they let on. Watch their movements carefully when you step past their gates."
+            "The first dungeon tests your fundamentals—parrying, dash timing, and potion management.",
+            "Enemy patrols increase in density as you get closer to the inner sanctum. Keep your stamina managed.",
+            "Watch out for ambushes in tight corridors. Use area attacks to control the crowd."
         ]
         resp = random.choice(responses)
         emotion = "thinking"
         anim = random.choice(THINKING_POOL)
 
-    # 7. Samurai Clan Lore
-    elif any(k in message for k in ["samurai", "dojo2", "dojo 2", "master"]):
+    # 7. Elite Foes & Guardians
+    elif any(k in message for k in ["guardian", "elite", "guard", "heavy enemy", "miniboss"]):
         responses = [
-            "Rumors say the Samurai Clan's Master was sighted alive, despite dying two years ago... Be vigilant; things are not as they appear.",
-            "The Samurai Clan blames the Strawhats, but this resurrected Master suggests dark illusions are at play.",
-            "Face the Samurai Clan guardian. We must determine if their fallen Master has truly returned from the grave."
+            "Elite guardians possess heavy armor and uninterruptible attacks. Bait their combo and strike during cooldown.",
+            "Watch the guardian's weapon glow—it signals unblockable heavy swings. Dash behind them to counter.",
+            "Conserve your magic and special abilities for when the guardian's posture breaks."
         ]
         resp = random.choice(responses)
         emotion = "warning"
         anim = ANIMATION_FOLDERS["warning"]
 
-    # 8. Cave & Tsuchigumo Reveal
-    elif any(k in message for k in ["cave", "spider", "tsuchigumo", "web"]):
+    # 8. Boss Encounters
+    elif any(k in message for k in ["boss", "lair", "arena", "final boss"]):
         responses = [
-            "The giant spiders multiplying in the regional cave serve Tsuchigumo—the true shape-shifting culprit behind the massacre!",
-            "Tsuchigumo weaves webs of discord, impersonating both clans to fuel their hatred. Descend the cave and crush this beast!",
-            "The bottom of the mountain cave holds the final answer. Steel yourself, mortal—Tsuchigumo will not surrender easily."
+            "The regional boss features multiple phases and unique attack patterns. Learn their tells and keep moving!",
+            "Boss arenas often feature environmental hazards. Position yourself near the center to avoid corner traps.",
+            "Stock up on health potions at the merchant before initiating the boss encounter."
         ]
         resp = random.choice(responses)
-        emotion = "pissed"
-        anim = ANIMATION_FOLDERS["pissed"]
+        emotion = "angry"
+        anim = ANIMATION_FOLDERS["angry"]
         trust_delta = 0.05
 
-    # 9. Guidance, Navigation & "What should I do?"
+    # 9. Guidance & Navigation
     elif any(k in message for k in ["what should i do", "what now", "where do i go", "where to go", "next", "lost", "guide me", "help me", "direction", "how to"]):
         responses = [
-            "Head upward through the mountain path. We must visit both Dōjō 1 (Strawhat) and Dōjō 2 (Samurai) to gather clues before entering the cave.",
-            "Explore the Cherry Blossom Village and test your blade against clan warriors. When you are ready, the cave depths await.",
-            "Keep advancing along the stone path. Every enemy defeated brings us closer to uncovering Tsuchigumo's nest."
+            "Follow the stone pathway past the starter hub. Challenge the dungeon sentinels to unlock the inner sanctum.",
+            "Explore the surrounding zones, talk to the local merchant, and upgrade your gear before proceeding.",
+            "Look at your quest tracker—completing sub-objectives grants bonus experience and rare materials."
         ]
         resp = random.choice(responses)
         emotion = "explaining"
@@ -530,39 +492,39 @@ def nyxaris_chat():
 
     # 15. Dynamic Conversational Fallback (Natural, varied, contextual)
     else:
-        if "Dojo1" in level:
+        if "Dungeon1" in level:
             responses = [
-                "We are at the Strawhat Dōjō. Stay alert and watch for any hidden clues near their altar.",
-                "The Strawhat warriors are sizing you up. Speak with their master or challenge their champions.",
-                "Look around this dōjō carefully. The killer may have left traces of their presence."
+                "We are at the dungeon entrance. Stay alert and watch for enemy patrols.",
+                "The guards ahead are vigilant. Prepare your weapons and check your potion stock.",
+                "Search this area carefully—hidden switches or loot chests might be nearby."
             ]
             resp = random.choice(responses)
             emotion = "explaining"
             anim = random.choice(EXPLAINING_POOL)
-        elif "Dojo2" in level:
+        elif "Dungeon2" in level:
             responses = [
-                "This dōjō reeks of deception. The Master who stands before you is a false illusion!",
-                "Keep your distance from the Samurai guards until we verify who is commanding them.",
-                "Something is unnatural about this place. Be ready to draw your weapon at a moment's notice."
+                "This sector has high enemy activity. Watch for traps along the floor.",
+                "Keep your distance from heavy armored foes until their attack cooldown.",
+                "Stay ready—an elite enemy could be guarding the inner doorway."
             ]
             resp = random.choice(responses)
             emotion = "thinking"
             anim = random.choice(THINKING_POOL)
-        elif "Cave" in level:
+        elif "Boss" in level or "Cave" in level:
             responses = [
-                "We stand at the threshold of truth. Tsuchigumo awaits below in the webs. Prepare yourself for battle!",
-                "The webs grow thicker here. Watch the shadows above as we descend into the lair.",
-                "Tsuchigumo's venomous presence is heavy in the air. Let us cleanse this cave together!"
+                "We stand at the threshold of the boss chamber. Prepare yourself for battle!",
+                "Watch the boss telegraph animations closely and dodge their area attacks.",
+                "Keep your health potions ready and look for vulnerability windows!"
             ]
             resp = random.choice(responses)
             emotion = "angry"
             anim = ANIMATION_FOLDERS["angry"]
         else:
             responses = [
-                "I hear you, mortal. Keep moving through the Cherry Blossom Forest—the clues we need are waiting ahead.",
-                "Interesting thought. Let us press onward to the mountain dōjōs and see what we can find.",
-                "Indeed. Stay vigilant and keep your blade ready. Every step brings us closer to the truth.",
-                "A curious remark. Keep your focus on our quest, and let us unveil what lies in the cave."
+                "Stay vigilant as we explore this area—the quest markers lead ahead.",
+                "Interesting thought. Let us press onward to the next checkpoint.",
+                "Indeed. Keep your blade ready and your stamina managed.",
+                "Every encounter brings valuable experience and crafting materials."
             ]
             resp = random.choice(responses)
             emotion = "explaining"

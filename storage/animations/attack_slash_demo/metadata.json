@@ -1,7 +1,7 @@
 {
-  "id": "ai_attack_390943-dfada396",
-  "slug": "ai_attack_390943",
-  "label": "AI Attack: Test Slash",
+  "id": "attack_slash_demo",
+  "slug": "attack_slash_demo",
+  "label": "Attack: Slash Combo",
   "video_source": null,
   "frame_interval_sec": null,
   "extract_stats": {},
@@ -12,9 +12,9 @@
   "prompt": "Test Slash",
   "motion_type": "attack",
   "source_image": null,
-  "sprite_sheet": "/outputs/ai_attack_390943_spritesheet.png",
+  "sprite_sheet": "/outputs/attack_slash_demo_spritesheet.png",
   "pack_details": {
-    "sprite_sheet_path": "outputs/ai_attack_390943_spritesheet.png",
+    "sprite_sheet_path": "outputs/attack_slash_demo_spritesheet.png",
     "total_frames": 4,
     "columns": 2,
     "rows": 2,

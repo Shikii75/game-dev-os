@@ -51,7 +51,7 @@ FALLBACK_DIALOGUES = {
             {"response": "N-nothingness... Nothing for you.", "emotion": "neutral"},
         ],
         "neutral": [
-            {"response": "C-chaos is... calling. The connection... breaks.", "emotion": "neutral"},
+            {"response": "The signal is fading... connection interrupted.", "emotion": "neutral"},
             {"response": "Glitch... The dark is spilling over. Wait.", "emotion": "explaining"},
         ],
         "close": [

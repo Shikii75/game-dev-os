@@ -1,7 +1,7 @@
 {
-  "id": "normalfemalesamuraiidle-f9f03502",
-  "slug": "normalfemalesamuraiidle",
-  "label": "normalfemalesamuraiidle",
+  "id": "hero_idle_demo",
+  "slug": "hero_idle_demo",
+  "label": "Protagonist: Idle Stance",
   "video_source": "source.MP4",
   "frame_interval_sec": 0.05,
   "extract_stats": {

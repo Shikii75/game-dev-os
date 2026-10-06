@@ -24,16 +24,16 @@ def snapshot() -> dict:
     buckets = list_audios()
     aud_total = sum(len(v) for v in buckets.values())
 
-    chats = cnt.get("nyxaris_chats", 0)
+    chats = cnt.get("companion_chats", cnt.get("nyxaris_chats", 0))
     pipes = cnt.get("pipeline_runs", 0)
     removals = cnt.get("bg_removal_runs", 0)
 
     goals = {"assets": max(35, img_n + aud_total + 5), "animations": max(10, anim_roster + 3), "lore_engagement": 80}
     pct_assets = _ratio(img_n + aud_total * 2 + vid_n * 4, goals["assets"]) * 0.42
     pct_animations = min(1.0, _ratio(max(anim_roster, pipes), goals["animations"]) + _ratio(removals, removals + 420) * 0.15) * 0.42
-    pct_nyxaris = min(1.0, chats / goals["lore_engagement"]) * 0.16
+    pct_companion = min(1.0, chats / goals["lore_engagement"]) * 0.16
 
-    overall = min(100, round(100 * (pct_assets + pct_animations + pct_nyxaris)))
+    overall = min(100, round(100 * (pct_assets + pct_animations + pct_companion)))
 
     return {
         "overall_percent_estimate": overall,

@@ -351,7 +351,7 @@
 
     .cat-mage { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); }
     .cat-opening { background: rgba(244, 63, 94, 0.2); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.4); }
-    .cat-nyxaris { background: rgba(147, 51, 234, 0.2); color: #d8b4fe; border: 1px solid rgba(147, 51, 234, 0.4); }
+    .cat-companion { background: rgba(147, 51, 234, 0.2); color: #d8b4fe; border: 1px solid rgba(147, 51, 234, 0.4); }
     .cat-sfx { background: rgba(6, 182, 212, 0.2); color: #67e8f9; border: 1px solid rgba(6, 182, 212, 0.4); }
     .cat-custom { background: rgba(234, 179, 8, 0.2); color: #fde047; border: 1px solid rgba(234, 179, 8, 0.4); }
 
@@ -447,7 +447,7 @@
   <a class="active" href="/audio-slicer">Voice &amp; Audio Slicer</a>
   <a href="/audio-extractor">Audio Extractor</a>
   <a href="/tool">Sprite / BG remover</a>
-  <a href="/nyxaris-chat">Nyxaris</a>
+  <a href="/companion-chat">Companion</a>
   <div class="nav-label">Export</div>
   <a href="/export/unity">Unity .zip</a>
   <a href="/export/full">Full snapshot .zip</a>
@@ -672,22 +672,22 @@
       { label: "Taunt / Laugh", name: "mage_taunt_01" }
     ],
     OpeningSequence: [
-      { label: "Prologue Slide 1 (Rift Arrival)", name: "prologue_slide_01" },
-      { label: "Prologue Slide 2 (Drifting Petals)", name: "prologue_slide_02" },
-      { label: "Prologue Slide 3 (Slaughtered Followers)", name: "prologue_slide_03" },
-      { label: "Prologue Slide 4 (No Witness Remains)", name: "prologue_slide_04" },
-      { label: "Prologue Slide 5 (Father Chaos Suspicion)", name: "prologue_slide_05" },
+      { label: "Prologue Slide 1 (Scene Intro)", name: "prologue_slide_01" },
+      { label: "Prologue Slide 2 (Atmosphere Intro)", name: "prologue_slide_02" },
+      { label: "Prologue Slide 3 (Conflict Setting)", name: "prologue_slide_03" },
+      { label: "Prologue Slide 4 (World Lore Background)", name: "prologue_slide_04" },
+      { label: "Prologue Slide 5 (Antagonist Threat)", name: "prologue_slide_05" },
       { label: "Prologue Slide 6 (Mission Begins)", name: "prologue_slide_06" },
       { label: "Prologue Slide 7 (Chapter Title Card)", name: "prologue_slide_07" },
       { label: "Void Whispers", name: "prologue_void_whisper_01" },
       { label: "Cinematic Title Reveal", name: "prologue_title_reveal" }
     ],
-    Nyxaris: [
-      { label: "Nyxaris Awakening", name: "nyxaris_awakening_01" },
-      { label: "Nyxaris Seal Shattered", name: "nyxaris_seal_shatter" },
-      { label: "Nyxaris Chat Greeting", name: "nyxaris_chat_greeting" },
-      { label: "Nyxaris Advice Line", name: "nyxaris_advice_01" },
-      { label: "Nyxaris Warning", name: "nyxaris_warning_01" }
+    Companion: [
+      { label: "Companion Awakening", name: "companion_awakening_01" },
+      { label: "Companion Seal Shattered", name: "companion_seal_shatter" },
+      { label: "Companion Greeting", name: "companion_chat_greeting" },
+      { label: "Companion Advice Line", name: "companion_advice_01" },
+      { label: "Companion Warning", name: "companion_warning_01" }
     ],
     CombatSFX: [
       { label: "Spear Thrust Slash", name: "sfx_spear_slash_01" },
@@ -1046,7 +1046,7 @@
           <select class="slice-input cat-select" data-index="${idx}">
             <option value="Mage" ${s.category === 'Mage' ? 'selected' : ''}>Mage</option>
             <option value="OpeningSequence" ${s.category === 'OpeningSequence' ? 'selected' : ''}>Opening Sequence</option>
-            <option value="Nyxaris" ${s.category === 'Nyxaris' ? 'selected' : ''}>Nyxaris</option>
+            <option value="Companion" ${s.category === 'Companion' ? 'selected' : ''}>Companion</option>
             <option value="CombatSFX" ${s.category === 'CombatSFX' ? 'selected' : ''}>Combat SFX</option>
             <option value="Custom" ${s.category === 'Custom' ? 'selected' : ''}>Custom</option>
           </select>

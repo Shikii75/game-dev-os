@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Nyxaris Interface</title>
+  <title>Companion Interface</title>
 
   <style>
     body {
@@ -85,14 +85,14 @@
 
 <div class="dialogue">
 
-  <div class="name">Nyxaris</div>
+  <div class="name">Companion</div>
 
   <div id="reply">...</div>
 
-  <input id="msg" placeholder="Talk to Nyxaris...">
+  <input id="msg" placeholder="Talk to Companion...">
   <button onclick="send()">Send</button>
 
-  <div id="loading">Nyxaris is thinking...</div>
+  <div id="loading">Companion is thinking...</div>
 
 </div>
 
@@ -111,7 +111,7 @@ async function send() {
 
   document.getElementById("loading").style.display = "block";
 
-  const res = await fetch("/nyxaris", {
+  const res = await fetch("/companion", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({

@@ -25,7 +25,7 @@ def unity_export_zip(version_tag: str | None = None) -> tuple[bytes, str]:
     bio = io.BytesIO()
     tag = version_tag or datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
 
-    arc_base = "Assets/NyxarisGame"
+    arc_base = "Assets/GameAssets"
 
     with zipfile.ZipFile(bio, "w", compression=zipfile.ZIP_DEFLATED) as z:
         imgs = mu.images_store_dir()

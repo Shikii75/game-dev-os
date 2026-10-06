@@ -55,7 +55,7 @@ function render(data){
    ["audio clips", P.audio_indexed||0],
    ["videos", P.videos_indexed||0],
    ["animation bundles",P.animations_indexed||0],
-   ["nyxaris chats",C.nyxaris_chats||0],
+   ["companion chats",C.nyxaris_chats||0],
    ["pipeline runs",C.pipeline_runs||0],
  ].forEach(([k,v])=>{ const div=document.createElement("div");div.className="metric"; div.innerHTML=`<span>${k}</span><strong>${v}</strong>`;m.append(div);});
 

@@ -234,7 +234,7 @@
   <div class="nav-label">Tools</div>
   <a href="{{ url_for('tool') }}">Sprite / BG remover</a>
   <a href="/audio-extractor">Audio Extractor</a>
-  <a href="/nyxaris-chat">Nyxaris</a>
+  <a href="/companion-chat">Companion</a>
   <div class="nav-label">Export</div>
   <a href="/export/unity">Unity .zip</a>
   <a href="/export/full">Full snapshot .zip</a>
@@ -296,7 +296,7 @@
             <option value="CaveBackgroundFaint">Cave Background — Misty green void, desaturated moss, deep shafts</option>
             <option value="AttackAnimations">Attack Animations — Sword slashes, magical spells</option>
             <option value="PlayableMage">Playable Mage — Shadow chibi mage protagonist</option>
-            <option value="TsuchigumoBoss">Tsuchigumo Boss — Giant spider demon boss</option>
+            <option value="Arachnid BossBoss">Arachnid Boss Boss — Giant spider demon boss</option>
             <option value="MagicProjectileVFX">Magic Projectile VFX — Shadow energy bolt</option>
             <option value="WebProjectileVFX">Web Projectile VFX — Spider silk shot</option>
             <option value="HealingPotion">Healing Potion — Glowing recovery flask</option>
@@ -304,13 +304,13 @@
             <option value="BossHealthBar">Boss Health Bar — Dramatic boss HP overlay</option>
             <option value="MainMenuScreen">Main Menu Screen — Title screen background &amp; buttons</option>
             <option value="VictoryScreen">Victory Screen — Level complete overlay</option>
-            <option value="NyxarisNPC">Nyxaris NPC — Shadow companion with expressions</option>
+            <option value="CompanionNPC">Shadow Companion NPC — Shadow companion with expressions</option>
             <option value="RigSheet_Mage">🦴 Rig Sheet: Chibi Shadow Mage — Deconstructed Skeletal Parts</option>
             <option value="RigSheet_Rogue">🦴 Rig Sheet: Dark Fantasy Rogue — Deconstructed Skeletal Parts</option>
             <option value="RigSheet_StrawhatSwordsman">🦴 Rig Sheet: Strawhat Swordsman — Deconstructed Skeletal Parts</option>
             <option value="RigSheet_SamuraiWarrior">🦴 Rig Sheet: Samurai Warrior — Deconstructed Skeletal Parts</option>
             <option value="RigSheet_VillageNPC">🦴 Rig Sheet: Village NPC — Deconstructed Skeletal Parts</option>
-            <option value="RigSheet_SpiderBoss">🦴 Rig Sheet: Tsuchigumo Spider Boss — Deconstructed Skeletal Parts</option>
+            <option value="RigSheet_SpiderBoss">🦴 Rig Sheet: Arachnid Boss — Deconstructed Skeletal Parts</option>
             <option value="RigSheet_NPCMerchant">🦴 Rig Sheet: Shadow Merchant NPC — Deconstructed Skeletal Parts</option>
           </select>
         </div>
@@ -371,7 +371,7 @@
             <option value="Potions">Potions &amp; Consumables</option>
             <option value="HUD">HUD &amp; Overlays</option>
             <option value="Menus">Menus &amp; Screens</option>
-            <option value="Nyxaris">Nyxaris</option>
+            <option value="Companion">Companion</option>
           </select>
         </div>
 
@@ -439,8 +439,8 @@
 <script>
 const promptsDb = {
   Coins: {
-    static: "2D game asset icon, detailed gold coin with a dark purple shadow chaos flame aura, dark mythology theme, stylized cute chibi visual style, solid dark stone background, flat color, high detail, mobile game asset.",
-    anim: "Create a 2D horizontal loop animation sequence of a detailed gold coin with a shadow chaos aura spinning 360 degrees. 8 frame-by-frame 2D animation sheet. Ensure gold shine reflections, flame details, and coin thickness dimensions remain perfectly consistent with the reference frame/sheet. Dark fantasy chibi cartoon aesthetic."
+    static: "2D game asset icon, detailed gold coin with a dark purple dark arcane flame aura, dark mythology theme, stylized cute chibi visual style, solid dark stone background, flat color, high detail, mobile game asset.",
+    anim: "Create a 2D horizontal loop animation sequence of a detailed gold coin with a dark arcane aura spinning 360 degrees. 8 frame-by-frame 2D animation sheet. Ensure gold shine reflections, flame details, and coin thickness dimensions remain perfectly consistent with the reference frame/sheet. Dark fantasy chibi cartoon aesthetic."
   },
   UIElements: {
     static: "2D game UI element, detailed ancient Japanese village shop window panel frame and dialogue text box, dark weather-worn bamboo and wood lattice, glowing dark violet runes carved into wood, stylized 2D graphic design, flat UI asset.",
@@ -551,7 +551,7 @@ const promptsDb = {
     anim: "Create a 2D horizontal animation loop of hanging dangling sakura vines swaying gently in a soft wind. 8 frames. Ensure vine thickness, pink flower placements, and glowing particle highlights remain perfectly consistent across all frames. Smooth loop, transparent background."
   },
   MountainSkyBG: {
-    static: "2D side-scrolling platformer far background asset, mountain path sky background. Stormy violet and dark cyan night sky with distant jagged mountain peaks silhouetted against giant sweeping nebula clouds, swirling chaos energy, starry sky, moody ambient lighting, Hollow Knight style, 16:9 widescreen composition, isolated layers.",
+    static: "2D side-scrolling platformer far background asset, mountain path sky background. Stormy violet and dark cyan night sky with distant jagged mountain peaks silhouetted against giant sweeping nebula clouds, swirling arcane energy, starry sky, moody ambient lighting, Hollow Knight style, 16:9 widescreen composition, isolated layers.",
     anim: "Create a 2D animation loop of a stormy mountain sky background. 8 frames: dark cyan and violet clouds drifting slowly from right to left, faint stars twinkling, and distant lightning sheets lighting up the mountain silhouettes. Seamless horizontal loop, keeping mountain shapes static and consistent."
   },
   MountainStones: {
@@ -611,12 +611,12 @@ const promptsDb = {
     anim: "Create a 2D frame sequence of a shadow magic projectile cast. 8 frames: charge sphere at player hand, launch bolt flying, trail stretching, and final impact explosion of purple shadow rings. Ensure energy patterns and color shades remain perfectly consistent."
   },
   PlayableMage: {
-    static: "2D game asset, cute chibi shadow mage protagonist, solid black silhouette body, wearing a tattered dark cloak with glowing purple runic trim, pointed hood casting shadow over face, single glowing violet eye visible, holding a twisted dark wood staff with a floating purple chaos orb at the tip, Hollow Knight style dark fantasy chibi, flat vector illustration, isolated on solid dark background.",
-    anim: "Create a 2D idle breathing animation sprite sheet for a chibi shadow mage protagonist. 8 frames: cloak swaying gently, chaos orb on staff pulsing with purple glow, subtle body rise and fall. Ensure the hood shape, cloak silhouette, staff proportions, and glowing violet eye remain perfectly consistent across all frames."
+    static: "2D game asset, cute chibi shadow mage protagonist, solid black silhouette body, wearing a tattered dark cloak with glowing purple runic trim, pointed hood casting shadow over face, single glowing violet eye visible, holding a twisted dark wood staff with a floating purple arcane orb at the tip, Hollow Knight style dark fantasy chibi, flat vector illustration, isolated on solid dark background.",
+    anim: "Create a 2D idle breathing animation sprite sheet for a chibi shadow mage protagonist. 8 frames: cloak swaying gently, arcane orb on staff pulsing with purple glow, subtle body rise and fall. Ensure the hood shape, cloak silhouette, staff proportions, and glowing violet eye remain perfectly consistent across all frames."
   },
-  TsuchigumoBoss: {
-    static: "2D game boss asset, massive Tsuchigumo spider demon, dark fantasy horror style, giant bulbous dark purple and black abdomen covered in glowing red vein-like cracks, eight armored chitinous legs with sharp barbed tips, menacing face with multiple glowing crimson eyes arranged in rows, dripping green venom fangs, dark webbing texture details, Hollow Knight style boss design, isolated on solid dark background.",
-    anim: "Create a 2D attack animation sprite sheet for a massive Tsuchigumo spider boss. 8 frames: rear up on hind legs, lunge forward with fangs open, slam down with front legs creating impact shockwave, return to idle stance. Ensure leg count, abdomen shape, eye arrangement, and armor plating details remain perfectly consistent across all frames."
+  Arachnid BossBoss: {
+    static: "2D game boss asset, massive Arachnid Boss spider demon, dark fantasy horror style, giant bulbous dark purple and black abdomen covered in glowing red vein-like cracks, eight armored chitinous legs with sharp barbed tips, menacing face with multiple glowing crimson eyes arranged in rows, dripping green venom fangs, dark webbing texture details, Hollow Knight style boss design, isolated on solid dark background.",
+    anim: "Create a 2D attack animation sprite sheet for a massive Arachnid Boss spider boss. 8 frames: rear up on hind legs, lunge forward with fangs open, slam down with front legs creating impact shockwave, return to idle stance. Ensure leg count, abdomen shape, eye arrangement, and armor plating details remain perfectly consistent across all frames."
   },
   MagicProjectileVFX: {
     static: "2D game visual effect asset, shadow magic energy projectile bolt, dark purple glowing core sphere surrounded by swirling violet and black energy wisps, trailing dark particle sparks, stylized 2D cartoon VFX, flat vector, isolated on transparent background.",
@@ -639,19 +639,19 @@ const promptsDb = {
     anim: "Create a 2D animation sequence of a boss health bar appearing dramatically. 6 frames: dark iron frame slides in from edges, spider web motifs glow and pulse, crimson fill floods from left to right, boss name text fades in above. Ensure frame dimensions and ornate details remain perfectly consistent."
   },
   MainMenuScreen: {
-    static: "2D game main menu title screen background, dark atmospheric Japanese fantasy scene, massive ancient torii gate silhouette framing a stormy violet and crimson sky, swirling chaos energy clouds, distant shadow mountains, cherry blossom petals drifting in wind, a lone chibi shadow mage silhouette standing at the gate threshold looking outward, cinematic moody lighting, Hollow Knight inspired dark fantasy aesthetic, widescreen 16:9 composition.",
-    anim: "Create a 2D animation loop for a main menu background. 8 frames: storm clouds drifting slowly, cherry blossom petals floating across the screen, chaos energy swirling in the sky, mage cloak fluttering in wind. Ensure torii gate silhouette, mountain shapes, and overall composition remain perfectly static and consistent."
+    static: "2D game main menu title screen background, dark atmospheric Japanese fantasy scene, massive ancient torii gate silhouette framing a stormy violet and crimson sky, swirling storm clouds, distant shadow mountains, cherry blossom petals drifting in wind, a lone chibi shadow mage silhouette standing at the gate threshold looking outward, cinematic moody lighting, Hollow Knight inspired dark fantasy aesthetic, widescreen 16:9 composition.",
+    anim: "Create a 2D animation loop for a main menu background. 8 frames: storm clouds drifting slowly, cherry blossom petals floating across the screen, storm clouds swirling in the sky, mage cloak fluttering in wind. Ensure torii gate silhouette, mountain shapes, and overall composition remain perfectly static and consistent."
   },
   VictoryScreen: {
     static: "2D game UI overlay, level complete victory screen, dark translucent background overlay, ornate golden frame border with shadow rune engravings, large stylized text area reading 'LEVEL COMPLETE' in sharp gothic-fantasy metallic gold lettering, star rating icons below, continue button frame, dark fantasy aesthetic, flat vector UI design.",
     anim: "Create a 2D animation sequence of a victory screen appearing. 6 frames: dark overlay fades in, golden frame border materializes with glowing rune sparkles, text stamps in with a flash, star icons light up one by one. Ensure frame proportions, text styling, and border details remain perfectly consistent."
   },
-  NyxarisNPC: {
-    static: "2D game character asset sheet, Nyxaris shadow companion NPC, cute chibi proportions, solid black silhouette body, elegant flowing dark cloak with glowing teal-cyan runic patterns along the hem, single large glowing teal eye, small horn-like protrusions on head, mysterious and cute personality. Three expression variants on the same sheet: neutral (calm teal glow), explaining (brighter teal eye, slight lean forward), cutely-annoyed (eye narrowed, small anger mark). Hollow Knight style, flat vector, isolated.",
-    anim: "Create a 2D idle animation sprite sheet for Nyxaris companion NPC. 8 frames: cloak swaying, teal runic patterns pulsing gently, eye blinking once mid-sequence. Ensure horn shapes, cloak silhouette, and teal glow color remain perfectly consistent across all frames."
+  CompanionNPC: {
+    static: "2D game character asset sheet, Shadow companion NPC, cute chibi proportions, solid black silhouette body, elegant flowing dark cloak with glowing teal-cyan runic patterns along the hem, single large glowing teal eye, small horn-like protrusions on head, mysterious and cute personality. Three expression variants on the same sheet: neutral (calm teal glow), explaining (brighter teal eye, slight lean forward), cutely-annoyed (eye narrowed, small anger mark). Hollow Knight style, flat vector, isolated.",
+    anim: "Create a 2D idle animation sprite sheet for Companion companion NPC. 8 frames: cloak swaying, teal runic patterns pulsing gently, eye blinking once mid-sequence. Ensure horn shapes, cloak silhouette, and teal glow color remain perfectly consistent across all frames."
   },
   RigSheet_Mage: {
-    static: "2D game character deconstructed asset sheet for a chibi shadow mage in a dark-fantasy aesthetic. Side-view pose on a single transparent background. Separate each body part into isolated, non-overlapping sprites arranged clearly with spacing between them. Include these separated parts: Head (with hood, single glowing violet eye), Torso (tattered dark cloak with purple runic trim), Left Upper Arm, Left Forearm, Left Hand (open palm, glowing), Right Upper Arm, Right Forearm, Right Hand (gripping staff), Left Thigh, Left Shin, Left Foot (dark boots), Right Thigh, Right Shin, Right Foot (dark boots), Magic Staff (twisted wood with floating chaos orb). Draw each part with slight overlap zones at joint areas for smooth skeletal rotation. High-resolution PNG with clean edges, flat vector style, Hollow Knight inspired.",
+    static: "2D game character deconstructed asset sheet for a chibi shadow mage in a dark-fantasy aesthetic. Side-view pose on a single transparent background. Separate each body part into isolated, non-overlapping sprites arranged clearly with spacing between them. Include these separated parts: Head (with hood, single glowing violet eye), Torso (tattered dark cloak with purple runic trim), Left Upper Arm, Left Forearm, Left Hand (open palm, glowing), Right Upper Arm, Right Forearm, Right Hand (gripping staff), Left Thigh, Left Shin, Left Foot (dark boots), Right Thigh, Right Shin, Right Foot (dark boots), Magic Staff (twisted wood with floating arcane orb). Draw each part with slight overlap zones at joint areas for smooth skeletal rotation. High-resolution PNG with clean edges, flat vector style, Hollow Knight inspired.",
     anim: "Create a deconstructed 2D rig asset sheet for a chibi shadow mage character, optimized for skeletal animation software. Arrange ALL body parts separately on one transparent canvas with clear labels: HEAD, TORSO, L_UPPER_ARM, L_FOREARM, L_HAND, R_UPPER_ARM, R_FOREARM, R_HAND, L_THIGH, L_SHIN, L_FOOT, R_THIGH, R_SHIN, R_FOOT, STAFF. Each part must have: clean anti-aliased edges, overlapping joint zones (rounded ends at shoulders, elbows, hips, knees), consistent dark fantasy art style with glowing purple runic details. Side-view (left-facing). Do NOT connect any parts. Canvas size: 2048x2048px."
   },
   RigSheet_Rogue: {
@@ -671,8 +671,8 @@ const promptsDb = {
     anim: "Create a deconstructed 2D rig sheet for a village NPC shadow silhouette, for skeletal animation. Parts on transparent canvas with labels: HEAD, TORSO, L_UPPER_ARM, L_FOREARM, L_HAND, R_UPPER_ARM, R_FOREARM, R_HAND, L_THIGH, L_SHIN, L_FOOT, R_THIGH, R_SHIN, R_FOOT, ACCESSORY. Blue-eyed Hollow Knight style. 3/4 view. Canvas: 2048x2048px."
   },
   RigSheet_SpiderBoss: {
-    static: "2D game boss deconstructed asset sheet for a massive Tsuchigumo spider demon. 3/4 perspective on transparent background. Separate isolated parts: Thorax (dark armored head section with multiple glowing crimson eyes), Abdomen (huge bulbous body with red vein cracks and dark purple shell), Leg 1 Upper, Leg 1 Lower, Leg 2 Upper, Leg 2 Lower, Leg 3 Upper, Leg 3 Lower, Leg 4 Upper, Leg 4 Lower (left side), Leg 5 Upper, Leg 5 Lower, Leg 6 Upper, Leg 6 Lower, Leg 7 Upper, Leg 7 Lower, Leg 8 Upper, Leg 8 Lower (right side), Fangs (dripping green venom). All 20 parts cleanly separated with joint overlap zones. High-res PNG, dark horror style.",
-    anim: "Create a deconstructed 2D rig sheet for a Tsuchigumo spider boss, for skeletal animation. Parts on transparent canvas with labels: THORAX, ABDOMEN, LEG1_A, LEG1_B, LEG2_A, LEG2_B, LEG3_A, LEG3_B, LEG4_A, LEG4_B, LEG5_A, LEG5_B, LEG6_A, LEG6_B, LEG7_A, LEG7_B, LEG8_A, LEG8_B, FANGS. Dark horror style with crimson eyes and green venom. Canvas: 2048x2048px."
+    static: "2D game boss deconstructed asset sheet for a massive Arachnid Boss spider demon. 3/4 perspective on transparent background. Separate isolated parts: Thorax (dark armored head section with multiple glowing crimson eyes), Abdomen (huge bulbous body with red vein cracks and dark purple shell), Leg 1 Upper, Leg 1 Lower, Leg 2 Upper, Leg 2 Lower, Leg 3 Upper, Leg 3 Lower, Leg 4 Upper, Leg 4 Lower (left side), Leg 5 Upper, Leg 5 Lower, Leg 6 Upper, Leg 6 Lower, Leg 7 Upper, Leg 7 Lower, Leg 8 Upper, Leg 8 Lower (right side), Fangs (dripping green venom). All 20 parts cleanly separated with joint overlap zones. High-res PNG, dark horror style.",
+    anim: "Create a deconstructed 2D rig sheet for a Arachnid Boss spider boss, for skeletal animation. Parts on transparent canvas with labels: THORAX, ABDOMEN, LEG1_A, LEG1_B, LEG2_A, LEG2_B, LEG3_A, LEG3_B, LEG4_A, LEG4_B, LEG5_A, LEG5_B, LEG6_A, LEG6_B, LEG7_A, LEG7_B, LEG8_A, LEG8_B, FANGS. Dark horror style with crimson eyes and green venom. Canvas: 2048x2048px."
   },
   RigSheet_NPCMerchant: {
     static: "2D game character deconstructed asset sheet for a chibi shadow merchant NPC. Side-view on transparent background. Separate isolated parts: Head (solid black silhouette with wide bamboo strawhat, single glowing violet eye), Torso (merchant vest with belt pouches), Left Upper Arm, Left Forearm, Left Hand (coin gesture), Right Upper Arm, Right Forearm, Right Hand (scroll holding), Left Thigh, Left Shin, Left Foot (traveler boots), Right Thigh, Right Shin, Right Foot, Backpack (massive overflowing pack with glowing scrolls and relics), Hat (wide bamboo hat separate for layering). All parts non-overlapping with joint zones. High-res PNG, flat vector, Hollow Knight style.",
@@ -693,12 +693,12 @@ function loadAssetPrompts() {
     else if (sel.startsWith("StrawhatSwordsman")) importCat = "StrawhatSwordsmen";
     else if (sel.startsWith("SamuraiSilhouette")) importCat = "SamuraiSilhouettes";
     else if (sel === "NPCMerchant" || sel === "NPCVillagers") importCat = "NPCs";
-    else if (sel === "NyxarisNPC") importCat = "Nyxaris";
+    else if (sel === "CompanionNPC") importCat = "Companion";
     else if (sel === "DojoRepeatableWall" || sel === "DojoFloorSilhouettes" || sel === "DojoHangingAssets" || sel === "DojoBackgroundWall" || sel === "DojoFloorTiles" || sel === "DojoBlockedGate" || sel === "DojoTrainingDummy" || sel === "DojoWeaponRack") importCat = "DojoInteriors";
     else if (sel === "ForegroundSilhouetteAssets" || sel === "PlayableMidgroundAssets" || sel === "FaintBackgroundAssets" || sel === "VillageGroundTiles" || sel === "VillageShopHut" || sel === "DistantJapaneseHomes" || sel === "VillageBridges" || sel === "VillageProps" || sel === "SakuraDanglingVines" || sel === "MountainSkyBG" || sel === "MountainStones" || sel === "VillagePlanks" || sel === "SideviewToriiGates" || sel === "SpringObjectPlatform" || sel === "RepeatableLegoBlocks") importCat = "VillageEnvironment";
     else if (sel === "CaveForegroundSilhouettes" || sel === "CaveBackgroundFaint") importCat = "CaveNetwork";
     else if (sel === "PlayableMage") importCat = "PlayerCharacter";
-    else if (sel === "TsuchigumoBoss") importCat = "Bosses";
+    else if (sel === "Arachnid BossBoss") importCat = "Bosses";
     else if (sel === "MagicProjectileVFX" || sel === "WebProjectileVFX") importCat = "VFX";
     else if (sel === "HealingPotion") importCat = "Potions";
     else if (sel === "HUDElements" || sel === "BossHealthBar") importCat = "HUD";

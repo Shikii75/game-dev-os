@@ -2,287 +2,189 @@
   "categories": [
     {
       "id": "launch-readiness",
+      "title": "🚀 LAUNCH & RELEASE READINESS",
       "tasks": [
         {
-          "completed": true,
           "id": "launch-1",
-          "label": "Mobile Virtual Touch Controls & Joystick Simulation (D-pad / Buttons for Dash, Melee, Spear, Blob)"
+          "label": "Mobile Virtual Touch Controls & Joystick Simulation (D-pad & action buttons)",
+          "completed": true
         },
         {
-          "completed": true,
           "id": "launch-2",
-          "label": "Save Point & Checkpoint System Integration (Automatic checkpoint save and scene respawn validation)"
+          "label": "Save Point & Checkpoint System Integration (Auto-save and respawn validation)",
+          "completed": true
         },
         {
-          "completed": true,
           "id": "launch-3",
-          "label": "CaveScene Merchant NPC & Shop Setup (Subterranean camp dialogue, items, and currency exchange)"
+          "label": "Merchant NPC & In-Game Shop Setup (Item exchange and currency economy)",
+          "completed": true
         },
         {
-          "completed": true,
           "id": "launch-4",
-          "label": "Arcade Vault & Mini-Games Overhaul (GPU CRT/Neon bloom shader, Bilinear filtering, and coin rewards)"
+          "label": "Arcade Vault & Mini-Games System (CRT/Bloom shader and player reward system)",
+          "completed": true
         },
         {
-          "completed": false,
           "id": "launch-5",
-          "label": "Polishing Nyxaris AI (Contextual awareness, cave & boss victory dialogue triggers, fast response fallback)"
+          "label": "Dialogue Assistant Bridge (Contextual awareness and narrative fallbacks)",
+          "completed": true
         },
         {
-          "completed": true,
           "id": "launch-6",
-          "label": "Ads & Monetization Integration (Rewarded revival ads & banner placement)"
+          "label": "Ads & Monetization Integration (Optional rewarded revival & banner placement)",
+          "completed": true
         },
         {
-          "completed": false,
           "id": "launch-7",
-          "label": "Complete Sound Effects & Cavern Atmosphere Pass (Footstep variants, spider screeches, ambient drips)"
+          "label": "Complete Sound Effects & Atmospheric Audio Pass (Footsteps, impacts, ambient loops)",
+          "completed": false
         },
         {
-          "completed": false,
           "id": "launch-8",
-          "label": "End-to-End Game Flow & Victory Loop (TutorialScene \u2794 MountainPath \u2794 Dojo 1 \u2794 Dojo 2 \u2794 CaveScene \u2794 Victory Screen)"
+          "label": "End-to-End Game Flow & Victory Loop (Tutorial ➔ Level 1 ➔ Level 2 ➔ Boss Lair ➔ Victory Screen)",
+          "completed": false
         },
         {
-          "completed": false,
           "id": "launch-9",
-          "label": "General Cleanups & Asset Optimization (ASTC texture compression, sprite atlasing, memory GC check)"
+          "label": "Asset Optimization & Memory Pruning (ASTC texture compression, sprite atlasing, GC pass)",
+          "completed": false
         },
         {
-          "completed": false,
           "id": "launch-10",
-          "label": "Final Standalone Build Verification (Android APK & Windows Executable export)"
+          "label": "Final Standalone Build Export Verification (Desktop Executable & Mobile Package)",
+          "completed": false
         }
-      ],
-      "title": "\ud83d\ude80 LAUNCH & RELEASE READINESS"
+      ]
     },
     {
       "id": "character",
+      "title": "🎭 CHARACTER & ANIMATION",
       "tasks": [
         {
-          "completed": true,
-          "id": "character-1",
-          "label": "Polish mage girl idle animation"
+          "id": "char-1",
+          "label": "Polish protagonist idle and breathing animation",
+          "completed": true
         },
         {
-          "completed": true,
-          "id": "character-2",
-          "label": "Polish mage attack animation set"
+          "id": "char-2",
+          "label": "Polish 3-hit melee attack and combo animation set",
+          "completed": true
         },
         {
-          "completed": true,
-          "id": "character-3",
-          "label": "Add dodge / dash animation"
+          "id": "char-3",
+          "label": "Implement dodge roll / dash with invincibility frames",
+          "completed": true
         },
         {
-          "completed": true,
-          "id": "character-4",
-          "label": "Blob transformation & narrow crawlspace morphing"
-        },
-        {
-          "completed": true,
-          "id": "character-5",
-          "label": "Lumi Blue-Magic Spear system (throw, wall embed, perch, drag)"
-        },
-        {
-          "completed": true,
-          "id": "character-6",
-          "label": "Lumi companion spirit (squash & stretch, shield, follow physics)"
+          "id": "char-4",
+          "label": "Hurt and stagger reaction animations",
+          "completed": false
         }
-      ],
-      "title": "\ud83c\udfad Character & Animation"
+      ]
     },
     {
       "id": "combat",
+      "title": "⚔️ COMBAT & ENCOUNTERS",
       "tasks": [
         {
-          "completed": true,
           "id": "combat-1",
-          "label": "Mage combat moveset (basic + advanced attacks)"
+          "label": "Core combat system (hitboxes, damage calculation, knockback)",
+          "completed": true
         },
         {
-          "completed": true,
           "id": "combat-2",
-          "label": "Enemy wave system implementation (Dojo 1 & Dojo 2)"
+          "label": "Dynamic enemy wave spawner and arena lock gates",
+          "completed": true
         },
         {
-          "completed": true,
           "id": "combat-3",
-          "label": "Samurai & Strawhat enemy AI variants (Fat Strawhat, Female Whip, Sparring AI)"
+          "label": "Enemy mob archetypes (patrolling melee, ranged projectile, heavy brute)",
+          "completed": true
         },
         {
-          "completed": true,
           "id": "combat-4",
-          "label": "Boss fight: Tsuchigumo (3-Phase State Machine, Boulders, Web Shots, Stun Knockdown)"
-        },
-        {
-          "completed": true,
-          "id": "combat-5",
-          "label": "Hit feedback juice (Hitstop, Pure White Flash, Impact Frames, Floating Numbers)"
+          "label": "Multi-phase boss fight mechanics and phase transition cutscenes",
+          "completed": false
         }
-      ],
-      "title": "\u2694\ufe0f COMBAT SYSTEM"
+      ]
     },
     {
       "id": "world",
+      "title": "🏯 WORLD BUILDING & LEVELS",
       "tasks": [
         {
-          "completed": true,
           "id": "world-1",
-          "label": "Ancient Japanese village (Level 1 town / MountainPath)"
+          "label": "Starter village & hub zone environment layout",
+          "completed": true
         },
         {
-          "completed": true,
           "id": "world-2",
-          "label": "Path to first clan dojo"
+          "label": "Exploration pathway leading to first dungeon",
+          "completed": true
         },
         {
-          "completed": true,
           "id": "world-3",
-          "label": "First clan dojo interior (Strawhat arena)"
+          "label": "First dungeon arena & encounter rooms",
+          "completed": true
         },
         {
-          "completed": true,
           "id": "world-4",
-          "label": "Path to second clan dojo"
+          "label": "Second dungeon challenge gauntlets",
+          "completed": true
         },
         {
-          "completed": true,
           "id": "world-5",
-          "label": "Second dojo interior (Samurai arena)"
+          "label": "Deep cavern shaft with crumbling vertical platforms",
+          "completed": true
         },
         {
-          "completed": true,
           "id": "world-6",
-          "label": "Tsuchigumo cave entrance + vertical shaft + subterranean cavity"
-        },
-        {
-          "completed": true,
-          "id": "world-7",
-          "label": "Interactive physics hazards (Spring water, crumbling platforms, spike platforms)"
+          "label": "Boss chamber arena architecture and environmental hazards",
+          "completed": false
         }
-      ],
-      "title": "\u26e9\ufe0f WORLD BUILDING & LEVEL GEOMETRY"
+      ]
     },
     {
       "id": "ui",
+      "title": "🖥️ UI & HUD SYSTEMS",
       "tasks": [
         {
-          "completed": true,
           "id": "ui-1",
-          "label": "Cyber-Gothic Pause Menu (Frameless glassmorphic design)"
+          "label": "Main menu, level select, and audio settings",
+          "completed": true
         },
         {
-          "completed": true,
           "id": "ui-2",
-          "label": "HUD system (Player Health, Mana, Boss Health Bar, Damage Popups)"
+          "label": "In-game HUD (health, stamina, and ability cooldown gauges)",
+          "completed": true
         },
         {
-          "completed": true,
           "id": "ui-3",
-          "label": "Shop UI system & Currency inventory display"
-        },
-        {
-          "completed": true,
-          "id": "ui-4",
-          "label": "UI Toolkit Title Screen (120-frame logo animation + settings modal)"
+          "label": "Shop interface with inventory item inspection",
+          "completed": true
         }
-      ],
-      "title": "\ud83d\udda5\ufe0f UI & HUD SYSTEMS"
-    },
-    {
-      "id": "npc",
-      "tasks": [
-        {
-          "completed": true,
-          "id": "npc-1",
-          "label": "Create NPCs for direction + lore drops"
-        },
-        {
-          "completed": true,
-          "id": "npc-2",
-          "label": "Implement dialogue interaction system (NPCDialogueUI)"
-        },
-        {
-          "completed": true,
-          "id": "npc-3",
-          "label": "Nyxaris Companion AI dialogue engine & responsive chat panel"
-        },
-        {
-          "completed": false,
-          "id": "npc-4",
-          "label": "Subterranean hermit / merchant dialogue tree in CaveScene"
-        }
-      ],
-      "title": "\ud83e\udde0 NPC & DIALOGUE SYSTEM"
-    },
-    {
-      "id": "shop",
-      "tasks": [
-        {
-          "completed": true,
-          "id": "shop-1",
-          "label": "In-game shop in village"
-        },
-        {
-          "completed": true,
-          "id": "shop-2",
-          "label": "Currency system (Coin drops & pickups)"
-        },
-        {
-          "completed": true,
-          "id": "shop-3",
-          "label": "Buyable items: Healing potions & Mana refills"
-        },
-        {
-          "completed": false,
-          "id": "shop-4",
-          "label": "Buyable power-ups (Damage boost, Spear range, Shield capacity)"
-        }
-      ],
-      "title": "\ud83d\uded2 SHOP & ECONOMY"
+      ]
     },
     {
       "id": "audio",
+      "title": "🔊 AUDIO & MUSIC",
       "tasks": [
         {
-          "completed": true,
           "id": "audio-1",
-          "label": "Background music for village & mountain path"
+          "label": "Exploration soundtrack & ambient loops",
+          "completed": true
         },
         {
-          "completed": true,
           "id": "audio-2",
-          "label": "Combat music for dojos and Tsuchigumo boss fight"
+          "label": "Adaptive combat music for arena encounters",
+          "completed": true
         },
         {
-          "completed": false,
           "id": "audio-3",
-          "label": "Comprehensive SFX pass for all attacks, impacts, and UI clicks"
+          "label": "Comprehensive SFX suite (sword swings, impacts, UI clicks)",
+          "completed": false
         }
-      ],
-      "title": "\ud83d\udd0a AUDIO & POLISH"
-    },
-    {
-      "id": "movement",
-      "tasks": [
-        {
-          "completed": true,
-          "id": "movement-1",
-          "label": "Dynamic slope & wall jump physics"
-        },
-        {
-          "completed": true,
-          "id": "movement-2",
-          "label": "Start Dash Run & double-tap sprint"
-        },
-        {
-          "completed": true,
-          "id": "movement-3",
-          "label": "Falling state machine & ground impact reactions"
-        }
-      ],
-      "title": "\ud83c\udf0d MOVEMENT SYSTEM"
+      ]
     }
   ]
 }

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/><title>Nyxaris</title>
+<meta charset="utf-8"/><title>Companion</title>
 <style>
 :root{ color-scheme:dark;}
 body{margin:0;background:#0f0f1a;color:white;font-family:system-ui,sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
@@ -27,7 +27,7 @@ textarea{width:100%;min-height:80px;background:#090b18;color:#eaf0fb;border-radi
 <div class="dialogue">
 
 <div class="dialogue-header">
-<div class="name">Nyxaris</div>
+<div class="name">Companion</div>
 <div id="phase">phase: scanning…</div>
 </div>
 <div style="opacity:.74;font-size:.85rem;"><a href="/" style="color:#8ddcff;">dashboard</a> · <a href="/skeletal-animator" style="color:#8ddcff;">skeletal animator</a> · needs Ollama <code>http://localhost:11434</code> <span id="ollama-status" style="margin-left: 12px; font-weight: bold;">checking Ollama…</span></div>
@@ -35,13 +35,13 @@ textarea{width:100%;min-height:80px;background:#090b18;color:#eaf0fb;border-radi
 <div id="reply">Speak when ready.</div>
 
 <div class="controls">
-<input id="msg" placeholder="Talk to Nyxaris…"/>
+<input id="msg" placeholder="Talk to Companion…"/>
 <button type="button" onclick="send()">send</button>
 <select id="mode"><option value="idle">idle</option><option value="combat">combat</option><option value="story">story</option></select>
 <select id="level">
   <option value="Ancient Village">Ancient Village</option>
-  <option value="Cave Network">Cave Network</option>
-  <option value="Dojo Gate">Dojo Gate</option>
+  <option value="Cavern Lair">Cavern Lair</option>
+  <option value="Dungeon Gate">Dungeon Gate</option>
 </select>
 <code style="opacity:.7;">trust</code>
 <input style="flex:0;width:90px;" type="number" step="0.05" min="0" max="1" value="0.5" id="trust"/>
@@ -51,7 +51,7 @@ textarea{width:100%;min-height:80px;background:#090b18;color:#eaf0fb;border-radi
 
 <div class="dev">
 <details>
-<summary style="cursor:pointer;"><strong>Nyxaris dev-assistant</strong></summary>
+<summary style="cursor:pointer;"><strong>AI Companion Dev-Assistant</strong></summary>
 <textarea id="devtopic" placeholder="Topic: biome, boss gimmick ideas, whatever…"></textarea>
 <button type="button" onclick="devDump()">JSON generation</button>
 <pre id="devout" style="max-height:200px;overflow:auto;font-size:.71rem;"></pre>
@@ -71,7 +71,7 @@ async function send(){
  const msg=document.getElementById("msg").value;
  if(!msg) return;
  document.getElementById("loading").style.display="block";
- const res = await fetch("/nyxaris",{
+ const res = await fetch("/companion",{
   method:'POST',
   headers:{'Content-Type':'application/json'},
   body: JSON.stringify({
@@ -107,7 +107,7 @@ async function send(){
 }
 
 async function devDump(){
- document.getElementById("devout").textContent = await fetch('/api/nyxaris/dev-assist',{
+ document.getElementById("devout").textContent = await fetch('/api/companion/dev-assist',{
   method:'POST',
   headers:{'Content-Type':'application/json'},
   body: JSON.stringify({topic: document.getElementById('devtopic').value})
@@ -116,15 +116,15 @@ async function devDump(){
 
 async function checkOllama() {
   try {
-    const res = await fetch("/api/nyxaris/status");
+    const res = await fetch("/api/companion/status");
     const data = await res.json();
     const badge = document.getElementById("ollama-status");
     if (data.ollama_running) {
-      if (data.has_nyxaris) {
-        badge.innerHTML = "🟢 Ollama Connected (Nyxaris Model Ready)";
+      if (data.has_companion) {
+        badge.innerHTML = "🟢 Ollama Connected (Companion Model Ready)";
         badge.style.color = "#3dff9a";
       } else {
-        badge.innerHTML = "🟡 Ollama Connected (Model 'nyxaris' missing) <button onclick='pullModel()' style='padding:2px 6px; font-size:0.75rem; background:#ffd84d; border:none; border-radius:4px; cursor:pointer;'>Install Model</button>";
+        badge.innerHTML = "🟡 Ollama Connected (Model 'companion' missing) <button onclick='pullModel()' style='padding:2px 6px; font-size:0.75rem; background:#ffd84d; border:none; border-radius:4px; cursor:pointer;'>Install Model</button>";
         badge.style.color = "#ffd84d";
       }
     } else {
@@ -138,8 +138,8 @@ async function checkOllama() {
 }
 
 async function pullModel() {
-  document.getElementById("ollama-status").innerHTML = "⏳ Installing model 'nyxaris' in background...";
-  await fetch("/api/nyxaris/pull", {method:"POST"});
+  document.getElementById("ollama-status").innerHTML = "⏳ Installing model 'companion' in background...";
+  await fetch("/api/companion/pull", {method:"POST"});
 }
 
 checkOllama();

@@ -1,4 +1,4 @@
-"""Procedural WAV placeholder SFX (+ light Nyxaris-style layers)."""
+"""Procedural WAV placeholder SFX generator."""
 
 from __future__ import annotations
 

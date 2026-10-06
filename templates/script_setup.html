@@ -127,7 +127,7 @@
   <div class="nav-label">Tools</div>
   <a href="{{ url_for('tool') }}">Sprite / BG remover</a>
   <a href="/audio-extractor">Audio Extractor</a>
-  <a href="/nyxaris-chat">Nyxaris</a>
+  <a href="/companion-chat">Companion AI</a>
   <div class="nav-label">Export</div>
   <a href="/export/unity">Unity .zip</a>
   <a href="/export/full">Full snapshot .zip</a>
@@ -227,7 +227,7 @@
         </tr>
         <tr>
           <td><span class="script-name">SpiderBoss.cs</span></td>
-          <td><span class="target-object">Tsuchigumo Boss</span></td>
+          <td><span class="target-object">Arachnid Boss</span></td>
           <td class="setup-instructions">
             • <strong>Roam Points</strong>: Transforms of roam paths.<br>
             • <strong>Web Projectile Prefab</strong> &amp; <strong>Spiderling Prefab</strong>: Assign web and spiderling prefabs.<br>
@@ -252,7 +252,7 @@
           <td><span class="script-name">WebProjectile.cs</span></td>
           <td><span class="target-object">Web Projectile Prefab</span></td>
           <td class="setup-instructions">
-            Requires Rigidbody2D and Collider2D (check <strong>Is Trigger</strong>). Shot by Tsuchigumo; flies towards the player, deals damage, and applies a temporary movement speed slow.
+            Requires Rigidbody2D and Collider2D (check <strong>Is Trigger</strong>). Shot by Arachnid Boss; flies towards the player, deals damage, and applies a temporary movement speed slow.
           </td>
         </tr>
         <tr>
@@ -263,28 +263,28 @@
           </td>
         </tr>
         <tr>
-          <td><span class="script-name">DojoWaveManager.cs</span></td>
-          <td><span class="target-object">Dojo Wave Trigger GameObject</span></td>
+          <td><span class="script-name">ArenaWaveManager.cs</span></td>
+          <td><span class="target-object">Arena Wave Trigger GameObject</span></td>
           <td class="setup-instructions">
-            Requires BoxCollider2D (check <strong>Is Trigger</strong>). Link the <strong>Coin Prefab</strong> &amp; <strong>Dojo Gates</strong> (doors). Set up spawn points and wave spawn settings to lock and trigger dojo fights.
+            Requires BoxCollider2D (check <strong>Is Trigger</strong>). Link the <strong>Coin Prefab</strong> &amp; <strong>Arena Lock Gates</strong> (doors). Set up spawn points and wave spawn settings to lock and trigger arena encounters.
           </td>
         </tr>
         <tr>
-          <td><span class="script-name">DojoDoorTransition.cs</span></td>
-          <td><span class="target-object">Dojo Door GameObjects</span></td>
+          <td><span class="script-name">ArenaDoorTransition.cs</span></td>
+          <td><span class="target-object">Arena Door GameObjects</span></td>
           <td class="setup-instructions">
-            <strong>Dojo Entrance Setup:</strong><br>
-            • Attach <code>DojoDoorTransition</code> to the trigger collider in front of each dojo door.<br>
-            • <strong>For an entrance door:</strong> Set <code>Destination Point</code> to an empty GameObject inside the dojo interior. Set <code>Available Prompt Text</code> to <code>Press E to enter</code>. Optional: add the exterior objects to <code>Disable On Arrival</code> and the interior objects to <code>Enable On Arrival</code>.<br>
-            • <strong>For an exit door:</strong> Set <code>Destination Point</code> to an empty GameObject outside the dojo door. Set <code>Available Prompt Text</code> to <code>Press E to leave</code>. Enable <code>Requires Dojo Cleared</code> and assign the room's <code>DojoWaveManager</code> if the player should not leave before finishing the fight. Optional: add the exterior objects to <code>Enable On Arrival</code> and the interior objects to <code>Disable On Arrival</code>.<br>
+            <strong>Arena Entrance Setup:</strong><br>
+            • Attach <code>ArenaDoorTransition</code> to the trigger collider in front of each arena door.<br>
+            • <strong>For an entrance door:</strong> Set <code>Destination Point</code> to an empty GameObject inside the arena interior. Set <code>Available Prompt Text</code> to <code>Press E to enter</code>. Optional: add the exterior objects to <code>Disable On Arrival</code> and the interior objects to <code>Enable On Arrival</code>.<br>
+            • <strong>For an exit door:</strong> Set <code>Destination Point</code> to an empty GameObject outside the arena door. Set <code>Available Prompt Text</code> to <code>Press E to leave</code>. Enable <code>Requires Arena Cleared</code> and assign the room's <code>ArenaWaveManager</code> if the player should not leave before finishing the fight. Optional: add the exterior objects to <code>Enable On Arrival</code> and the interior objects to <code>Disable On Arrival</code>.<br>
             • When the turnaround animation is ready, add a trigger parameter named <code>TurnIn</code> to the player Animator, or change <code>Turn In Trigger</code> on the door to match your trigger name.
           </td>
         </tr>
         <tr>
-          <td><span class="script-name">DojoTransitionFader.cs</span></td>
+          <td><span class="script-name">ArenaTransitionFader.cs</span></td>
           <td><span class="target-object">UI Transition Canvas</span></td>
           <td class="setup-instructions">
-            Automatically instantiated screen fader utility. Renders full-screen black canvas overlay and interpolates alpha channel transparency to transition smoothly between exterior and interior dojo segments.
+            Automatically instantiated screen fader utility. Renders full-screen black canvas overlay and interpolates alpha channel transparency to transition smoothly between exterior and interior arena segments.
           </td>
         </tr>
 
@@ -349,7 +349,7 @@
           <td><span class="target-object">NPC village GameObjects</span></td>
           <td class="setup-instructions">
             Requires Collider2D (check <strong>Is Trigger</strong>). Set <strong>NPC Name</strong> and write dialogue string array.<br>
-            • <strong>Is Nyxaris</strong>: Check for AI chatbot trigger.<br>
+            • <strong>Is Companion AI</strong>: Check for AI chatbot trigger.<br>
             • <strong>Is Shop Keeper</strong>: Check to launch the Shop UI after dialogue.<br>
             • <strong>Interact Prompt</strong>: (Optional) Drag visual prompt bubble (e.g. 'Press E').
           </td>
@@ -371,7 +371,7 @@
           <td class="setup-instructions">
             <strong>⚙️ CODE-GENERATED</strong> — Builds its own Canvas and pause overlay from code. No manual UI setup required.<br>
             • <strong>Menu Scene Name</strong>: Scene to load on "Quit to Menu" (default "MainMenu").<br>
-            • Creates full-screen dark overlay with Resume, Restart Level, and Quit to Menu buttons. Esc/P toggles. Respects active Dialogue/Shop/Nyxaris panels.
+            • Creates full-screen dark overlay with Resume, Restart Level, and Quit to Menu buttons. Esc/P toggles. Respects active Dialogue/Shop/Companion panels.
           </td>
         </tr>
         <tr>
@@ -383,14 +383,14 @@
           </td>
         </tr>
         <tr>
-          <td><span class="script-name">NyxarisManager.cs</span></td>
-          <td><span class="target-object">Nyxaris Chat Panel</span></td>
+          <td><span class="script-name">DialogueCompanionManager.cs</span></td>
+          <td><span class="target-object">Companion Chat Panel</span></td>
           <td class="setup-instructions">
             Link chat panel, dialogue text, message input, portrait image, and neutral/annoyed/explaining expression sprites. Coordinates with Flask chatbot server on port 5001.
           </td>
         </tr>
         <tr>
-          <td><span class="script-name">NyxarisTest.cs</span></td>
+          <td><span class="script-name">CompanionTest.cs</span></td>
           <td><span class="target-object">Test Object</span></td>
           <td class="setup-instructions">
             Debug utility script to test API connectivity to the local Ollama LLM endpoint.
