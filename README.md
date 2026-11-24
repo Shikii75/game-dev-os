@@ -54,17 +54,30 @@ It provides an end-to-end bridge between raw multimedia assets (reference gamepl
 git clone https://github.com/Shikii75/game-dev-os.git
 cd game-dev-os
 
-# Create and activate virtual environment
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+# One-step setup: creates .venv, installs requirements.txt, verifies the install
+powershell -ExecutionPolicy Bypass -File .\setup.ps1   # Windows
+bash setup.sh                                           # macOS / Linux
 
-# Install dependencies
-pip install -r requirements.txt
-
-# Launch development server
+# Activate the environment and launch the development server
+.venv\Scripts\Activate.ps1   # Windows
+source .venv/bin/activate    # macOS / Linux
 python app.py
 ```
 Open [http://localhost:5000](http://localhost:5000) in your browser.
+
+> **Notes:** Requires Python 3.10+. FFmpeg is bundled via `imageio-ffmpeg`, so no separate install is needed.
+> The first background-removal run downloads the rembg model (~170 MB).
+> `gunicorn` is only used for the Render deployment and does not run on Windows — use `python app.py` locally.
+
+<details><summary>Manual setup</summary>
+
+```bash
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+python app.py
+```
+</details>
 
 ---
 
