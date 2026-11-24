@@ -27,3 +27,6 @@ ehthumbs.db
 desktop.ini
 .vscode/
 .idea/
+
+# Local secrets
+.env

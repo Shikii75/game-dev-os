@@ -83,6 +83,8 @@ python app.py
 
 ## 🌐 Configuration & Environment Variables
 
+All settings are optional. The most common ones are below; see [`.env.example`](.env.example) for the full list, including AI provider keys (Gemini, OpenAI, fal.ai, Replicate) and Ollama settings.
+
 | Variable | Default | Description |
 | :--- | :--- | :--- |
 | `PORT` | `5000` | HTTP port for web server |
