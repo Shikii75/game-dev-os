@@ -1,6 +1,42 @@
 {
   "categories": [
     {
+      "id": "group-tracker",
+      "title": "👥 GROUP TRACKER (GROUPS 1–6)",
+      "tasks": [
+        {
+          "id": "group-1",
+          "label": "Group 1 — Milestone & Deliverable Check",
+          "completed": false
+        },
+        {
+          "id": "group-2",
+          "label": "Group 2 — Milestone & Deliverable Check",
+          "completed": false
+        },
+        {
+          "id": "group-3",
+          "label": "Group 3 — Milestone & Deliverable Check",
+          "completed": false
+        },
+        {
+          "id": "group-4",
+          "label": "Group 4 — Milestone & Deliverable Check",
+          "completed": false
+        },
+        {
+          "id": "group-5",
+          "label": "Group 5 — Milestone & Deliverable Check",
+          "completed": false
+        },
+        {
+          "id": "group-6",
+          "label": "Group 6 — Milestone & Deliverable Check",
+          "completed": false
+        }
+      ]
+    },
+    {
       "id": "launch-readiness",
       "title": "🚀 LAUNCH & RELEASE READINESS",
       "tasks": [
