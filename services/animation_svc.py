@@ -6,7 +6,10 @@ import base64
 import json
 import os
 import shutil
+import time
 from datetime import datetime, timezone
+
+PIPELINE_VERSION = "2.1.0"
 
 from . import media_utils as mu
 from . import state_store
@@ -22,9 +25,29 @@ def animation_dir(animation_id: str) -> str:
 def write_metadata(animation_id: str, payload: dict) -> None:
     path = mu.animation_metadata_path(animation_id)
     merged = payload.copy()
+    merged["pipeline_version"] = PIPELINE_VERSION
     merged["updated_at"] = datetime.now(timezone.utc).isoformat()
-    with open(path, "w", encoding="utf-8") as f:
+    tmp_path = f"{path}.tmp"
+    with open(tmp_path, "w", encoding="utf-8") as f:
         json.dump(merged, f, indent=2)
+    os.replace(tmp_path, path)
+
+
+def record_pipeline_step(animation_id: str, step: str, details: dict | None = None) -> dict:
+    """Append a timestamped step entry to the animation bundle's pipeline history."""
+    meta = read_metadata(animation_id) or {}
+    history = list(meta.get("pipeline_history") or [])
+    entry = {
+        "step": step,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "pipeline_version": PIPELINE_VERSION,
+    }
+    if details:
+        entry["details"] = details
+    history.append(entry)
+    meta["pipeline_history"] = history[-50:]
+    write_metadata(animation_id, meta)
+    return entry
 
 
 def read_metadata(animation_id: str) -> dict | None:
@@ -101,26 +124,38 @@ def run_extract(animation_id: str, interval_sec: float) -> dict:
     return stats | {"saved": len(pngs), "folder": animation_id}
 
 
-def batch_remove_bg(animation_id: str, method: str = "rembg") -> dict:
+def batch_remove_bg(animation_id: str, method: str = "rembg", skip_existing: bool = False) -> dict:
+    started = time.perf_counter()
     raw_dir = mu.animation_raw_dir(animation_id)
     clean_dir = mu.animation_clean_dir(animation_id)
     os.makedirs(clean_dir, exist_ok=True)
     pngs = sorted((n for n in os.listdir(raw_dir) if n.lower().endswith(".png")), key=mu.natural_sort_key)
 
     cleaned = []
+    skipped = []
     for name in pngs:
         inp = mu.animation_bundle_child(animation_id, "raw", name)
         out = mu.animation_bundle_child(animation_id, "clean", name)
+        if skip_existing and os.path.isfile(out):
+            skipped.append(name)
+            continue
         remove_png_to_path(inp, out, method=method)
         cleaned.append(name)
 
+    elapsed_sec = round(time.perf_counter() - started, 3)
+    total_clean = len(cleaned) + len(skipped)
     meta = read_metadata(animation_id) or {}
-    meta["clean_frame_count"] = len(cleaned)
+    meta["clean_frame_count"] = total_clean
     meta["bg_removal_method"] = method
     write_metadata(animation_id, meta)
+    record_pipeline_step(
+        animation_id,
+        "batch_remove_bg",
+        {"method": method, "processed": len(cleaned), "skipped": len(skipped), "elapsed_sec": elapsed_sec},
+    )
     state_store.bump_counter("bg_removal_runs", len(cleaned))
-    activity_hub.log("bg_batch", animation_id, {"cleaned": len(cleaned), "method": method})
-    return {"processed": len(cleaned), "names": cleaned}
+    activity_hub.log("bg_batch", animation_id, {"cleaned": len(cleaned), "skipped": len(skipped), "method": method})
+    return {"processed": len(cleaned), "skipped": len(skipped), "elapsed_sec": elapsed_sec, "names": cleaned}
 
 
 def ingest_video_into_new_animation(video_path: str, slug: str, interval_sec: float) -> tuple[str, dict]:
